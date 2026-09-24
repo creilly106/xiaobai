@@ -1,0 +1,1 @@
+ALTER TABLE `dictionary` ADD `frequency` integer DEFAULT 0 NOT NULL;

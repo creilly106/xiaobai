@@ -50,6 +50,20 @@
       "when": 1790275738897,
       "tag": "0006_futuristic_maggott",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1790277017853,
+      "tag": "0007_slimy_secret_warriors",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1790290350021,
+      "tag": "0008_pretty_silver_surfer",
+      "breakpoints": true
     }
   ]
 }

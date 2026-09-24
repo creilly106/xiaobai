@@ -22,7 +22,8 @@
     "data:examples": "tsx scripts/build-examples.ts",
     "data:strokes": "node scripts/copy-strokes.mjs",
     "predev": "node scripts/copy-strokes.mjs",
-    "prebuild": "node scripts/copy-strokes.mjs"
+    "prebuild": "node scripts/copy-strokes.mjs",
+    "data:dictionary": "tsx scripts/import-cedict.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",

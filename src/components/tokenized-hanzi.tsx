@@ -116,11 +116,13 @@ function EntryCard({
           <span className="ml-2 text-sm font-normal opacity-75">{entry.pinyin}</span>
         </span>
         <span className="text-[10px] uppercase tracking-wide opacity-60">
-          {entry.kind !== 'word'
-            ? 'character'
-            : entry.hskLevel != null
-              ? `HSK ${entry.hskLevel}`
-              : ''}
+          {entry.kind === 'dictionary'
+            ? 'dictionary'
+            : entry.kind !== 'word'
+              ? 'character'
+              : entry.hskLevel != null
+                ? `HSK ${entry.hskLevel}`
+                : ''}
         </span>
       </div>
       <div className="mt-0.5 text-xs leading-snug opacity-90">{entry.meaning}</div>

@@ -318,6 +318,7 @@ export function Session({ initialQueue, dict, goal }: Props) {
             listening: card.listening,
             production: card.production,
             example: card.example,
+            note: card.note,
           }}
           flipped={flipped}
           onFlip={() => setFlipped(true)}

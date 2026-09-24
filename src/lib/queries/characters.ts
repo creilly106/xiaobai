@@ -1,6 +1,6 @@
 import 'server-only';
 import { connection } from 'next/server';
-import { and, ne, sql } from 'drizzle-orm';
+import { and, eq, ne, sql } from 'drizzle-orm';
 import { db, schema } from '@/db/client';
 import {
   findRadical,
@@ -18,6 +18,8 @@ import {
   type Etymology,
 } from '@/lib/ids-data';
 import { lookupEntry } from '@/lib/queries/dictionary';
+import { lookupExact } from '@/lib/queries/lookup';
+import type { WordSource } from '@/db/schema';
 import { examplesFor, type Example } from '@/lib/examples';
 
 export type Gloss = {
@@ -25,7 +27,7 @@ export type Gloss = {
   meaning: string;
   hskLevel: number | null;
   /** word = HSK vocabulary, char = curated gloss, component = dataset definition */
-  kind: 'word' | 'char' | 'component';
+  kind: 'word' | 'char' | 'component' | 'dictionary';
 };
 
 export type PartInfo = {
@@ -55,6 +57,16 @@ export type CharacterInfo = {
   usedIn: PartInfo[];
   /** Example sentences using this word or character (Tatoeba). */
   examples: Example[];
+  /** Your library and study status for this exact word or character. */
+  study: {
+    /** Set when it's in your library (HSK, added from the dictionary, or custom). */
+    wordId: number | null;
+    source: WordSource | null;
+    /** Set when it isn't in your library but the dictionary knows it. */
+    dictionaryId: number | null;
+    inStudy: boolean;
+    note: string | null;
+  };
   containingWords: {
     id: number;
     hanzi: string;
@@ -194,5 +206,36 @@ export async function getCharacterInfo(hanzi: string): Promise<CharacterInfo> {
     asRadical,
     containingWords,
     examples: examplesFor(hanzi),
+    study: await studyStatus(hanzi),
+  };
+}
+
+async function studyStatus(hanzi: string): Promise<CharacterInfo['study']> {
+  const [word] = await db
+    .select({
+      id: schema.words.id,
+      source: schema.words.source,
+      note: schema.words.note,
+      cards: sql<number>`(select count(*) from cards c where c.word_id = ${schema.words.id} and c.mode = 'recognition')`,
+    })
+    .from(schema.words)
+    .where(eq(schema.words.hanzi, hanzi))
+    .limit(1);
+  if (word) {
+    return {
+      wordId: word.id,
+      source: word.source,
+      dictionaryId: null,
+      inStudy: Number(word.cards) > 0,
+      note: word.note,
+    };
+  }
+  const entry = await lookupExact(hanzi);
+  return {
+    wordId: null,
+    source: null,
+    dictionaryId: entry?.id ?? null,
+    inStudy: false,
+    note: null,
   };
 }

@@ -80,6 +80,12 @@ export function TeachCard({ card, dict, onContinue, disabled, cardsBeforeTest }:
           </div>
           <div className="max-w-md text-lg">{card.meaning}</div>
           <ReadingNote hanzi={card.hanzi} pinyin={card.pinyin} />
+          {card.note && (
+            <p className="max-w-md rounded-md bg-primary/5 px-3 py-1.5 text-sm">
+              <span className="text-xs font-medium text-muted-foreground">Your note · </span>
+              {card.note}
+            </p>
+          )}
           {card.example && <ExampleLine example={card.example} dict={dict} />}
 
           {parts.length > 1 && (

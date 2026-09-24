@@ -4,9 +4,9 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, 'src'),
+      '@': path.resolve(import.meta.dirname, 'src'),
       // Server modules import 'server-only', which throws outside Next.js.
-      'server-only': path.resolve(__dirname, 'test/server-only-stub.ts'),
+      'server-only': path.resolve(import.meta.dirname, 'test/server-only-stub.ts'),
     },
   },
   test: {

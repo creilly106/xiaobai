@@ -38,6 +38,8 @@ export type FlashcardItem = {
   production?: ProductionInfo;
   /** A real sentence using the word, shown with the answer. */
   example?: { zh: string; en: string };
+  /** Your own note, shown with the answer. */
+  note?: string | null;
 };
 
 type Props<K extends string> = {
@@ -168,6 +170,14 @@ export function Flashcard<K extends string>({
                       />
                     ) : (
                       <ReadingNote hanzi={item.hanzi} pinyin={item.pinyin} />
+                    )}
+                    {item.note && (
+                      <p className="max-w-md rounded-md bg-primary/5 px-3 py-1.5 text-sm">
+                        <span className="text-xs font-medium text-muted-foreground">
+                          Your note ·{' '}
+                        </span>
+                        {item.note}
+                      </p>
                     )}
                     {item.example && <ExampleLine example={item.example} dict={dict} />}
                     {dict && (

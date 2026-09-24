@@ -37,11 +37,17 @@ const BACKUP_DIR = path.join(process.cwd(), 'data', 'backups');
 const KEEP_AUTO_BACKUPS = 7;
 const INSERT_CHUNK = 100;
 
+/**
+ * Reference data that can be re-imported (npm run data:dictionary). Left out
+ * of backups — it's 125k rows — and left untouched by restores.
+ */
+const NOT_BACKED_UP = new Set(['dictionary']);
+
 async function tableNames(): Promise<string[]> {
   const rs = await sqlite.execute(
     "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '__drizzle%'",
   );
-  const names = rs.rows.map((r) => String(r.name));
+  const names = rs.rows.map((r) => String(r.name)).filter((n) => !NOT_BACKED_UP.has(n));
   const known = TABLE_ORDER.filter((t) => names.includes(t));
   return [...known, ...names.filter((t) => !known.includes(t)).sort()];
 }

@@ -2,13 +2,15 @@ import { Card } from '@/components/ui/card';
 import { AudioButton } from '@/components/audio-button';
 import { Pinyin } from '@/components/pinyin';
 import { HanziStrokes } from '@/components/hanzi-strokes';
+import { AddToStudyButton } from '@/components/add-to-study-button';
+import { NoteEditor } from './note-editor';
 import type { CharacterInfo } from '@/lib/queries/characters';
 
 const pill =
   'inline-flex items-center rounded-full border border-border/60 bg-background px-2.5 py-0.5 text-xs font-medium text-muted-foreground';
 
 export function Hero({ info }: { info: CharacterInfo }) {
-  const { hanzi, gloss } = info;
+  const { hanzi, gloss, study } = info;
   const charCount = Array.from(hanzi).length;
   return (
     <Card className="overflow-hidden py-0">
@@ -43,9 +45,13 @@ export function Hero({ info }: { info: CharacterInfo }) {
           <div className="flex flex-wrap gap-2">
             {gloss?.hskLevel != null ? (
               <span className={pill}>HSK {gloss.hskLevel} word</span>
+            ) : study.source === 'dictionary' || study.source === 'custom' ? (
+              <span className={pill}>
+                {study.source === 'custom' ? 'Your word' : 'Added from the dictionary'}
+              </span>
             ) : gloss ? (
-              <span className={pill} title="Not an HSK 1–4 vocabulary item on its own">
-                Character
+              <span className={pill} title="Not in the HSK 1–4 word lists">
+                Not in HSK 1–4
               </span>
             ) : null}
             <span className={pill}>
@@ -59,6 +65,20 @@ export function Hero({ info }: { info: CharacterInfo }) {
               </span>
             )}
           </div>
+          {(study.wordId !== null || study.dictionaryId !== null) && (
+            <div className="flex flex-col gap-2">
+              <AddToStudyButton
+                key={`${study.wordId}-${study.dictionaryId}`}
+                target={
+                  study.wordId !== null
+                    ? { wordId: study.wordId }
+                    : { dictionaryId: study.dictionaryId! }
+                }
+                inStudy={study.inStudy}
+              />
+              {study.wordId !== null && <NoteEditor wordId={study.wordId} initial={study.note} />}
+            </div>
+          )}
         </div>
       </div>
     </Card>

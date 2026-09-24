@@ -31,6 +31,8 @@ export type StudyCard = {
   due: number;
   /** Times this card has been rated Again — used to spot "leeches". */
   fails: number;
+  /** Your own note on the word or sentence. */
+  note: string | null;
   /** Present on listening cards: what to play and what else sounds the same. */
   listening?: ListeningInfo;
   /** Present on production cards (English → Chinese). */
@@ -65,9 +67,11 @@ export const CARD_COLUMNS = {
   wordHanzi: schema.words.hanzi,
   wordPinyin: schema.words.pinyin,
   wordMeaning: schema.words.meaning,
+  wordNote: schema.words.note,
   sentHanzi: schema.sentences.hanzi,
   sentPinyin: schema.sentences.pinyin,
   sentMeaning: schema.sentences.meaning,
+  sentNote: schema.sentences.note,
   fails: sql<number>`(select count(*) from reviews r where r.card_id = ${schema.cards.id} and r.rating = 1)`,
 } as const;
 
@@ -84,6 +88,8 @@ type CardRow = {
   sentHanzi: string | null;
   sentPinyin: string | null;
   sentMeaning: string | null;
+  wordNote?: string | null;
+  sentNote?: string | null;
   fails?: number | null;
 };
 
@@ -99,6 +105,7 @@ export function rowToStudyCard(r: CardRow): StudyCard {
     state: r.state,
     due: r.due.getTime(),
     fails: Number(r.fails ?? 0),
+    note: (isWord ? r.wordNote : r.sentNote) ?? null,
   };
 }
 

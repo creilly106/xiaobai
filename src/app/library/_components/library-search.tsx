@@ -5,7 +5,21 @@ import { useEffect, useRef, useState, useTransition } from 'react';
 import { Search, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
-export function LibrarySearch({ initialQuery, level }: { initialQuery: string; level: string }) {
+/**
+ * Debounced search box that writes `?q=` to the URL. `keep` holds the other
+ * params (tab, level) that should survive a new search.
+ */
+export function LibrarySearch({
+  initialQuery,
+  keep = {},
+  placeholder,
+  autoFocus,
+}: {
+  initialQuery: string;
+  keep?: Record<string, string>;
+  placeholder: string;
+  autoFocus?: boolean;
+}) {
   const router = useRouter();
   const pathname = usePathname();
   const [value, setValue] = useState(initialQuery);
@@ -20,8 +34,7 @@ export function LibrarySearch({ initialQuery, level }: { initialQuery: string; l
   );
 
   function push(q: string) {
-    const params = new URLSearchParams();
-    if (level !== 'all') params.set('level', level);
+    const params = new URLSearchParams(keep);
     if (q.trim()) params.set('q', q.trim());
     const qs = params.toString();
     startTransition(() => {
@@ -32,7 +45,7 @@ export function LibrarySearch({ initialQuery, level }: { initialQuery: string; l
   function onChange(next: string) {
     setValue(next);
     if (timer.current) clearTimeout(timer.current);
-    timer.current = setTimeout(() => push(next), 250);
+    timer.current = setTimeout(() => push(next), 300);
   }
 
   return (
@@ -42,10 +55,11 @@ export function LibrarySearch({ initialQuery, level }: { initialQuery: string; l
         type="search"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        placeholder="Search hanzi, pinyin (tones optional), or English…"
-        aria-label="Search the library"
+        placeholder={placeholder}
+        aria-label="Search"
         className="h-10 pl-9 pr-9"
         aria-busy={pending}
+        autoFocus={autoFocus}
       />
       {value && (
         <button

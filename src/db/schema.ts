@@ -9,6 +9,9 @@ import {
   uniqueIndex,
 } from 'drizzle-orm/sqlite-core';
 
+/** Where a word came from: the HSK lists, the full dictionary, or typed in by you. */
+export type WordSource = 'hsk' | 'dictionary' | 'custom';
+
 export const words = sqliteTable(
   'words',
   {
@@ -18,6 +21,9 @@ export const words = sqliteTable(
     meaning: text('meaning').notNull(),
     hskLevel: integer('hsk_level'),
     frequency: integer('frequency'),
+    source: text('source').$type<WordSource>().notNull().default('hsk'),
+    /** Your own note, shown with the answer in study. */
+    note: text('note'),
     createdAt: integer('created_at', { mode: 'timestamp_ms' })
       .notNull()
       .default(sql`(unixepoch() * 1000)`),
@@ -35,6 +41,8 @@ export const sentences = sqliteTable(
     pinyin: text('pinyin').notNull(),
     meaning: text('meaning').notNull(),
     difficulty: integer('difficulty'),
+    /** Your own note, shown with the answer in study. */
+    note: text('note'),
     createdAt: integer('created_at', { mode: 'timestamp_ms' })
       .notNull()
       .default(sql`(unixepoch() * 1000)`),
@@ -180,6 +188,41 @@ export const settings = sqliteTable('settings', {
     .notNull()
     .default(sql`(unixepoch() * 1000)`),
 });
+
+/**
+ * CC-CEDICT (https://cc-cedict.org, CC BY-SA 4.0), imported by
+ * scripts/import-cedict.ts. Reference data: not included in backups.
+ */
+export const dictionary = sqliteTable(
+  'dictionary',
+  {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    simplified: text('simplified').notNull(),
+    traditional: text('traditional').notNull(),
+    /** Tone marks, syllables separated by spaces: "nǐ hǎo". */
+    pinyin: text('pinyin').notNull(),
+    /** Letters only, for tone-insensitive search: "nihao". */
+    pinyinPlain: text('pinyin_plain').notNull(),
+    /** Letters with tone numbers, for tone-aware search: "ni3hao3". */
+    pinyinTones: text('pinyin_tones').notNull(),
+    /** Senses separated by " / ". */
+    definitions: text('definitions').notNull(),
+    /** Names and places (capitalised pinyin in CC-CEDICT) rank below common words. */
+    proper: integer('proper', { mode: 'boolean' }).notNull().default(false),
+    /**
+     * Rough commonness for ranking: occurrences in the Tatoeba sentence corpus,
+     * plus a large boost for HSK vocabulary. Set by the import script.
+     */
+    frequency: integer('frequency').notNull().default(0),
+  },
+  (t) => ({
+    simplifiedIdx: index('dictionary_simplified').on(t.simplified),
+    plainIdx: index('dictionary_pinyin_plain').on(t.pinyinPlain),
+    tonesIdx: index('dictionary_pinyin_tones').on(t.pinyinTones),
+  }),
+);
+
+export type DictionaryEntry = typeof dictionary.$inferSelect;
 
 export type PracticeKind = 'tone' | 'number' | 'cloze' | 'quiz';
 
