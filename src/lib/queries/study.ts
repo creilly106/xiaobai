@@ -8,6 +8,7 @@ import { getAvailability, getSettings } from './settings';
 import { isListeningMode, modeFilter } from '@/lib/card-modes';
 import { audioFor } from '@/lib/audio-text';
 import { getNewCardPool } from './new-cards';
+import { interleave, spreadEarly } from '@/lib/queue-order';
 
 export type StudyCard = {
   id: number;
@@ -192,42 +193,6 @@ async function withListening(cards: StudyCard[]): Promise<StudyCard[]> {
       },
     };
   });
-}
-
-/** Spread `extra` evenly through `base` so new cards don't all land at the end. */
-function interleave<T>(base: T[], extra: T[]): T[] {
-  if (extra.length === 0) return base;
-  if (base.length === 0) return extra;
-  const out: T[] = [];
-  const step = (base.length + extra.length) / extra.length;
-  let nextExtraAt = step / 2;
-  let bi = 0;
-  let ei = 0;
-  for (let i = 0; i < base.length + extra.length; i++) {
-    if (ei < extra.length && (i >= nextExtraAt || bi >= base.length)) {
-      out.push(extra[ei++]);
-      nextExtraAt += step;
-    } else {
-      out.push(base[bi++]);
-    }
-  }
-  return out;
-}
-
-/**
- * Learning cards are time-sensitive, so they go early — but never first and
- * never back to back: one struggling card shouldn't open every session.
- */
-function spreadEarly<T>(priority: T[], rest: T[]): T[] {
-  if (rest.length === 0) return priority;
-  const out: T[] = [];
-  let pi = 0;
-  let ri = 0;
-  while (pi < priority.length || ri < rest.length) {
-    if (ri < rest.length) out.push(rest[ri++]);
-    if (pi < priority.length) out.push(priority[pi++]);
-  }
-  return out;
 }
 
 export type StudyQueueOptions = {

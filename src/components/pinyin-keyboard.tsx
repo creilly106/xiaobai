@@ -2,42 +2,14 @@
 
 import { useEffect } from 'react';
 import { Delete, CornerDownLeft } from 'lucide-react';
-import { markTone, TONE_TEXT, type Syllable, type Tone } from '@/lib/pinyin';
-
-/** Finished syllables plus the one being typed (tone not chosen yet). */
-export type PinyinDraft = { done: Syllable[]; current: string };
-
-export const EMPTY_DRAFT: PinyinDraft = { done: [], current: '' };
-
-/** Everything typed so far as syllables; an untoned last syllable is neutral. */
-export function draftSyllables(d: PinyinDraft): Syllable[] {
-  return d.current ? [...d.done, { letters: d.current, tone: 5 }] : d.done;
-}
-
-export function draftIsEmpty(d: PinyinDraft): boolean {
-  return d.done.length === 0 && d.current === '';
-}
-
-function typeLetter(d: PinyinDraft, ch: string): PinyinDraft {
-  if (d.current.length >= 6) return d;
-  return { ...d, current: d.current + ch };
-}
-
-/** A tone ends the syllable being typed; with nothing typed it retones the last one. */
-function typeTone(d: PinyinDraft, tone: Tone): PinyinDraft {
-  if (d.current) return { done: [...d.done, { letters: d.current, tone }], current: '' };
-  if (d.done.length === 0) return d;
-  const last = d.done[d.done.length - 1];
-  return { ...d, done: [...d.done.slice(0, -1), { ...last, tone }] };
-}
-
-function backspace(d: PinyinDraft): PinyinDraft {
-  if (d.current) return { ...d, current: d.current.slice(0, -1) };
-  const last = d.done[d.done.length - 1];
-  if (!last) return d;
-  // Reopen the previous syllable without its tone.
-  return { done: d.done.slice(0, -1), current: last.letters };
-}
+import { markTone, TONE_TEXT, type Tone } from '@/lib/pinyin';
+import {
+  backspace,
+  draftIsEmpty,
+  typeLetter,
+  typeTone,
+  type PinyinDraft,
+} from '@/lib/pinyin-draft';
 
 const ROWS = ['qwertyuiop', 'asdfghjkl', 'zxcvbnm'];
 const TONE_KEYS: { tone: Tone; label: string; hint: string }[] = [

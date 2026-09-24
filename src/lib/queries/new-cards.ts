@@ -4,12 +4,7 @@ import { db, schema } from '@/db/client';
 import { localDateKey } from '@/lib/dates';
 import { segmentWords } from '@/lib/segment';
 import { isListeningMode, modeFilter } from '@/lib/card-modes';
-
-/**
- * A sentence card is introduced once you know most of its words — otherwise
- * it's a wall of unfamiliar characters you can only guess at.
- */
-const UNLOCK_SHARE = 0.6;
+import { dailyRank, isSentenceUnlocked, orderNewCards, type NewWord } from '@/lib/queue-order';
 
 export type NewCardPool = {
   /** Eligible new cards, in the order they should be introduced. */
@@ -17,13 +12,6 @@ export type NewCardPool = {
   /** New sentence cards still waiting on their words. */
   lockedSentences: number;
 };
-
-/** Stable pseudo-random order that changes daily, so reloads don't reshuffle. */
-function dailyRank(id: number, day: string): number {
-  let h = 2166136261;
-  for (const c of `${day}:${id}`) h = Math.imul(h ^ c.charCodeAt(0), 16777619);
-  return h >>> 0;
-}
 
 /**
  * Orders every new card:
@@ -82,7 +70,7 @@ export async function getNewCardPool(
 
   const unlockedSentences: number[] = [];
   let lockedSentences = 0;
-  const words: { id: number; needed: boolean; level: number; rank: number }[] = [];
+  const words: NewWord[] = [];
   const day = localDateKey(now);
 
   const listening: number[] = [];
@@ -93,13 +81,9 @@ export async function getNewCardPool(
       continue;
     }
     if (c.sentenceId != null && c.sentHanzi) {
-      const parts = segmentWords(c.sentHanzi, vocab);
-      const knownCount = parts.filter((w) => known.has(w)).length;
-      const unknown = parts.length - knownCount;
-      const unlocked =
-        parts.length === 0 || unknown <= 1 || knownCount / parts.length >= UNLOCK_SHARE;
-      if (unlocked) unlockedSentences.push(c.id);
-      else lockedSentences += 1;
+      if (isSentenceUnlocked(segmentWords(c.sentHanzi, vocab), known)) {
+        unlockedSentences.push(c.id);
+      } else lockedSentences += 1;
     } else if (c.wordHanzi) {
       words.push({
         id: c.id,
@@ -110,19 +94,8 @@ export async function getNewCardPool(
     }
   }
 
-  words.sort((a, b) => Number(b.needed) - Number(a.needed) || a.level - b.level || a.rank - b.rank);
-
-  // Needed words first, then listening cards take turns with the other words.
-  const neededIds = words.filter((w) => w.needed).map((w) => w.id);
-  const otherIds = words.filter((w) => !w.needed).map((w) => w.id);
-  const mixed: number[] = [];
-  for (let i = 0; i < Math.max(listening.length, otherIds.length); i++) {
-    if (i < listening.length) mixed.push(listening[i]);
-    if (i < otherIds.length) mixed.push(otherIds[i]);
-  }
-
   return {
-    cardIds: [...unlockedSentences.sort((a, b) => a - b), ...neededIds, ...mixed],
+    cardIds: orderNewCards({ sentences: unlockedSentences, words, listening }),
     lockedSentences,
   };
 }

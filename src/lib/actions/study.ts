@@ -8,6 +8,7 @@ import type { CardState } from '@/db/schema';
 import { getStudyCard, type StudyCard } from '@/lib/queries/study';
 import { addDays, daysBetweenKeys, localDateKey, startOfLocalDay } from '@/lib/dates';
 import { backfillListeningCards } from '@/lib/listening-backfill';
+import { writeBackupFile } from '@/lib/backup';
 
 export type ReviewRating = 1 | 2 | 3 | 4;
 
@@ -98,6 +99,12 @@ export async function rateCard(
 
   const todayKey = localDateKey(now);
   if (settings && settings.lastStudyDate !== todayKey) {
+    // First review of the day: keep a local backup (last 7 days are kept).
+    try {
+      await writeBackupFile('auto');
+    } catch (err) {
+      console.error('Automatic backup failed', err);
+    }
     const continues =
       settings.lastStudyDate != null && daysBetweenKeys(settings.lastStudyDate, todayKey) === 1;
     await db

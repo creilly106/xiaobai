@@ -7,11 +7,17 @@ import { getSuspendedCards } from '@/lib/queries/study';
 import { StudyPrefForm } from './_components/pref-form';
 import { SuspendedList } from './_components/suspended-list';
 import { AudioPrefs } from './_components/audio-prefs';
+import { BackupPanel } from './_components/backup-panel';
+import { listBackupFiles } from '@/lib/backup';
 
 export const metadata: Metadata = { title: 'Settings' };
 
 export default async function SettingsPage() {
-  const [settings, suspended] = await Promise.all([getSettings(), getSuspendedCards()]);
+  const [settings, suspended, localBackups] = await Promise.all([
+    getSettings(),
+    getSuspendedCards(),
+    listBackupFiles(),
+  ]);
   const initial = {
     dailyNewLimit: settings.dailyNewLimit,
     dailyReviewLimit: settings.dailyReviewLimit,
@@ -82,6 +88,15 @@ export default async function SettingsPage() {
                 meaning,
               }))}
             />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">Backup &amp; restore</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <BackupPanel localBackups={localBackups} />
           </CardContent>
         </Card>
 

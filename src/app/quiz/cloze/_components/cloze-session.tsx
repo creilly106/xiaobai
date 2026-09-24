@@ -7,13 +7,8 @@ import { Button, buttonVariants } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { AudioButton } from '@/components/audio-button';
 import { TokenizedHanzi } from '@/components/tokenized-hanzi';
-import {
-  EMPTY_DRAFT,
-  PinyinKeyboard,
-  draftIsEmpty,
-  draftSyllables,
-  type PinyinDraft,
-} from '@/components/pinyin-keyboard';
+import { PinyinKeyboard } from '@/components/pinyin-keyboard';
+import { EMPTY_DRAFT, draftIsEmpty, draftSyllables, type PinyinDraft } from '@/lib/pinyin-draft';
 import { speak } from '@/lib/tts';
 import { celebrate } from '@/lib/celebrate';
 import { gradePinyin, markTone, toneless, type PinyinGrade } from '@/lib/pinyin';
