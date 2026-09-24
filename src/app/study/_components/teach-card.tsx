@@ -22,6 +22,8 @@ type Props = {
   dict?: Dictionary;
   onContinue: () => void;
   disabled?: boolean;
+  /** How many other cards come before this one is tested (0 = straight away). */
+  cardsBeforeTest: number;
 };
 
 /**
@@ -29,7 +31,7 @@ type Props = {
  * comes back a few cards later as a real recall test. You can't recall
  * something you've never seen, so rating a first sighting is meaningless.
  */
-export function TeachCard({ card, dict, onContinue, disabled }: Props) {
+export function TeachCard({ card, dict, onContinue, disabled, cardsBeforeTest }: Props) {
   const isWord = card.itemType === 'word';
 
   useEffect(() => {
@@ -111,8 +113,13 @@ export function TeachCard({ card, dict, onContinue, disabled }: Props) {
           disabled={disabled}
           aria-keyshortcuts="Space Enter"
         >
-          Got it — test me in a moment
+          {cardsBeforeTest === 0 ? 'Got it — test me now' : 'Got it'}
         </Button>
+        <p className="mt-2 text-center text-xs text-muted-foreground">
+          {cardsBeforeTest === 0
+            ? "No other cards are waiting, so you'll recall it straight away."
+            : `It comes back for you to recall after ${cardsBeforeTest} more card${cardsBeforeTest === 1 ? '' : 's'}.`}
+        </p>
       </div>
     </>
   );

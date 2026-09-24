@@ -298,6 +298,7 @@ export function Session({ initialQueue, dict, goal }: Props) {
           dict={dict}
           onContinue={finishTeach}
           disabled={pending}
+          cardsBeforeTest={Math.min(TEST_GAP, queue.length - 1)}
         />
       ) : (
         <Flashcard
