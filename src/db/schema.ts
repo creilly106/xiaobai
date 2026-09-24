@@ -1,5 +1,13 @@
 import { sql } from 'drizzle-orm';
-import { integer, primaryKey, real, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core';
+import {
+  index,
+  integer,
+  primaryKey,
+  real,
+  sqliteTable,
+  text,
+  uniqueIndex,
+} from 'drizzle-orm/sqlite-core';
 
 export const words = sqliteTable(
   'words',
@@ -170,6 +178,28 @@ export const settings = sqliteTable('settings', {
     .notNull()
     .default(sql`(unixepoch() * 1000)`),
 });
+
+export type PracticeKind = 'tone' | 'number' | 'cloze' | 'quiz';
+
+/** One answer in a practice drill (tone trainer, numbers, fill in the blank, quiz). */
+export const practiceLog = sqliteTable(
+  'practice_log',
+  {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    kind: text('kind').$type<PracticeKind>().notNull(),
+    /** What was asked: a word, a number, a syllable… */
+    item: text('item').notNull(),
+    correct: integer('correct', { mode: 'boolean' }).notNull(),
+    /** Drill-specific JSON, e.g. {"heard":[2],"answered":[3]} for tones. */
+    detail: text('detail'),
+    createdAt: integer('created_at', { mode: 'timestamp_ms' })
+      .notNull()
+      .default(sql`(unixepoch() * 1000)`),
+  },
+  (t) => ({
+    kindTime: index('practice_log_kind_time').on(t.kind, t.createdAt),
+  }),
+);
 
 export type Word = typeof words.$inferSelect;
 export type NewWord = typeof words.$inferInsert;

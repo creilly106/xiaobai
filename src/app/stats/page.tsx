@@ -10,15 +10,18 @@ import {
 } from '@/lib/queries/stats';
 import { Heatmap } from './_components/heatmap';
 import { ResetReviewsButton } from './_components/reset-button';
+import { PracticeCard } from './_components/practice-card';
+import { getPracticeSummary } from '@/lib/queries/practice';
 
 export const metadata: Metadata = { title: 'Stats' };
 
 export default async function StatsPage() {
-  const [summary, heatmap, ratings, cardsByState] = await Promise.all([
+  const [summary, heatmap, ratings, cardsByState, practice] = await Promise.all([
     getStatsSummary(),
     getHeatmap(84),
     getRatingDistribution(30),
     getCardsByState(),
+    getPracticeSummary(30),
   ]);
 
   const totalRatings = ratings.reduce((a, r) => a + r.count, 0);
@@ -165,6 +168,8 @@ export default async function StatsPage() {
           </CardContent>
         </Card>
       </div>
+
+      <PracticeCard summary={practice} />
     </div>
   );
 }

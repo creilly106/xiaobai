@@ -12,6 +12,7 @@ import { primeVoices } from '@/lib/tts';
 import { celebrate } from '@/lib/celebrate';
 import { rateCard, type ReviewRating } from '@/lib/actions/study';
 import type { QuizItem } from '@/lib/queries/quiz';
+import { trackPractice } from '@/lib/track-practice';
 import type { Dictionary } from '@/lib/queries/dictionary';
 
 const OUTCOME_TO_RATING: Record<QuizOutcome, ReviewRating> = {
@@ -62,6 +63,12 @@ export function QuizSession({
   const submit = useCallback(
     (outcome: QuizOutcome) => {
       if (!current || pending || !flipped) return;
+      trackPractice({
+        kind: 'quiz',
+        item: current.hanzi,
+        correct: outcome !== 'missed',
+        detail: { outcome, ...(current.itemType === 'word' ? { word: current.hanzi } : {}) },
+      });
       const advance = () => {
         setTally((t) => ({ ...t, [outcome]: t[outcome] + 1 }));
         setIndex((i) => i + 1);

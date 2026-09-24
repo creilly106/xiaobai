@@ -8,6 +8,7 @@ import { AudioButton } from '@/components/audio-button';
 import { speak } from '@/lib/tts';
 import { numberPinyin, sameChineseNumber } from '@/lib/numbers';
 import { useStoredPref } from '@/lib/use-client';
+import { trackPractice } from '@/lib/track-practice';
 import {
   MODES,
   RANGES,
@@ -51,6 +52,12 @@ export function Drill() {
         ? sameChineseNumber(given, question.zh)
         : Number(given.replace(/[,\s]/g, '')) === question.n && given.trim() !== '';
     setFeedback({ correct, given });
+    trackPractice({
+      kind: 'number',
+      item: String(question.n),
+      correct,
+      detail: { mode, range: rangeKey, answer: given },
+    });
     const streak = correct ? score.streak + 1 : 0;
     setScore({ right: score.right + (correct ? 1 : 0), total: score.total + 1, streak });
     if (streak > Number(best)) setBest(String(streak));

@@ -11,6 +11,7 @@ import { PinyinKeyboard } from '@/components/pinyin-keyboard';
 import { EMPTY_DRAFT, draftIsEmpty, gradeDraft, type PinyinDraft } from '@/lib/pinyin-draft';
 import { speak } from '@/lib/tts';
 import { celebrate } from '@/lib/celebrate';
+import { trackPractice } from '@/lib/track-practice';
 import type { PinyinGrade } from '@/lib/pinyin';
 import type { ClozeItem } from '@/lib/queries/cloze';
 import type { Dictionary } from '@/lib/queries/dictionary';
@@ -42,9 +43,15 @@ export function ClozeSession({
       if (!item || result) return;
       setResult({ grade, given });
       setLog((l) => [...l, { item, grade }]);
+      trackPractice({
+        kind: 'cloze',
+        item: item.word.hanzi,
+        correct: grade === 'correct',
+        detail: { grade, answerMode: mode, word: item.word.hanzi },
+      });
       speak(item.hanzi);
     },
-    [item, result],
+    [item, result, mode],
   );
 
   const submitTyped = useCallback(() => {

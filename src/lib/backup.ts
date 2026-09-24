@@ -30,6 +30,7 @@ const TABLE_ORDER = [
   'cards',
   'reviews',
   'settings',
+  'practice_log',
 ];
 
 const BACKUP_DIR = path.join(process.cwd(), 'data', 'backups');

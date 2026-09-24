@@ -5,6 +5,7 @@ import { RotateCcw, Snail, Volume2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { speak } from '@/lib/tts';
 import { useStoredPref, useTtsSupported } from '@/lib/use-client';
+import { trackPractice } from '@/lib/track-practice';
 import { TONE_BORDER, TONE_TEXT, type Tone } from '@/lib/pinyin';
 import type { ToneDrillData, ToneSingle } from '@/lib/queries/tones';
 import { ToneContour } from './tone-contour';
@@ -69,6 +70,20 @@ export function ToneTrainer({ data }: { data: ToneDrillData }) {
 
   const grade = (correct: boolean, answer: Tone[], note?: string) => {
     setFeedback({ correct, picks: answer, note });
+    if (question) {
+      const heard =
+        question.kind === 'pairs'
+          ? question.item.heard
+          : question.kind === 'single'
+            ? [question.item.tone]
+            : [question.target.tone];
+      trackPractice({
+        kind: 'tone',
+        item: question.kind === 'apart' ? question.target.hanzi : question.item.hanzi,
+        correct,
+        detail: { mode: question.kind, heard, answered: answer },
+      });
+    }
     const streak = correct ? score.streak + 1 : 0;
     setScore({ right: score.right + (correct ? 1 : 0), total: score.total + 1, streak });
     if (streak > Number(best)) setBest(String(streak));
