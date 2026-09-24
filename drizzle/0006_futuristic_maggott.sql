@@ -1,0 +1,1 @@
+ALTER TABLE `settings` ADD `daily_goal` integer DEFAULT 20 NOT NULL;

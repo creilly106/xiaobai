@@ -10,6 +10,7 @@ const SETTINGS_LIMITS = {
   dailyNewLimit: { min: 0, max: 200 },
   dailyReviewLimit: { min: 0, max: 2000 },
   retentionTarget: { min: 0.7, max: 0.99 },
+  dailyGoal: { min: 0, max: 500 },
 } as const;
 
 function clampInt(v: unknown, { min, max }: { min: number; max: number }): number | undefined {
@@ -28,11 +29,13 @@ export async function updateSettings(patch: {
   retentionTarget?: number;
   listeningEnabled?: boolean;
   productionEnabled?: boolean;
+  dailyGoal?: number;
 }) {
   const clean = {
     dailyNewLimit: clampInt(patch.dailyNewLimit, SETTINGS_LIMITS.dailyNewLimit),
     dailyReviewLimit: clampInt(patch.dailyReviewLimit, SETTINGS_LIMITS.dailyReviewLimit),
     retentionTarget: clampFloat(patch.retentionTarget, SETTINGS_LIMITS.retentionTarget),
+    dailyGoal: clampInt(patch.dailyGoal, SETTINGS_LIMITS.dailyGoal),
     listeningEnabled:
       typeof patch.listeningEnabled === 'boolean' ? patch.listeningEnabled : undefined,
     productionEnabled:
@@ -48,6 +51,7 @@ export async function updateSettings(patch: {
       retentionTarget: clean.retentionTarget ?? 0.9,
       listeningEnabled: clean.listeningEnabled ?? true,
       productionEnabled: clean.productionEnabled ?? true,
+      dailyGoal: clean.dailyGoal ?? 20,
     });
   } else {
     await db
@@ -58,6 +62,7 @@ export async function updateSettings(patch: {
         ...(clean.retentionTarget != null && { retentionTarget: clean.retentionTarget }),
         ...(clean.listeningEnabled != null && { listeningEnabled: clean.listeningEnabled }),
         ...(clean.productionEnabled != null && { productionEnabled: clean.productionEnabled }),
+        ...(clean.dailyGoal != null && { dailyGoal: clean.dailyGoal }),
         updatedAt: new Date(),
       })
       .where(eq(schema.settings.id, settings.id));

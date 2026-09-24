@@ -26,6 +26,8 @@ import { LeechBanner, QueueCounts, SessionToolbar } from './session-toolbar';
 type Props = {
   initialQueue: StudyCard[];
   dict?: Dictionary;
+  /** Daily review goal and reviews already done today before this session. */
+  goal?: { target: number; doneBefore: number };
 };
 
 /** teach = first meeting (answer shown, no rating); test = recall + rating. */
@@ -52,7 +54,7 @@ function insertAt<T>(list: T[], index: number, item: T): T[] {
   return [...list.slice(0, i), item, ...list.slice(i)];
 }
 
-export function Session({ initialQueue, dict }: Props) {
+export function Session({ initialQueue, dict, goal }: Props) {
   const seqRef = useRef(initialQueue.length);
   const [queue, setQueue] = useState<QueueEntry[]>(() =>
     initialQueue.map((card, i) => ({
@@ -248,6 +250,7 @@ export function Session({ initialQueue, dict }: Props) {
         tally={tally}
         pending={pending}
         onUndo={doUndo}
+        goal={goal ? { target: goal.target, done: goal.doneBefore + rated } : undefined}
       />
     );
   }

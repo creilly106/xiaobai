@@ -12,12 +12,14 @@ export function SessionComplete({
   tally,
   pending,
   onUndo,
+  goal,
 }: {
   learned: number;
   rated: number;
   tally: Record<StudyRating, number>;
   pending: boolean;
   onUndo: () => void;
+  goal?: { target: number; done: number };
 }) {
   const recalled = tally.hard + tally.good + tally.easy;
   return (
@@ -34,6 +36,20 @@ export function SessionComplete({
         {rated} review{rated === 1 ? '' : 's'}
         {rated > 0 && ` · recalled ${Math.round((recalled / rated) * 100)}%`}
       </p>
+      {goal && goal.target > 0 && (
+        <p className="mt-1 text-sm">
+          {goal.done >= goal.target ? (
+            <span className="text-emerald-600 dark:text-emerald-400">
+              Daily goal met — {goal.done} of {goal.target} reviews today.
+            </span>
+          ) : (
+            <span className="text-muted-foreground">
+              {goal.target - goal.done} more review{goal.target - goal.done === 1 ? '' : 's'} to
+              reach today&apos;s goal of {goal.target}.
+            </span>
+          )}
+        </p>
+      )}
       {rated > 0 && (
         <div className="mt-5 grid grid-cols-4 gap-2 text-sm">
           {STUDY_RATINGS.map((r) => (

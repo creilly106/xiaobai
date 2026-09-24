@@ -24,6 +24,7 @@ export default async function SettingsPage() {
     retentionTarget: settings.retentionTarget,
     listeningEnabled: settings.listeningEnabled,
     productionEnabled: settings.productionEnabled,
+    dailyGoal: settings.dailyGoal,
   };
 
   return (

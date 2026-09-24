@@ -43,6 +43,13 @@
       "when": 1790275239642,
       "tag": "0005_flashy_chamber",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1790275738897,
+      "tag": "0006_futuristic_maggott",
+      "breakpoints": true
     }
   ]
 }

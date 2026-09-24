@@ -14,6 +14,7 @@ export type AppSettings = {
   retentionTarget: number;
   listeningEnabled: boolean;
   productionEnabled: boolean;
+  dailyGoal: number;
   streakDays: number;
   lastStudyDate: string | null;
 };
@@ -24,6 +25,7 @@ export const DEFAULT_SETTINGS: Omit<AppSettings, 'id'> = {
   retentionTarget: 0.9,
   listeningEnabled: true,
   productionEnabled: true,
+  dailyGoal: 20,
   streakDays: 0,
   lastStudyDate: null,
 };
@@ -39,6 +41,7 @@ export async function getSettings(): Promise<AppSettings> {
     retentionTarget: row.retentionTarget,
     listeningEnabled: row.listeningEnabled,
     productionEnabled: row.productionEnabled,
+    dailyGoal: row.dailyGoal,
     streakDays: row.streakDays,
     lastStudyDate: row.lastStudyDate,
   };

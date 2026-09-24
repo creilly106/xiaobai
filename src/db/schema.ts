@@ -169,6 +169,8 @@ export const settings = sqliteTable('settings', {
   listeningEnabled: integer('listening_enabled', { mode: 'boolean' }).notNull().default(true),
   /** Create English → Chinese cards for words once they graduate. */
   productionEnabled: integer('production_enabled', { mode: 'boolean' }).notNull().default(true),
+  /** Cards to review each day to hit your goal (0 = no goal). */
+  dailyGoal: integer('daily_goal').notNull().default(20),
   streakDays: integer('streak_days').notNull().default(0),
   lastStudyDate: text('last_study_date'),
   createdAt: integer('created_at', { mode: 'timestamp_ms' })

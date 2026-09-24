@@ -14,6 +14,7 @@ type Props = {
     retentionTarget: number;
     listeningEnabled: boolean;
     productionEnabled: boolean;
+    dailyGoal: number;
   };
 };
 
@@ -23,6 +24,7 @@ export function StudyPrefForm({ initial }: Props) {
   const [retention, setRetention] = useState(Math.round(initial.retentionTarget * 100));
   const [listening, setListening] = useState(initial.listeningEnabled);
   const [production, setProduction] = useState(initial.productionEnabled);
+  const [goal, setGoal] = useState(initial.dailyGoal);
   const [pending, startTransition] = useTransition();
 
   function save(e: React.FormEvent) {
@@ -35,9 +37,11 @@ export function StudyPrefForm({ initial }: Props) {
           retentionTarget: retention / 100,
           listeningEnabled: listening,
           productionEnabled: production,
+          dailyGoal: goal,
         });
         // Show what was actually stored (out-of-range values are clamped).
         if (saved.dailyNewLimit != null) setNewLimit(saved.dailyNewLimit);
+        if (saved.dailyGoal != null) setGoal(saved.dailyGoal);
         if (saved.dailyReviewLimit != null) setReviewLimit(saved.dailyReviewLimit);
         if (saved.retentionTarget != null) setRetention(Math.round(saved.retentionTarget * 100));
         toast.success('Settings saved.');
@@ -49,6 +53,21 @@ export function StudyPrefForm({ initial }: Props) {
 
   return (
     <form onSubmit={save} className="space-y-4">
+      <PrefRow
+        id="pref-goal"
+        label="Daily goal"
+        desc="How many cards you aim to review each day (0 turns the goal off). Shown on the home page."
+      >
+        <Input
+          type="number"
+          min={0}
+          max={500}
+          id="pref-goal"
+          value={goal}
+          onChange={(e) => setGoal(Number(e.target.value) || 0)}
+          className="w-24"
+        />
+      </PrefRow>
       <PrefRow
         id="pref-new"
         label="Daily new cards"

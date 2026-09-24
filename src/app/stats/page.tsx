@@ -11,18 +11,23 @@ import {
 import { Heatmap } from './_components/heatmap';
 import { ResetReviewsButton } from './_components/reset-button';
 import { PracticeCard } from './_components/practice-card';
+import { ForecastCard } from './_components/forecast-card';
+import { getForecast, getWordsKnown } from '@/lib/queries/progress';
 import { getPracticeSummary } from '@/lib/queries/practice';
 
 export const metadata: Metadata = { title: 'Stats' };
 
 export default async function StatsPage() {
-  const [summary, heatmap, ratings, cardsByState, practice] = await Promise.all([
-    getStatsSummary(),
-    getHeatmap(84),
-    getRatingDistribution(30),
-    getCardsByState(),
-    getPracticeSummary(30),
-  ]);
+  const [summary, heatmap, ratings, cardsByState, practice, forecast, wordsKnown] =
+    await Promise.all([
+      getStatsSummary(),
+      getHeatmap(84),
+      getRatingDistribution(30),
+      getCardsByState(),
+      getPracticeSummary(30),
+      getForecast(7),
+      getWordsKnown(),
+    ]);
 
   const totalRatings = ratings.reduce((a, r) => a + r.count, 0);
   const retentionPct = summary.retention30d == null ? null : Math.round(summary.retention30d * 100);
@@ -82,7 +87,9 @@ export default async function StatsPage() {
         />
       </div>
 
-      <Card className="mt-8">
+      <ForecastCard forecast={forecast} words={wordsKnown} />
+
+      <Card className="mt-6">
         <CardHeader className="pb-3">
           <CardTitle className="text-base">Activity — last 12 weeks</CardTitle>
         </CardHeader>

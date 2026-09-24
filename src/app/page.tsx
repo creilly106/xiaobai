@@ -88,6 +88,7 @@ export default async function Home() {
                   {a.newAvailable} new · {newUsedToday}/{stats.dailyNewLimit} introduced today
                 </Pill>
               </div>
+              {stats.dailyGoal > 0 && <GoalBar done={stats.reviewsToday} goal={stats.dailyGoal} />}
             </div>
             {a.totalDue > 0 ? (
               <Link href="/study" className={buttonVariants({ size: 'lg', className: 'px-6' })}>
@@ -160,6 +161,34 @@ export default async function Home() {
             </Card>
           </Link>
         ))}
+      </div>
+    </div>
+  );
+}
+
+/** Progress toward today's review goal (set in Settings). */
+function GoalBar({ done, goal }: { done: number; goal: number }) {
+  const pct = Math.min(100, Math.round((done / goal) * 100));
+  const met = done >= goal;
+  return (
+    <div className="mt-4 max-w-sm">
+      <div className="flex justify-between text-xs text-muted-foreground">
+        <span>{met ? "Today's goal met" : "Today's goal"}</span>
+        <span className="tabular-nums">
+          {done} / {goal} reviews
+        </span>
+      </div>
+      <div
+        className="mt-1 h-2 w-full overflow-hidden rounded bg-muted"
+        role="progressbar"
+        aria-valuenow={done}
+        aria-valuemax={goal}
+        aria-label="Daily goal"
+      >
+        <div
+          className={`h-full rounded transition-all ${met ? 'bg-emerald-500' : 'bg-primary'}`}
+          style={{ width: `${pct}%` }}
+        />
       </div>
     </div>
   );
