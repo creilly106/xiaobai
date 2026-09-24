@@ -178,7 +178,7 @@ export function ClozeSession({
         )}
         {result && (
           <div className="mt-3 flex items-center justify-center gap-1 text-muted-foreground">
-            <span>{item.pinyin}</span>
+            {item.pinyin && <span>{item.pinyin}</span>}
             <AudioButton text={item.hanzi} />
           </div>
         )}

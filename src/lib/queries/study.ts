@@ -18,6 +18,7 @@ import { interleave, spreadEarly } from '@/lib/queue-order';
 import type { Syllable } from '@/lib/pinyin';
 import { getDictionary } from './dictionary';
 import { wordSyllables } from './tones';
+import { examplesFor } from '@/lib/examples';
 
 export type StudyCard = {
   id: number;
@@ -34,6 +35,8 @@ export type StudyCard = {
   listening?: ListeningInfo;
   /** Present on production cards (English → Chinese). */
   production?: ProductionInfo;
+  /** A real sentence using the word (Tatoeba), for the answer side. */
+  example?: { zh: string; en: string };
 };
 
 export type ProductionInfo = {
@@ -153,7 +156,12 @@ function soundKey(pinyin: string): string {
 
 /** Attach what listening and production cards need to be shown. */
 async function decorate(cards: StudyCard[]): Promise<StudyCard[]> {
-  return withProduction(await withListening(cards));
+  const withExamples = cards.map((card) => {
+    if (card.itemType !== 'word') return card;
+    const [ex] = examplesFor(card.hanzi, 1);
+    return ex ? { ...card, example: { zh: ex.zh, en: ex.en } } : card;
+  });
+  return withProduction(await withListening(withExamples));
 }
 
 async function withProduction(cards: StudyCard[]): Promise<StudyCard[]> {

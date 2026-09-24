@@ -11,6 +11,7 @@ import { ListenNotes, ListenPrompt, ReadingNote } from '@/components/card-parts/
 import { RatingButtons, type FlashcardRating } from '@/components/card-parts/rating-buttons';
 import { useCardAudio } from '@/components/card-parts/use-card-audio';
 import { WordTools } from '@/components/card-parts/word-tools';
+import { ExampleLine } from '@/components/card-parts/example-line';
 import type { Dictionary } from '@/lib/queries/dictionary';
 import type { ListeningInfo, ProductionInfo } from '@/lib/queries/study';
 import type { PinyinGrade } from '@/lib/pinyin';
@@ -34,6 +35,8 @@ export type FlashcardItem = {
   listening?: ListeningInfo;
   /** Production cards: the front is the English; you produce the Chinese. */
   production?: ProductionInfo;
+  /** A real sentence using the word, shown with the answer. */
+  example?: { zh: string; en: string };
 };
 
 type Props<K extends string> = {
@@ -165,6 +168,7 @@ export function Flashcard<K extends string>({
                     ) : (
                       <ReadingNote hanzi={item.hanzi} pinyin={item.pinyin} />
                     )}
+                    {item.example && <ExampleLine example={item.example} dict={dict} />}
                     {dict && (
                       <p className="text-xs text-muted-foreground">
                         Hover a character to see what it means on its own.

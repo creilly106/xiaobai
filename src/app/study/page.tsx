@@ -70,7 +70,9 @@ export default async function StudyPage({ searchParams }: PageProps<'/study'>) {
     );
   }
 
-  const dict = await getDictionaryFor(queue.map((c) => c.hanzi));
+  const dict = await getDictionaryFor(
+    queue.flatMap((c) => (c.example ? [c.hanzi, c.example.zh] : [c.hanzi])),
+  );
   // Keyed so "learn more" (a new ?extra=) starts a fresh session.
   return <Session key={extraNew} initialQueue={queue} dict={dict} />;
 }

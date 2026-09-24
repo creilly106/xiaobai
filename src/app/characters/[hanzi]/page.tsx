@@ -8,6 +8,8 @@ import { BuildCard } from './_components/build-card';
 import { Hero } from './_components/hero';
 import { RadicalCard } from './_components/radical-card';
 import { ContainingWords, UsedIn, WordCharacters } from './_components/word-lists';
+import { ExamplesCard } from './_components/examples-card';
+import { getDictionaryFor } from '@/lib/queries/dictionary';
 
 const MAX_LEN = 12;
 
@@ -39,6 +41,7 @@ export default async function CharacterPage({ params }: PageProps<'/characters/[
   if (!info.gloss && info.containingWords.length === 0 && info.components.length === 0) {
     notFound();
   }
+  const exampleDict = await getDictionaryFor(info.examples.map((e) => e.zh));
 
   return (
     <div className="mx-auto w-full max-w-4xl px-4 py-8 sm:py-10">
@@ -66,6 +69,8 @@ export default async function CharacterPage({ params }: PageProps<'/characters/[
       ) : (
         <WordCharacters parts={info.characters} />
       )}
+
+      <ExamplesCard hanzi={info.hanzi} examples={info.examples} dict={exampleDict} />
 
       <ContainingWords info={info} />
 

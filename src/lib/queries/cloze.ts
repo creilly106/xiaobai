@@ -7,12 +7,17 @@ import { segmentSpans } from '@/lib/segment';
 import type { Syllable } from '@/lib/pinyin';
 import { getDictionary } from './dictionary';
 import { wordSyllables } from './tones';
+import { allExamples } from '@/lib/examples';
 
 export type ClozeFilters = {
-  /** Empty = every scenario. */
+  /** Include scenario sentences. */
+  includeScenarios: boolean;
+  /** Limit scenario sentences to these scenarios (empty = every scenario). */
   scenarioSlugs: string[];
   /** Include the example sentences from the grammar pages. */
   includeGrammar: boolean;
+  /** Include example sentences from Tatoeba. */
+  includeExamples: boolean;
   /** Only blank out words you've already studied. */
   knownOnly: boolean;
   count: number;
@@ -25,6 +30,7 @@ export type ClozeItem = {
   after: string;
   /** The full sentence, for audio and the answer reveal. */
   hanzi: string;
+  /** Pinyin of the whole sentence; empty for Tatoeba sentences, which have none. */
   pinyin: string;
   meaning: string;
   word: { hanzi: string; pinyin: string; meaning: string };
@@ -47,8 +53,7 @@ function shuffle<T>(arr: T[]): T[] {
 
 async function loadSentences(filters: ClozeFilters): Promise<Sentence[]> {
   const out: Sentence[] = [];
-  const wantScenarios = filters.scenarioSlugs.length > 0 || !filters.includeGrammar;
-  if (wantScenarios) {
+  if (filters.includeScenarios || filters.scenarioSlugs.length > 0) {
     const rows = await db
       .selectDistinct({
         id: schema.sentences.id,
@@ -90,6 +95,17 @@ async function loadSentences(filters: ClozeFilters): Promise<Sentence[]> {
         }),
       );
     }
+  }
+  if (filters.includeExamples) {
+    allExamples().forEach((e, i) =>
+      out.push({
+        key: `t${i}`,
+        source: 'Example sentence · Tatoeba',
+        hanzi: e.zh,
+        pinyin: '',
+        meaning: e.en,
+      }),
+    );
   }
   return out;
 }

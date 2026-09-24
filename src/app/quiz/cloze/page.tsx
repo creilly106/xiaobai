@@ -17,12 +17,16 @@ export default async function ClozePage({ searchParams }: PageProps<'/quiz/cloze
     .split(',')
     .filter((s) => /^[a-z0-9-]{1,64}$/.test(s));
   const includeGrammar = one(params.grammar) === '1';
+  const includeExamples = one(params.examples) === '1';
+  const includeScenarios = one(params.scen) === '1';
   const mode: AnswerMode = one(params.answer) === 'type' ? 'type' : 'choose';
   const count = Math.max(1, Math.min(Number.parseInt(one(params.count) ?? '10', 10) || 10, 50));
 
   const items = await getClozeItems({
     scenarioSlugs,
     includeGrammar,
+    includeExamples,
+    includeScenarios,
     knownOnly: one(params.known) === '1',
     count,
   });

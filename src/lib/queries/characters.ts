@@ -18,6 +18,7 @@ import {
   type Etymology,
 } from '@/lib/ids-data';
 import { lookupEntry } from '@/lib/queries/dictionary';
+import { examplesFor, type Example } from '@/lib/examples';
 
 export type Gloss = {
   pinyin: string;
@@ -52,6 +53,8 @@ export type CharacterInfo = {
   asRadical: { radical: Radical; form: RadicalForm | null } | null;
   /** For radicals and component forms: everyday characters built with it. */
   usedIn: PartInfo[];
+  /** Example sentences using this word or character (Tatoeba). */
+  examples: Example[];
   containingWords: {
     id: number;
     hanzi: string;
@@ -190,5 +193,6 @@ export async function getCharacterInfo(hanzi: string): Promise<CharacterInfo> {
     indexRadical: datum ? radicalForPart(datum.radical, datum.ids) : null,
     asRadical,
     containingWords,
+    examples: examplesFor(hanzi),
   };
 }

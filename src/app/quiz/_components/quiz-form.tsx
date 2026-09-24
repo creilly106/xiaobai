@@ -26,7 +26,9 @@ export function QuizForm({ scenarios, hskLevels }: Props) {
   const [count, setCount] = useState<number>(10);
   const [format, setFormat] = useState<'cards' | 'cloze'>('cards');
   const [answerMode, setAnswerMode] = useState<'choose' | 'type'>('choose');
+  const [includeScenarioSentences, setIncludeScenarioSentences] = useState(true);
   const [includeGrammar, setIncludeGrammar] = useState(true);
+  const [includeExamples, setIncludeExamples] = useState(true);
   const [knownOnly, setKnownOnly] = useState(false);
 
   function toggle<T>(set: Set<T>, val: T) {
@@ -42,9 +44,13 @@ export function QuizForm({ scenarios, hskLevels }: Props) {
     if (format === 'cloze') {
       params.set('answer', answerMode);
       params.set('count', String(Math.max(1, Math.min(count, 50))));
+      if (includeScenarioSentences) {
+        params.set('scen', '1');
+        if (selectedScenarios.size > 0)
+          params.set('scenarios', Array.from(selectedScenarios).join(','));
+      }
       if (includeGrammar) params.set('grammar', '1');
-      if (selectedScenarios.size > 0)
-        params.set('scenarios', Array.from(selectedScenarios).join(','));
+      if (includeExamples) params.set('examples', '1');
       if (knownOnly) params.set('known', '1');
       router.push(`/quiz/cloze?${params.toString()}`);
       return;
@@ -151,26 +157,45 @@ export function QuizForm({ scenarios, hskLevels }: Props) {
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-base">
-                Sentences from{' '}
-                <span className="text-xs font-normal text-muted-foreground">
-                  (no scenarios picked = all scenarios)
-                </span>
-              </CardTitle>
+              <CardTitle className="text-base">Sentences from</CardTitle>
             </CardHeader>
-            <CardContent className="flex flex-wrap gap-2">
-              <Chip selected={includeGrammar} onClick={() => setIncludeGrammar(!includeGrammar)}>
-                Grammar examples
-              </Chip>
-              {scenarios.map((s) => (
+            <CardContent className="space-y-3">
+              <div className="flex flex-wrap gap-2">
                 <Chip
-                  key={s.slug}
-                  selected={selectedScenarios.has(s.slug)}
-                  onClick={() => setSelectedScenarios(toggle(selectedScenarios, s.slug))}
+                  selected={includeScenarioSentences}
+                  onClick={() => setIncludeScenarioSentences(!includeScenarioSentences)}
                 >
-                  {s.name}
+                  Scenarios
                 </Chip>
-              ))}
+                <Chip selected={includeGrammar} onClick={() => setIncludeGrammar(!includeGrammar)}>
+                  Grammar examples
+                </Chip>
+                <Chip
+                  selected={includeExamples}
+                  onClick={() => setIncludeExamples(!includeExamples)}
+                  title="Real sentences from Tatoeba using your vocabulary"
+                >
+                  Example sentences
+                </Chip>
+              </div>
+              {includeScenarioSentences && scenarios.length > 0 && (
+                <div>
+                  <div className="mb-1.5 text-xs text-muted-foreground">
+                    Only these scenarios (none picked = all):
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {scenarios.map((s) => (
+                      <Chip
+                        key={s.slug}
+                        selected={selectedScenarios.has(s.slug)}
+                        onClick={() => setSelectedScenarios(toggle(selectedScenarios, s.slug))}
+                      >
+                        {s.name}
+                      </Chip>
+                    ))}
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
           <ToggleRow

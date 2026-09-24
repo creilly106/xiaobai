@@ -9,6 +9,7 @@ import { AudioButton } from '@/components/audio-button';
 import { TokenizedHanzi } from '@/components/tokenized-hanzi';
 import { ReadingNote } from '@/components/card-parts/listen-notes';
 import { WordTools } from '@/components/card-parts/word-tools';
+import { ExampleLine } from '@/components/card-parts/example-line';
 import { audioFor } from '@/lib/audio-text';
 import { speak } from '@/lib/tts';
 import { tokenize } from '@/lib/tokenize';
@@ -76,6 +77,7 @@ export function TeachCard({ card, dict, onContinue, disabled }: Props) {
           </div>
           <div className="max-w-md text-lg">{card.meaning}</div>
           <ReadingNote hanzi={card.hanzi} pinyin={card.pinyin} />
+          {card.example && <ExampleLine example={card.example} dict={dict} />}
 
           {parts.length > 1 && (
             <ul className="mt-1 flex max-w-lg flex-wrap justify-center gap-2 text-sm">
