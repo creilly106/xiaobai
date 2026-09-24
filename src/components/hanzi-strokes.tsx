@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { charDataLoader } from '@/lib/stroke-data';
 
 type HanziWriterInstance = {
   animateCharacter: () => void;
@@ -56,6 +57,7 @@ export function HanziStrokes({ hanzi }: { hanzi: string }) {
             width: 112,
             height: 112,
             padding: 5,
+            charDataLoader,
             strokeAnimationSpeed: 1.2,
             delayBetweenStrokes: 80,
             showOutline: true,

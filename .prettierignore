@@ -6,3 +6,4 @@ scripts/.cache
 src/lib/generated
 package-lock.json
 next-env.d.ts
+public/strokes

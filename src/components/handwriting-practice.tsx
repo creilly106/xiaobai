@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { charDataLoader } from '@/lib/stroke-data';
 import { celebrate } from '@/lib/celebrate';
 
 type HanziWriterInstance = {
@@ -85,6 +86,7 @@ function HandwritingQuiz({ hanzi, onDone }: { hanzi: string; onDone: () => void 
         width: 240,
         height: 240,
         padding: 12,
+        charDataLoader,
         showCharacter: false,
         showOutline: true,
         strokeColor: isDark ? '#e2e8f0' : '#0f172a',

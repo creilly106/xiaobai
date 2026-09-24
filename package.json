@@ -19,7 +19,10 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "check": "npm run format:check && npm run lint && npm run typecheck && npm run test",
-    "data:examples": "tsx scripts/build-examples.ts"
+    "data:examples": "tsx scripts/build-examples.ts",
+    "data:strokes": "node scripts/copy-strokes.mjs",
+    "predev": "node scripts/copy-strokes.mjs",
+    "prebuild": "node scripts/copy-strokes.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",
@@ -31,6 +34,7 @@
     "drizzle-orm": "^0.45.3",
     "framer-motion": "^13.4.2",
     "hanzi-writer": "^3.7.3",
+    "hanzi-writer-data": "^2.0.1",
     "lucide-react": "^1.47.0",
     "next": "16.3.6",
     "next-themes": "^0.4.6",
