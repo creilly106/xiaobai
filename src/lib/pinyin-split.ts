@@ -6,14 +6,18 @@ import { syllableTone, type Tone } from './pinyin';
 
 const SYLLABLE =
   /^(zh|ch|sh|[bpmfdtnlgkhjqxrzcsyw])?(iang|iong|uang|ueng|iao|ian|uai|uan|van|ang|eng|ing|ong|ai|ao|an|ei|en|er|ia|ie|in|iu|ou|ua|uo|ui|un|ue|ve|vn|a|e|i|o|u|v|m|n|ng)$/;
-const MARKS = /[̀-ͯ]/g;
+const MARKS = /[\u0300-\u036F]/g;
 
 function bare(s: string): string {
-  return s.normalize('NFD').replace(/ü/gi, 'v').replace(MARKS, '').toLowerCase();
+  return s
+    .normalize('NFD')
+    .replace(/u\u0308/gi, 'v')
+    .replace(MARKS, '')
+    .toLowerCase();
 }
 
 function markCount(s: string): number {
-  return (s.normalize('NFD').match(/[̀́̌̄]/g) ?? []).length;
+  return (s.normalize('NFD').match(/[\u0300\u0301\u030C\u0304]/g) ?? []).length;
 }
 
 function isSyllable(s: string): boolean {
@@ -47,7 +51,7 @@ export type PinyinSegment = { text: string; tone: Tone | null };
  */
 export function splitPinyinText(text: string): PinyinSegment[] {
   const out: PinyinSegment[] = [];
-  for (const part of text.split(/([^\p{L}̀-ͯ]+)/u)) {
+  for (const part of text.split(/([^\p{L}\u0300-\u036F]+)/u)) {
     if (!part) continue;
     if (!/\p{L}/u.test(part)) {
       out.push({ text: part, tone: null });

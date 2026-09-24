@@ -2,10 +2,10 @@
 export type Tone = 1 | 2 | 3 | 4 | 5;
 
 const MARK_TONE: Record<string, Tone> = {
-  '̄': 1, // macron  ā
-  '́': 2, // acute   á
-  '̌': 3, // caron   ǎ
-  '̀': 4, // grave   à
+  '\u0304': 1, // macron  ā
+  '\u0301': 2, // acute   á
+  '\u030C': 3, // caron   ǎ
+  '\u0300': 4, // grave   à
 };
 
 /** Tone of a single pinyin syllable written with tone marks ("mǎ" → 3, "ma" → 5). */
@@ -21,7 +21,7 @@ export function syllableTone(syllable: string): Tone {
 export function toneless(pinyin: string): string {
   return pinyin
     .normalize('NFD')
-    .replace(/[̀-ͯ]/g, (m) => (m === '̈' ? '̈' : ''))
+    .replace(/[\u0300-\u036F]/g, (m) => (m === '\u0308' ? '\u0308' : ''))
     .normalize('NFC')
     .replace(/ü/g, 'v')
     .toLowerCase()

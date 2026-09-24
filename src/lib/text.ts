@@ -2,7 +2,7 @@
 export function plainPinyin(s: string): string {
   return s
     .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
+    .replace(/[\u0300-\u036F]/g, '')
     .replace(/ü/g, 'v')
     .replace(/[^a-z0-9]/gi, '')
     .toLowerCase();
