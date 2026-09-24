@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { audioFor } from '@/lib/audio-text';
 import { AUTOPLAY_AUDIO_KEY } from '@/lib/prefs';
 import { speak } from '@/lib/tts';
+import { isTypingLocked } from '@/lib/typing-lock';
 import { useStoredPref } from '@/lib/use-client';
 
 /**
@@ -40,7 +41,7 @@ export function useCardAudio({
     const onKey = (e: KeyboardEvent) => {
       if (e.ctrlKey || e.metaKey || e.altKey || e.repeat) return;
       if (e.target instanceof HTMLElement && e.target.closest('input, textarea')) return;
-      if (e.key.toLowerCase() !== 'p') return;
+      if (e.key.toLowerCase() !== 'p' || isTypingLocked()) return;
       speak(flipped ? audioFor(hanzi, pinyin).text : listenAudio!);
     };
     window.addEventListener('keydown', onKey);

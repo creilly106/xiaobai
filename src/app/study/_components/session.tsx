@@ -18,6 +18,7 @@ import {
 } from '@/lib/actions/study';
 import type { StudyCard } from '@/lib/queries/study';
 import type { Dictionary } from '@/lib/queries/dictionary';
+import { isTypingLocked } from '@/lib/typing-lock';
 import { TeachCard } from './teach-card';
 import { SessionComplete } from './session-complete';
 import { LeechBanner, QueueCounts, SessionToolbar } from './session-toolbar';
@@ -41,6 +42,9 @@ const TEST_GAP = 3;
 /** Failing a card this many times flags it as a "leech". */
 const LEECH_FAILS = 3;
 
+/** After a typed production answer: the rating to suggest. */
+const GRADE_TO_RATING = { correct: 'good', tones: 'hard', wrong: 'again' } as const;
+
 const EMPTY_TALLY: Record<StudyRating, number> = { again: 0, hard: 0, good: 0, easy: 0 };
 
 function insertAt<T>(list: T[], index: number, item: T): T[] {
@@ -54,7 +58,8 @@ export function Session({ initialQueue, dict }: Props) {
     initialQueue.map((card, i) => ({
       card,
       seq: i,
-      phase: card.state === 'new' && !card.listening ? 'teach' : 'test',
+      // Follow-up cards test something you already know, so there's nothing to teach.
+      phase: card.state === 'new' && !card.listening && !card.production ? 'teach' : 'test',
     })),
   );
   const [flipped, setFlipped] = useState(false);
@@ -202,6 +207,7 @@ export function Session({ initialQueue, dict }: Props) {
       if (e.target instanceof HTMLElement && e.target.closest('input, textarea, [role="dialog"]')) {
         return;
       }
+      if (isTypingLocked()) return; // the pinyin keyboard has the keys
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
         e.preventDefault();
         doUndo();
@@ -300,10 +306,13 @@ export function Session({ initialQueue, dict }: Props) {
             meaning: card.meaning,
             label: card.listening
               ? `Listening · ${stateLabel}`
-              : card.state === 'new'
-                ? 'New · recall it'
-                : stateLabel,
+              : card.production
+                ? `Say it in Chinese · ${stateLabel}`
+                : card.state === 'new'
+                  ? 'New · recall it'
+                  : stateLabel,
             listening: card.listening,
+            production: card.production,
           }}
           flipped={flipped}
           onFlip={() => setFlipped(true)}
@@ -311,8 +320,9 @@ export function Session({ initialQueue, dict }: Props) {
           ratings={STUDY_RATINGS}
           disabled={pending}
           dict={dict}
-          // "Always show pinyin" would give listening cards away; only the hint does.
-          showPinyinOnFront={card.listening ? hinted : pinyinAlways || hinted}
+          // "Always show pinyin" would give listening/production cards away; only the hint does.
+          showPinyinOnFront={card.listening || card.production ? hinted : pinyinAlways || hinted}
+          gradeToRating={GRADE_TO_RATING}
           onHint={() => setHinted(true)}
         />
       )}

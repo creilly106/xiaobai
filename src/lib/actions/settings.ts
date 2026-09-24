@@ -3,7 +3,7 @@
 import { eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { db, schema } from '@/db/client';
-import { backfillListeningCards } from '@/lib/listening-backfill';
+import { backfillFollowUpCards } from '@/lib/listening-backfill';
 
 // Mirrors the input bounds in settings/_components/pref-form.tsx.
 const SETTINGS_LIMITS = {
@@ -27,6 +27,7 @@ export async function updateSettings(patch: {
   dailyReviewLimit?: number;
   retentionTarget?: number;
   listeningEnabled?: boolean;
+  productionEnabled?: boolean;
 }) {
   const clean = {
     dailyNewLimit: clampInt(patch.dailyNewLimit, SETTINGS_LIMITS.dailyNewLimit),
@@ -34,6 +35,8 @@ export async function updateSettings(patch: {
     retentionTarget: clampFloat(patch.retentionTarget, SETTINGS_LIMITS.retentionTarget),
     listeningEnabled:
       typeof patch.listeningEnabled === 'boolean' ? patch.listeningEnabled : undefined,
+    productionEnabled:
+      typeof patch.productionEnabled === 'boolean' ? patch.productionEnabled : undefined,
   };
 
   const [settings] = await db.select().from(schema.settings).limit(1);
@@ -44,6 +47,7 @@ export async function updateSettings(patch: {
       dailyReviewLimit: clean.dailyReviewLimit ?? 200,
       retentionTarget: clean.retentionTarget ?? 0.9,
       listeningEnabled: clean.listeningEnabled ?? true,
+      productionEnabled: clean.productionEnabled ?? true,
     });
   } else {
     await db
@@ -53,11 +57,17 @@ export async function updateSettings(patch: {
         ...(clean.dailyReviewLimit != null && { dailyReviewLimit: clean.dailyReviewLimit }),
         ...(clean.retentionTarget != null && { retentionTarget: clean.retentionTarget }),
         ...(clean.listeningEnabled != null && { listeningEnabled: clean.listeningEnabled }),
+        ...(clean.productionEnabled != null && { productionEnabled: clean.productionEnabled }),
         updatedAt: new Date(),
       })
       .where(eq(schema.settings.id, settings.id));
   }
-  if (clean.listeningEnabled) await backfillListeningCards(db);
+  if (clean.listeningEnabled || clean.productionEnabled) {
+    await backfillFollowUpCards(db, {
+      listening: Boolean(clean.listeningEnabled),
+      production: Boolean(clean.productionEnabled),
+    });
+  }
   // Limits and retention affect the queue, dashboard and study pages.
   revalidatePath('/', 'layout');
   return { ok: true, saved: clean };

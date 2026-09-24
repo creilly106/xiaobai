@@ -5,7 +5,7 @@ import { db, schema } from '@/db/client';
 import type { CardState } from '@/db/schema';
 import { startOfLocalDay } from '@/lib/dates';
 import { getNewCardPool } from './new-cards';
-import { modeFilter } from '@/lib/card-modes';
+import { followUpsFrom, modeFilter } from '@/lib/card-modes';
 
 export type AppSettings = {
   id: number | null;
@@ -13,6 +13,7 @@ export type AppSettings = {
   dailyReviewLimit: number;
   retentionTarget: number;
   listeningEnabled: boolean;
+  productionEnabled: boolean;
   streakDays: number;
   lastStudyDate: string | null;
 };
@@ -22,6 +23,7 @@ export const DEFAULT_SETTINGS: Omit<AppSettings, 'id'> = {
   dailyReviewLimit: 200,
   retentionTarget: 0.9,
   listeningEnabled: true,
+  productionEnabled: true,
   streakDays: 0,
   lastStudyDate: null,
 };
@@ -36,6 +38,7 @@ export async function getSettings(): Promise<AppSettings> {
     dailyReviewLimit: row.dailyReviewLimit,
     retentionTarget: row.retentionTarget,
     listeningEnabled: row.listeningEnabled,
+    productionEnabled: row.productionEnabled,
     streakDays: row.streakDays,
     lastStudyDate: row.lastStudyDate,
   };
@@ -96,14 +99,14 @@ export async function getAvailability(now = new Date()): Promise<Availability> {
       and(
         eq(schema.cards.suspended, false),
         lte(schema.cards.due, now),
-        modeFilter(settings.listeningEnabled),
+        modeFilter(followUpsFrom(settings)),
       ),
     )
     .groupBy(schema.cards.state);
   const by = new Map(rows.map((r) => [r.state, Number(r.n)]));
   const learningDue = (by.get('learning') ?? 0) + (by.get('relearning') ?? 0);
   const reviewDue = Math.min(by.get('review') ?? 0, reviewRemainingToday);
-  const pool = await getNewCardPool(now, settings.listeningEnabled);
+  const pool = await getNewCardPool(now, followUpsFrom(settings));
   const newAvailable = Math.min(pool.cardIds.length, newRemainingToday);
 
   let nextDueAt: number | null = null;
@@ -115,7 +118,7 @@ export async function getAvailability(now = new Date()): Promise<Availability> {
         and(
           eq(schema.cards.suspended, false),
           gt(schema.cards.due, now),
-          modeFilter(settings.listeningEnabled),
+          modeFilter(followUpsFrom(settings)),
           inArray(schema.cards.state, [...LEARNING_STATES, 'review'] as CardState[]),
         ),
       )

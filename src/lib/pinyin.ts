@@ -121,6 +121,22 @@ export function syllablesFromPinyin(parts: string[]): Syllable[] {
   return parts.map((p) => ({ letters: toneless(p), tone: syllableTone(p) }));
 }
 
+/**
+ * Let typed answers use the tones people actually say as well as the written
+ * ones: 一 (yī/yí/yì) and 不 (bù/bú) change with context, and the first of two
+ * 3rd tones rises (你好 nǐhǎo → níhǎo).
+ */
+export function withSpokenAlternatives(chars: string[], syllables: Syllable[]): Syllable[] {
+  return syllables.map((s, i) => {
+    const alt = new Set<Tone>(s.alt ?? []);
+    if (chars[i] === '一') [1, 2, 4].forEach((t) => alt.add(t as Tone));
+    if (chars[i] === '不') [2, 4].forEach((t) => alt.add(t as Tone));
+    if (s.tone === 3 && syllables[i + 1]?.tone === 3) alt.add(2);
+    alt.delete(s.tone);
+    return alt.size > 0 ? { ...s, alt: [...alt] } : s;
+  });
+}
+
 export type PinyinGrade = 'correct' | 'tones' | 'wrong';
 
 /**

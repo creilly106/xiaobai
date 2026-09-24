@@ -1,0 +1,1 @@
+ALTER TABLE `settings` ADD `production_enabled` integer DEFAULT true NOT NULL;

@@ -7,6 +7,7 @@ import {
   spokenTones,
   syllablesFromPinyin,
   syllableTone,
+  withSpokenAlternatives,
   toneless,
   type Syllable,
   type Tone,
@@ -77,9 +78,7 @@ export function wordSyllables(
           chars.map((c) => readingsOf(c, dict[c]?.pinyin)),
         );
   if (!parts || parts.length !== chars.length) return null;
-  return syllablesFromPinyin(parts).map((s, i) =>
-    chars[i] === '一' ? { ...s, alt: [1, 2, 4] } : chars[i] === '不' ? { ...s, alt: [2, 4] } : s,
-  );
+  return withSpokenAlternatives(chars, syllablesFromPinyin(parts));
 }
 
 /**

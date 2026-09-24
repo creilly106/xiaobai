@@ -7,7 +7,7 @@ import { nextState, Rating } from '@/lib/srs/engine';
 import type { CardState } from '@/db/schema';
 import { getStudyCard, type StudyCard } from '@/lib/queries/study';
 import { addDays, daysBetweenKeys, localDateKey, startOfLocalDay } from '@/lib/dates';
-import { backfillListeningCards } from '@/lib/listening-backfill';
+import { backfillFollowUpCards } from '@/lib/listening-backfill';
 import { writeBackupFile } from '@/lib/backup';
 
 export type ReviewRating = 1 | 2 | 3 | 4;
@@ -93,8 +93,11 @@ export async function rateCard(
   });
 
   // Graduated? Its listening card joins the queue (see Settings to turn off).
-  if (next.state === 'review' && (settings?.listeningEnabled ?? true)) {
-    await backfillListeningCards(db);
+  if (next.state === 'review') {
+    await backfillFollowUpCards(db, {
+      listening: settings?.listeningEnabled ?? true,
+      production: settings?.productionEnabled ?? true,
+    });
   }
 
   const todayKey = localDateKey(now);

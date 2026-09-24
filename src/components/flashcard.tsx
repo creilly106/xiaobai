@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Lightbulb } from 'lucide-react';
 import { Card } from '@/components/ui/card';
@@ -11,7 +12,13 @@ import { RatingButtons, type FlashcardRating } from '@/components/card-parts/rat
 import { useCardAudio } from '@/components/card-parts/use-card-audio';
 import { WordTools } from '@/components/card-parts/word-tools';
 import type { Dictionary } from '@/lib/queries/dictionary';
-import type { ListeningInfo } from '@/lib/queries/study';
+import type { ListeningInfo, ProductionInfo } from '@/lib/queries/study';
+import type { PinyinGrade } from '@/lib/pinyin';
+import {
+  ProductionPrompt,
+  TypedResult,
+  type TypedAnswer,
+} from '@/components/card-parts/production-prompt';
 
 export type { FlashcardRating };
 
@@ -25,6 +32,8 @@ export type FlashcardItem = {
   label?: string;
   /** Listening cards: the front is audio only. */
   listening?: ListeningInfo;
+  /** Production cards: the front is the English; you produce the Chinese. */
+  production?: ProductionInfo;
 };
 
 type Props<K extends string> = {
@@ -38,6 +47,8 @@ type Props<K extends string> = {
   showPinyinOnFront?: boolean;
   /** Shows a "Hint" button on the front that reveals the pinyin. */
   onHint?: () => void;
+  /** Which rating to suggest after a typed answer is checked. */
+  gradeToRating?: Partial<Record<PinyinGrade, K>>;
 };
 
 export function Flashcard<K extends string>({
@@ -50,8 +61,14 @@ export function Flashcard<K extends string>({
   dict,
   showPinyinOnFront,
   onHint,
+  gradeToRating,
 }: Props<K>) {
   const isWord = item.itemType === 'word';
+  // A typed answer belongs to one card; ignore it once the card changes.
+  const [typed, setTyped] = useState<{ key: FlashcardItem['key']; answer: TypedAnswer } | null>(
+    null,
+  );
+  const typedAnswer = typed?.key === item.key ? typed.answer : null;
   useCardAudio({
     cardKey: item.key,
     hanzi: item.hanzi,
@@ -87,6 +104,18 @@ export function Flashcard<K extends string>({
               )}
               {item.listening && !flipped ? (
                 <ListenPrompt listening={item.listening} />
+              ) : item.production && !flipped ? (
+                <ProductionPrompt
+                  key={item.key}
+                  meaning={item.meaning}
+                  charCount={Array.from(item.hanzi).length}
+                  pinyin={item.pinyin}
+                  syllables={item.production.syllables}
+                  onChecked={(answer) => {
+                    setTyped({ key: item.key, answer });
+                    onFlip();
+                  }}
+                />
               ) : (
                 <div
                   lang="zh-Hans"
@@ -126,6 +155,7 @@ export function Flashcard<K extends string>({
                       <AudioButton text={item.hanzi} reading={item.pinyin} />
                     </div>
                     <div className="max-w-md text-lg">{item.meaning}</div>
+                    {typedAnswer && <TypedResult answer={typedAnswer} pinyin={item.pinyin} />}
                     {item.listening ? (
                       <ListenNotes
                         hanzi={item.hanzi}
@@ -144,7 +174,9 @@ export function Flashcard<K extends string>({
                   </motion.div>
                 ) : (
                   <FrontHint
-                    listening={Boolean(item.listening)}
+                    kind={
+                      item.listening ? 'listening' : item.production ? 'production' : 'recognition'
+                    }
                     onHint={showPinyinOnFront ? undefined : onHint}
                   />
                 )}
@@ -154,12 +186,23 @@ export function Flashcard<K extends string>({
         </AnimatePresence>
       </div>
 
-      <RatingButtons ratings={ratings} enabled={flipped && !disabled} onRate={onRate} />
+      <RatingButtons
+        ratings={ratings}
+        enabled={flipped && !disabled}
+        onRate={onRate}
+        suggested={typedAnswer ? gradeToRating?.[typedAnswer.grade] : undefined}
+      />
     </>
   );
 }
 
-function FrontHint({ listening, onHint }: { listening: boolean; onHint?: () => void }) {
+const FRONT_PROMPT = {
+  recognition: 'Recall the meaning, then',
+  listening: 'Listen, recall the meaning, then',
+  production: 'Say it aloud, then',
+} as const;
+
+function FrontHint({ kind, onHint }: { kind: keyof typeof FRONT_PROMPT; onHint?: () => void }) {
   return (
     <motion.p
       key="hint"
@@ -169,7 +212,7 @@ function FrontHint({ listening, onHint }: { listening: boolean; onHint?: () => v
       transition={{ duration: 0.15 }}
       className="text-sm text-muted-foreground"
     >
-      {listening ? 'Listen, recall the meaning, then' : 'Recall the meaning, then'}{' '}
+      {FRONT_PROMPT[kind]}{' '}
       <span className="pointer-coarse:hidden">
         press{' '}
         <kbd className="rounded border border-border px-1.5 py-0.5 font-mono text-xs">Space</kbd>{' '}

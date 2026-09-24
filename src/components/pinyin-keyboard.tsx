@@ -10,6 +10,7 @@ import {
   typeTone,
   type PinyinDraft,
 } from '@/lib/pinyin-draft';
+import { lockTyping } from '@/lib/typing-lock';
 
 const ROWS = ['qwertyuiop', 'asdfghjkl', 'zxcvbnm'];
 const TONE_KEYS: { tone: Tone; label: string; hint: string }[] = [
@@ -32,6 +33,9 @@ type Props = {
  * (1–5 or the tone keys) to finish each syllable. v types ü.
  */
 export function PinyinKeyboard({ value, onChange, onSubmit, disabled }: Props) {
+  // Own the keyboard while active so page shortcuts (Space, 1–4, P…) stand down.
+  useEffect(() => (disabled ? undefined : lockTyping()), [disabled]);
+
   useEffect(() => {
     if (disabled) return;
     const onKey = (e: KeyboardEvent) => {

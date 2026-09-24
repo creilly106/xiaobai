@@ -5,10 +5,19 @@ import { connection } from 'next/server';
 import type { CardState } from '@/db/schema';
 import { db, schema } from '@/db/client';
 import { getAvailability, getSettings } from './settings';
-import { isListeningMode, modeFilter } from '@/lib/card-modes';
+import {
+  followUpsFrom,
+  isListeningMode,
+  isProductionMode,
+  modeFilter,
+  type FollowUpSettings,
+} from '@/lib/card-modes';
 import { audioFor } from '@/lib/audio-text';
 import { getNewCardPool } from './new-cards';
 import { interleave, spreadEarly } from '@/lib/queue-order';
+import type { Syllable } from '@/lib/pinyin';
+import { getDictionary } from './dictionary';
+import { wordSyllables } from './tones';
 
 export type StudyCard = {
   id: number;
@@ -23,6 +32,13 @@ export type StudyCard = {
   fails: number;
   /** Present on listening cards: what to play and what else sounds the same. */
   listening?: ListeningInfo;
+  /** Present on production cards (English → Chinese). */
+  production?: ProductionInfo;
+};
+
+export type ProductionInfo = {
+  /** Expected syllables for checking typed pinyin (null = letters only). */
+  syllables: Syllable[] | null;
 };
 
 export type ListeningInfo = {
@@ -91,11 +107,11 @@ function cardsQuery() {
     .leftJoin(schema.sentences, eq(schema.cards.sentenceId, schema.sentences.id));
 }
 
-function dueCards(states: CardState[], now: Date, listeningEnabled: boolean) {
+function dueCards(states: CardState[], now: Date, followUps: FollowUpSettings) {
   return cardsQuery().where(
     and(
       eq(schema.cards.suspended, false),
-      modeFilter(listeningEnabled),
+      modeFilter(followUps),
       lte(schema.cards.due, now),
       inArray(schema.cards.state, states),
     ),
@@ -105,7 +121,7 @@ function dueCards(states: CardState[], now: Date, listeningEnabled: boolean) {
 /** One card, e.g. to put it back in the session after an undo. */
 export async function getStudyCard(id: number): Promise<StudyCard | null> {
   const [row] = await cardsQuery().where(eq(schema.cards.id, id)).limit(1);
-  return row ? (await withListening([rowToStudyCard(row)]))[0] : null;
+  return row ? (await decorate([rowToStudyCard(row)]))[0] : null;
 }
 
 export async function getSuspendedCards(): Promise<StudyCard[]> {
@@ -133,6 +149,21 @@ function soundKey(pinyin: string): string {
     .normalize('NFC')
     .toLowerCase()
     .replace(/[\s'’·-]/g, '');
+}
+
+/** Attach what listening and production cards need to be shown. */
+async function decorate(cards: StudyCard[]): Promise<StudyCard[]> {
+  return withProduction(await withListening(cards));
+}
+
+async function withProduction(cards: StudyCard[]): Promise<StudyCard[]> {
+  if (!cards.some((c) => isProductionMode(c.mode))) return cards;
+  const dict = await getDictionary();
+  return cards.map((card) =>
+    isProductionMode(card.mode)
+      ? { ...card, production: { syllables: wordSyllables(card.hanzi, card.pinyin, dict) } }
+      : card,
+  );
 }
 
 /**
@@ -215,10 +246,10 @@ export async function getStudyQueue({
   const settings = await getSettings();
   const [avail, pool] = await Promise.all([
     getAvailability(now),
-    getNewCardPool(now, settings.listeningEnabled),
+    getNewCardPool(now, followUpsFrom(settings)),
   ]);
 
-  const learning = await dueCards(['learning', 'relearning'], now, settings.listeningEnabled)
+  const learning = await dueCards(['learning', 'relearning'], now, followUpsFrom(settings))
     .orderBy(asc(schema.cards.due))
     .limit(sessionSize);
 
@@ -226,7 +257,7 @@ export async function getStudyQueue({
   const reviewTake = Math.min(room, avail.reviewDue);
   const reviews =
     reviewTake > 0
-      ? await dueCards(['review'], now, settings.listeningEnabled)
+      ? await dueCards(['review'], now, followUpsFrom(settings))
           .orderBy(asc(schema.cards.due))
           .limit(reviewTake)
       : [];
@@ -245,5 +276,5 @@ export async function getStudyQueue({
     return row ? [row] : [];
   });
 
-  return withListening(spreadEarly(learning, interleave(reviews, news)).map(rowToStudyCard));
+  return decorate(spreadEarly(learning, interleave(reviews, news)).map(rowToStudyCard));
 }

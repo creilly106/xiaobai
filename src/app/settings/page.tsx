@@ -23,6 +23,7 @@ export default async function SettingsPage() {
     dailyReviewLimit: settings.dailyReviewLimit,
     retentionTarget: settings.retentionTarget,
     listeningEnabled: settings.listeningEnabled,
+    productionEnabled: settings.productionEnabled,
   };
 
   return (

@@ -6,6 +6,7 @@ import {
   spokenTones,
   syllableTone,
   toneless,
+  withSpokenAlternatives,
   type Syllable,
 } from './pinyin';
 
@@ -70,6 +71,35 @@ describe('spokenTones', () => {
   it('leaves other pairs alone', () => {
     expect(spokenTones([3, 4])).toEqual([3, 4]);
     expect(spokenTones([4, 3])).toEqual([4, 3]);
+  });
+});
+
+describe('withSpokenAlternatives', () => {
+  it('accepts the rising first syllable of a 3+3 pair', () => {
+    const [ni, hao] = withSpokenAlternatives(
+      ['你', '好'],
+      [
+        { letters: 'ni', tone: 3 },
+        { letters: 'hao', tone: 3 },
+      ],
+    );
+    expect(ni.alt).toEqual([2]);
+    expect(hao.alt).toBeUndefined();
+    expect(
+      gradePinyin(
+        [
+          { letters: 'ni', tone: 2 },
+          { letters: 'hao', tone: 3 },
+        ],
+        [ni, hao],
+      ),
+    ).toBe('correct');
+  });
+  it('lets 一 and 不 take their context tones', () => {
+    const [yi] = withSpokenAlternatives(['一'], [{ letters: 'yi', tone: 1 }]);
+    expect(yi.alt?.sort()).toEqual([2, 4]);
+    const [bu] = withSpokenAlternatives(['不'], [{ letters: 'bu', tone: 4 }]);
+    expect(bu.alt).toEqual([2]);
   });
 });
 

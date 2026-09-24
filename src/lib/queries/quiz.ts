@@ -129,8 +129,8 @@ async function fromCards(
   const conditions: SQL[] = [
     eq(schema.cards.suspended, false),
     inArray(schema.cards.state, filters.cardStates!),
-    // Quiz flashcards show the characters, so listening cards don't fit here.
-    modeFilter(false)!,
+    // Quiz flashcards show the characters, so listening/production cards don't fit here.
+    modeFilter({ listening: false, production: false })!,
   ];
 
   if (filters.lastReviewOlderThanDays !== undefined) {

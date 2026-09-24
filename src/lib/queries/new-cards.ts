@@ -3,7 +3,7 @@ import { and, eq, lte, ne } from 'drizzle-orm';
 import { db, schema } from '@/db/client';
 import { localDateKey } from '@/lib/dates';
 import { segmentWords } from '@/lib/segment';
-import { isListeningMode, modeFilter } from '@/lib/card-modes';
+import { isFollowUpMode, modeFilter, type FollowUpSettings } from '@/lib/card-modes';
 import { dailyRank, isSentenceUnlocked, orderNewCards, type NewWord } from '@/lib/queue-order';
 
 export type NewCardPool = {
@@ -22,7 +22,7 @@ export type NewCardPool = {
  */
 export async function getNewCardPool(
   now = new Date(),
-  listeningEnabled = true,
+  followUps: FollowUpSettings = { listening: true, production: true },
 ): Promise<NewCardPool> {
   const [newCards, wordRows, startedWordRows, sentenceCards] = await Promise.all([
     db
@@ -43,7 +43,7 @@ export async function getNewCardPool(
           eq(schema.cards.state, 'new'),
           eq(schema.cards.suspended, false),
           lte(schema.cards.due, now),
-          modeFilter(listeningEnabled),
+          modeFilter(followUps),
         ),
       ),
     db.select({ hanzi: schema.words.hanzi }).from(schema.words),
@@ -75,8 +75,8 @@ export async function getNewCardPool(
 
   const listening: number[] = [];
   for (const c of newCards) {
-    // Listening cards only exist for material you already know, so no gating.
-    if (isListeningMode(c.mode)) {
+    // Follow-up cards only exist for material you already know, so no gating.
+    if (isFollowUpMode(c.mode)) {
       listening.push(c.id);
       continue;
     }

@@ -159,6 +159,8 @@ export const settings = sqliteTable('settings', {
   retentionTarget: real('retention_target').notNull().default(0.9),
   /** Create listening cards for words and sentences once they graduate. */
   listeningEnabled: integer('listening_enabled', { mode: 'boolean' }).notNull().default(true),
+  /** Create English → Chinese cards for words once they graduate. */
+  productionEnabled: integer('production_enabled', { mode: 'boolean' }).notNull().default(true),
   streakDays: integer('streak_days').notNull().default(0),
   lastStudyDate: text('last_study_date'),
   createdAt: integer('created_at', { mode: 'timestamp_ms' })

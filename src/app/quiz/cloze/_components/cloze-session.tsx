@@ -8,23 +8,16 @@ import { Progress } from '@/components/ui/progress';
 import { AudioButton } from '@/components/audio-button';
 import { TokenizedHanzi } from '@/components/tokenized-hanzi';
 import { PinyinKeyboard } from '@/components/pinyin-keyboard';
-import { EMPTY_DRAFT, draftIsEmpty, draftSyllables, type PinyinDraft } from '@/lib/pinyin-draft';
+import { EMPTY_DRAFT, draftIsEmpty, gradeDraft, type PinyinDraft } from '@/lib/pinyin-draft';
 import { speak } from '@/lib/tts';
 import { celebrate } from '@/lib/celebrate';
-import { gradePinyin, markTone, toneless, type PinyinGrade } from '@/lib/pinyin';
+import type { PinyinGrade } from '@/lib/pinyin';
 import type { ClozeItem } from '@/lib/queries/cloze';
 import type { Dictionary } from '@/lib/queries/dictionary';
 
 export type AnswerMode = 'choose' | 'type';
 
 type Result = { grade: PinyinGrade; given: string };
-
-function gradeTyped(item: ClozeItem, draft: PinyinDraft): PinyinGrade {
-  const typed = draftSyllables(draft);
-  if (item.syllables) return gradePinyin(typed, item.syllables);
-  // Couldn't split the answer into syllables: letters only.
-  return typed.map((s) => s.letters).join('') === toneless(item.word.pinyin) ? 'correct' : 'wrong';
-}
 
 export function ClozeSession({
   items,
@@ -56,10 +49,8 @@ export function ClozeSession({
 
   const submitTyped = useCallback(() => {
     if (!item || result || draftIsEmpty(draft)) return;
-    const given = draftSyllables(draft)
-      .map((s) => markTone(s.letters, s.tone))
-      .join('');
-    finish(gradeTyped(item, draft), given);
+    const { grade, given } = gradeDraft(draft, item.syllables, item.word.pinyin);
+    finish(grade, given);
   }, [item, result, draft, finish]);
 
   const next = useCallback(() => {

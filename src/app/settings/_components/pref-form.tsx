@@ -13,6 +13,7 @@ type Props = {
     dailyReviewLimit: number;
     retentionTarget: number;
     listeningEnabled: boolean;
+    productionEnabled: boolean;
   };
 };
 
@@ -21,6 +22,7 @@ export function StudyPrefForm({ initial }: Props) {
   const [reviewLimit, setReviewLimit] = useState(initial.dailyReviewLimit);
   const [retention, setRetention] = useState(Math.round(initial.retentionTarget * 100));
   const [listening, setListening] = useState(initial.listeningEnabled);
+  const [production, setProduction] = useState(initial.productionEnabled);
   const [pending, startTransition] = useTransition();
 
   function save(e: React.FormEvent) {
@@ -32,6 +34,7 @@ export function StudyPrefForm({ initial }: Props) {
           dailyReviewLimit: reviewLimit,
           retentionTarget: retention / 100,
           listeningEnabled: listening,
+          productionEnabled: production,
         });
         // Show what was actually stored (out-of-range values are clamped).
         if (saved.dailyNewLimit != null) setNewLimit(saved.dailyNewLimit);
@@ -104,6 +107,16 @@ export function StudyPrefForm({ initial }: Props) {
           </p>
         </div>
         <ToggleSwitch value={listening} onChange={setListening} label="Listening cards" />
+      </div>
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border/60 px-4 py-3">
+        <div className="min-w-0 flex-1">
+          <div className="text-sm font-medium">Production cards</div>
+          <p className="text-xs text-muted-foreground">
+            Once a word graduates, add a card that shows the English and asks you to produce the
+            Chinese — say it aloud, or type the pinyin to have it checked.
+          </p>
+        </div>
+        <ToggleSwitch value={production} onChange={setProduction} label="Production cards" />
       </div>
       <div className="flex justify-end">
         <Button type="submit" disabled={pending}>

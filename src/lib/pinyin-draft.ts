@@ -1,5 +1,31 @@
 // What the on-screen pinyin keyboard has typed so far. Pure, so it can be tested.
-import type { Syllable, Tone } from '@/lib/pinyin';
+import {
+  gradePinyin,
+  markTone,
+  toneless,
+  type PinyinGrade,
+  type Syllable,
+  type Tone,
+} from '@/lib/pinyin';
+
+/**
+ * Grade what was typed against the expected syllables. Without syllables
+ * (the answer couldn't be split), only the letters are checked.
+ */
+export function gradeDraft(
+  d: PinyinDraft,
+  expected: Syllable[] | null,
+  pinyin: string,
+): { grade: PinyinGrade; given: string } {
+  const typed = draftSyllables(d);
+  const given = typed.map((s) => markTone(s.letters, s.tone)).join('');
+  const grade = expected
+    ? gradePinyin(typed, expected)
+    : typed.map((s) => s.letters).join('') === toneless(pinyin)
+      ? 'correct'
+      : 'wrong';
+  return { grade, given };
+}
 
 /** Finished syllables plus the one being typed (tone not chosen yet). */
 export type PinyinDraft = { done: Syllable[]; current: string };
