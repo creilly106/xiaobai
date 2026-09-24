@@ -12,7 +12,13 @@
     "db:studio": "drizzle-kit studio",
     "db:seed": "tsx scripts/seed.ts",
     "db:seed-scenarios": "tsx scripts/seed-scenarios.ts",
-    "data:chars": "tsx scripts/build-char-data.ts"
+    "data:chars": "tsx scripts/build-char-data.ts",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "check": "npm run format:check && npm run lint && npm run typecheck && npm run test"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",
@@ -44,8 +50,10 @@
     "drizzle-kit": "^0.31.11",
     "eslint": "^9",
     "eslint-config-next": "16.3.6",
+    "prettier": "^3.9.9",
     "tailwindcss": "^4",
     "tsx": "^4.23.15",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.11"
   }
 }

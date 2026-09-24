@@ -154,7 +154,11 @@ export function ClozeSession({
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col px-4 py-5">
       <div className="mb-4 flex items-center gap-3">
-        <Progress value={(index / items.length) * 100} className="flex-1" aria-label="Quiz progress" />
+        <Progress
+          value={(index / items.length) * 100}
+          className="flex-1"
+          aria-label="Quiz progress"
+        />
         <span className="text-sm tabular-nums text-muted-foreground">
           {index} / {items.length}
         </span>
@@ -214,7 +218,9 @@ export function ClozeSession({
                         : 'border-border/70 hover:border-primary/60 hover:bg-muted/40'
                   }`}
                 >
-                  <span className="font-mono text-xs text-muted-foreground pointer-coarse:hidden">{i + 1}</span>
+                  <span className="font-mono text-xs text-muted-foreground pointer-coarse:hidden">
+                    {i + 1}
+                  </span>
                   <span lang="zh-Hans">{opt}</span>
                 </button>
               );

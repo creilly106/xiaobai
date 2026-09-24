@@ -4,11 +4,7 @@ import { useEffect } from 'react';
 import { useTheme } from 'next-themes';
 import { Check, Monitor, Moon, Palette, Sun } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ACCENTS, ACCENT_STORAGE_KEY } from '@/lib/accent';
 import { useHydrated, useStoredPref } from '@/lib/use-client';
 

@@ -70,7 +70,11 @@ export const grammarPoints: GrammarPoint[] = [
       { hanzi: '你叫什么名字？', pinyin: 'nǐ jiào shénme míngzi?', meaning: "What's your name?" },
       { hanzi: '他是谁？', pinyin: 'tā shì shéi?', meaning: 'Who is he?' },
       { hanzi: '你在哪儿？', pinyin: 'nǐ zài nǎr?', meaning: 'Where are you?' },
-      { hanzi: '你为什么不来？', pinyin: 'nǐ wèishénme bù lái?', meaning: "Why aren't you coming?" },
+      {
+        hanzi: '你为什么不来？',
+        pinyin: 'nǐ wèishénme bù lái?',
+        meaning: "Why aren't you coming?",
+      },
     ],
   },
   {
@@ -79,8 +83,7 @@ export const grammarPoints: GrammarPoint[] = [
     englishTitle: '的 to show possession or description',
     hskLevel: 1,
     formula: 'Noun/Pronoun + 的 + Noun',
-    description:
-      '的 connects a modifier to what it describes. Roughly like English ’s or "of".',
+    description: '的 connects a modifier to what it describes. Roughly like English ’s or "of".',
     examples: [
       { hanzi: '我的书', pinyin: 'wǒ de shū', meaning: 'my book' },
       { hanzi: '老师的名字', pinyin: 'lǎoshī de míngzi', meaning: "the teacher's name" },
@@ -98,8 +101,16 @@ export const grammarPoints: GrammarPoint[] = [
       "Use 是...的 to focus on details (time, place, means, agent) of an already-known past event. It's not a general past marker.",
     examples: [
       { hanzi: '我是昨天来的。', pinyin: 'wǒ shì zuótiān lái de.', meaning: 'I came yesterday.' },
-      { hanzi: '他是坐飞机来的。', pinyin: 'tā shì zuò fēijī lái de.', meaning: 'He came by plane.' },
-      { hanzi: '你是从哪里来的？', pinyin: 'nǐ shì cóng nǎli lái de?', meaning: 'Where did you come from?' },
+      {
+        hanzi: '他是坐飞机来的。',
+        pinyin: 'tā shì zuò fēijī lái de.',
+        meaning: 'He came by plane.',
+      },
+      {
+        hanzi: '你是从哪里来的？',
+        pinyin: 'nǐ shì cóng nǎli lái de?',
+        meaning: 'Where did you come from?',
+      },
     ],
   },
   {
@@ -151,8 +162,16 @@ export const grammarPoints: GrammarPoint[] = [
     description:
       'Duration expressions come AFTER the verb. If there is an object, either repeat the verb or place the duration between verb and object.',
     examples: [
-      { hanzi: '我睡了八个小时。', pinyin: 'wǒ shuì le bā ge xiǎoshí.', meaning: 'I slept for 8 hours.' },
-      { hanzi: '他学中文学了两年。', pinyin: 'tā xué Zhōngwén xué le liǎng nián.', meaning: 'He studied Chinese for 2 years.' },
+      {
+        hanzi: '我睡了八个小时。',
+        pinyin: 'wǒ shuì le bā ge xiǎoshí.',
+        meaning: 'I slept for 8 hours.',
+      },
+      {
+        hanzi: '他学中文学了两年。',
+        pinyin: 'tā xué Zhōngwén xué le liǎng nián.',
+        meaning: 'He studied Chinese for 2 years.',
+      },
     ],
   },
   {
@@ -161,11 +180,18 @@ export const grammarPoints: GrammarPoint[] = [
     englishTitle: 'Have / there is',
     hskLevel: 1,
     formula: 'Subject + 有 + Object',
-    description:
-      '有 covers both "to have" and "there is/are". Its negative is 没有, never 不有.',
+    description: '有 covers both "to have" and "there is/are". Its negative is 没有, never 不有.',
     examples: [
-      { hanzi: '我有一个哥哥。', pinyin: 'wǒ yǒu yí ge gēge.', meaning: 'I have an older brother.' },
-      { hanzi: '桌子上有书。', pinyin: 'zhuōzi shàng yǒu shū.', meaning: 'There are books on the desk.' },
+      {
+        hanzi: '我有一个哥哥。',
+        pinyin: 'wǒ yǒu yí ge gēge.',
+        meaning: 'I have an older brother.',
+      },
+      {
+        hanzi: '桌子上有书。',
+        pinyin: 'zhuōzi shàng yǒu shū.',
+        meaning: 'There are books on the desk.',
+      },
       { hanzi: '我没有钱。', pinyin: 'wǒ méi yǒu qián.', meaning: "I don't have money." },
     ],
   },
@@ -191,7 +217,11 @@ export const grammarPoints: GrammarPoint[] = [
     description:
       "Verb-了 marks that an action has been completed. Don't over-use it — many past events don't need 了.",
     examples: [
-      { hanzi: '我吃了两碗饭。', pinyin: 'wǒ chī le liǎng wǎn fàn.', meaning: 'I ate two bowls of rice.' },
+      {
+        hanzi: '我吃了两碗饭。',
+        pinyin: 'wǒ chī le liǎng wǎn fàn.',
+        meaning: 'I ate two bowls of rice.',
+      },
       { hanzi: '他买了一本书。', pinyin: 'tā mǎi le yì běn shū.', meaning: 'He bought a book.' },
     ],
     notes:
@@ -222,7 +252,7 @@ export const grammarPoints: GrammarPoint[] = [
     examples: [
       { hanzi: '他站着。', pinyin: 'tā zhàn zhe.', meaning: 'He is standing.' },
       { hanzi: '门开着。', pinyin: 'mén kāi zhe.', meaning: 'The door is open.' },
-      { hanzi: '她笑着说。', pinyin: 'tā xiào zhe shuō.', meaning: "She said it smiling." },
+      { hanzi: '她笑着说。', pinyin: 'tā xiào zhe shuō.', meaning: 'She said it smiling.' },
     ],
   },
   {
@@ -235,7 +265,11 @@ export const grammarPoints: GrammarPoint[] = [
       '过 marks that you have (or have not) experienced something at some point. Not tied to a specific time.',
     examples: [
       { hanzi: '我去过北京。', pinyin: 'wǒ qù guo Běijīng.', meaning: 'I have been to Beijing.' },
-      { hanzi: '你吃过饺子吗？', pinyin: 'nǐ chī guo jiǎozi ma?', meaning: 'Have you ever had dumplings?' },
+      {
+        hanzi: '你吃过饺子吗？',
+        pinyin: 'nǐ chī guo jiǎozi ma?',
+        meaning: 'Have you ever had dumplings?',
+      },
     ],
   },
   {
@@ -246,8 +280,16 @@ export const grammarPoints: GrammarPoint[] = [
     description:
       '会 = learned skill. 能 = physical ability or circumstantial can. 可以 = permission or possibility.',
     examples: [
-      { hanzi: '我会说中文。', pinyin: 'wǒ huì shuō Zhōngwén.', meaning: 'I can speak Chinese (I learned).' },
-      { hanzi: '我不能来。', pinyin: 'wǒ bù néng lái.', meaning: "I can't come (something prevents it)." },
+      {
+        hanzi: '我会说中文。',
+        pinyin: 'wǒ huì shuō Zhōngwén.',
+        meaning: 'I can speak Chinese (I learned).',
+      },
+      {
+        hanzi: '我不能来。',
+        pinyin: 'wǒ bù néng lái.',
+        meaning: "I can't come (something prevents it).",
+      },
       { hanzi: '我可以走了吗？', pinyin: 'wǒ kěyǐ zǒu le ma?', meaning: 'May I leave now?' },
     ],
   },
@@ -259,7 +301,11 @@ export const grammarPoints: GrammarPoint[] = [
     description:
       '想 = would like to (softer, sometimes hypothetical). 要 = want to / need to / will (firmer, more assertive).',
     examples: [
-      { hanzi: '我想去中国。', pinyin: 'wǒ xiǎng qù Zhōngguó.', meaning: "I'd like to go to China." },
+      {
+        hanzi: '我想去中国。',
+        pinyin: 'wǒ xiǎng qù Zhōngguó.',
+        meaning: "I'd like to go to China.",
+      },
       { hanzi: '我要走了。', pinyin: 'wǒ yào zǒu le.', meaning: 'I need to leave now.' },
     ],
   },
@@ -273,7 +319,11 @@ export const grammarPoints: GrammarPoint[] = [
       'To compare A and B, use 比. Don\'t put 很 or 非常 before the adjective (✗ 他比我很高); 更 or 还 are fine (他比我更高 — "even taller"). For how much, add 一点儿, 多了 or 得多 after the adjective.',
     examples: [
       { hanzi: '他比我高。', pinyin: 'tā bǐ wǒ gāo.', meaning: 'He is taller than me.' },
-      { hanzi: '今天比昨天冷一点。', pinyin: 'jīntiān bǐ zuótiān lěng yìdiǎn.', meaning: 'Today is a bit colder than yesterday.' },
+      {
+        hanzi: '今天比昨天冷一点。',
+        pinyin: 'jīntiān bǐ zuótiān lěng yìdiǎn.',
+        meaning: 'Today is a bit colder than yesterday.',
+      },
     ],
   },
   {
@@ -282,11 +332,18 @@ export const grammarPoints: GrammarPoint[] = [
     englishTitle: 'As soon as ..., then ...',
     hskLevel: 3,
     formula: 'Subject + 一 + Verb1, Subject + 就 + Verb2',
-    description:
-      'Immediate sequence — as soon as A happens, B follows.',
+    description: 'Immediate sequence — as soon as A happens, B follows.',
     examples: [
-      { hanzi: '我一到家就睡觉。', pinyin: 'wǒ yí dào jiā jiù shuìjiào.', meaning: 'As soon as I get home I sleep.' },
-      { hanzi: '他一喝酒就脸红。', pinyin: 'tā yì hē jiǔ jiù liǎn hóng.', meaning: 'His face turns red as soon as he drinks.' },
+      {
+        hanzi: '我一到家就睡觉。',
+        pinyin: 'wǒ yí dào jiā jiù shuìjiào.',
+        meaning: 'As soon as I get home I sleep.',
+      },
+      {
+        hanzi: '他一喝酒就脸红。',
+        pinyin: 'tā yì hē jiǔ jiù liǎn hóng.',
+        meaning: 'His face turns red as soon as he drinks.',
+      },
     ],
   },
   {
@@ -298,8 +355,16 @@ export const grammarPoints: GrammarPoint[] = [
     description:
       "Uses 把 to move the object before the verb. Focuses on what happened TO the object. Almost always needs a complement (了 alone doesn't count — usually a result, direction, or place).",
     examples: [
-      { hanzi: '我把书放在桌子上。', pinyin: 'wǒ bǎ shū fàng zài zhuōzi shàng.', meaning: 'I put the book on the table.' },
-      { hanzi: '请把门关上。', pinyin: 'qǐng bǎ mén guānshàng.', meaning: 'Please close the door.' },
+      {
+        hanzi: '我把书放在桌子上。',
+        pinyin: 'wǒ bǎ shū fàng zài zhuōzi shàng.',
+        meaning: 'I put the book on the table.',
+      },
+      {
+        hanzi: '请把门关上。',
+        pinyin: 'qǐng bǎ mén guānshàng.',
+        meaning: 'Please close the door.',
+      },
     ],
   },
   {
@@ -308,11 +373,18 @@ export const grammarPoints: GrammarPoint[] = [
     englishTitle: 'Passive voice',
     hskLevel: 3,
     formula: 'Subject + 被 + (Agent) + Verb + Complement',
-    description:
-      'Passive marker. Usually reserved for negative or unfortunate outcomes.',
+    description: 'Passive marker. Usually reserved for negative or unfortunate outcomes.',
     examples: [
-      { hanzi: '我的手机被偷了。', pinyin: 'wǒ de shǒujī bèi tōu le.', meaning: 'My phone was stolen.' },
-      { hanzi: '他被老板批评了。', pinyin: 'tā bèi lǎobǎn pīpíng le.', meaning: 'He was criticized by the boss.' },
+      {
+        hanzi: '我的手机被偷了。',
+        pinyin: 'wǒ de shǒujī bèi tōu le.',
+        meaning: 'My phone was stolen.',
+      },
+      {
+        hanzi: '他被老板批评了。',
+        pinyin: 'tā bèi lǎobǎn pīpíng le.',
+        meaning: 'He was criticized by the boss.',
+      },
     ],
   },
   {
@@ -334,8 +406,7 @@ export const grammarPoints: GrammarPoint[] = [
     englishTitle: 'How well / how much did you do it?',
     hskLevel: 3,
     formula: 'Verb + 得 + Adjective',
-    description:
-      "Add 得 after a verb to describe how the action was done. Different 得 from 的.",
+    description: 'Add 得 after a verb to describe how the action was done. Different 得 from 的.',
     examples: [
       { hanzi: '他跑得很快。', pinyin: 'tā pǎo de hěn kuài.', meaning: 'He runs fast.' },
       { hanzi: '你说得很好。', pinyin: 'nǐ shuō de hěn hǎo.', meaning: 'You speak very well.' },
@@ -350,7 +421,11 @@ export const grammarPoints: GrammarPoint[] = [
     description:
       'Standard cause-and-result pair. Often either half can be dropped in casual speech.',
     examples: [
-      { hanzi: '因为下雨，所以我不去了。', pinyin: 'yīnwèi xià yǔ, suǒyǐ wǒ bú qù le.', meaning: 'Because it’s raining, I’m not going.' },
+      {
+        hanzi: '因为下雨，所以我不去了。',
+        pinyin: 'yīnwèi xià yǔ, suǒyǐ wǒ bú qù le.',
+        meaning: 'Because it’s raining, I’m not going.',
+      },
     ],
   },
   {
@@ -359,10 +434,13 @@ export const grammarPoints: GrammarPoint[] = [
     englishTitle: 'Although ..., but ...',
     hskLevel: 2,
     formula: '虽然 + Clause1, 但是 + Clause2',
-    description:
-      'Although X, still Y. Chinese usually keeps both 虽然 and 但是, unlike English.',
+    description: 'Although X, still Y. Chinese usually keeps both 虽然 and 但是, unlike English.',
     examples: [
-      { hanzi: '虽然很累，但是我很开心。', pinyin: 'suīrán hěn lèi, dànshì wǒ hěn kāixīn.', meaning: "Although I'm tired, I'm happy." },
+      {
+        hanzi: '虽然很累，但是我很开心。',
+        pinyin: 'suīrán hěn lèi, dànshì wǒ hěn kāixīn.',
+        meaning: "Although I'm tired, I'm happy.",
+      },
     ],
   },
   {
@@ -371,10 +449,13 @@ export const grammarPoints: GrammarPoint[] = [
     englishTitle: 'Not only ..., but also ...',
     hskLevel: 3,
     formula: '不但 + Clause1, 而且 + Clause2',
-    description:
-      'Add-on construction — the second clause reinforces the first.',
+    description: 'Add-on construction — the second clause reinforces the first.',
     examples: [
-      { hanzi: '他不但会中文，而且会日文。', pinyin: 'tā búdàn huì Zhōngwén, érqiě huì Rìwén.', meaning: 'He speaks not only Chinese but also Japanese.' },
+      {
+        hanzi: '他不但会中文，而且会日文。',
+        pinyin: 'tā búdàn huì Zhōngwén, érqiě huì Rìwén.',
+        meaning: 'He speaks not only Chinese but also Japanese.',
+      },
     ],
   },
   {
@@ -384,7 +465,7 @@ export const grammarPoints: GrammarPoint[] = [
     hskLevel: 1,
     formula: 'Number + Measure Word + Noun',
     description:
-      "Every counted noun needs a measure word. 个 is the default; specific ones exist for many kinds of things (本 for books, 张 for flat things, 只 for animals, 辆 for vehicles).",
+      'Every counted noun needs a measure word. 个 is the default; specific ones exist for many kinds of things (本 for books, 张 for flat things, 只 for animals, 辆 for vehicles).',
     examples: [
       { hanzi: '一个人', pinyin: 'yí ge rén', meaning: 'one person' },
       { hanzi: '两本书', pinyin: 'liǎng běn shū', meaning: 'two books' },

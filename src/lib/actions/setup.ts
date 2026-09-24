@@ -23,12 +23,7 @@ export async function seedHskLevel(level: number) {
   const existing = await db
     .select({ wordId: schema.cards.wordId })
     .from(schema.cards)
-    .where(
-      and(
-        inArray(schema.cards.wordId, wordIds),
-        eq(schema.cards.mode, 'recognition'),
-      ),
-    );
+    .where(and(inArray(schema.cards.wordId, wordIds), eq(schema.cards.mode, 'recognition')));
   const existingIds = new Set(existing.map((r) => r.wordId));
   const toCreate = wordIds.filter((id) => !existingIds.has(id));
 

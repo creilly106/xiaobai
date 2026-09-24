@@ -99,9 +99,7 @@ export function isAtomic(hanzi: string): boolean {
 /** Every character in the dataset whose top-level parts include one of `parts`. */
 export function charactersUsing(parts: string[]): string[] {
   const wanted = new Set(parts);
-  return Object.keys(data).filter(
-    (c) => !wanted.has(c) && decompose(c).some((p) => wanted.has(p)),
-  );
+  return Object.keys(data).filter((c) => !wanted.has(c) && decompose(c).some((p) => wanted.has(p)));
 }
 
 export function etymologyOf(hanzi: string): Etymology | null {

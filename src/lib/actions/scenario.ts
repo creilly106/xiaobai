@@ -46,11 +46,7 @@ export async function addScenarioToQueue(slug: string) {
   if (typeof slug !== 'string' || !/^[a-z0-9-]{1,64}$/.test(slug)) {
     return { created: 0, message: 'Scenario not found.' };
   }
-  const [tag] = await db
-    .select()
-    .from(schema.tags)
-    .where(eq(schema.tags.slug, slug))
-    .limit(1);
+  const [tag] = await db.select().from(schema.tags).where(eq(schema.tags.slug, slug)).limit(1);
   if (!tag) return { created: 0, message: 'Scenario not found.' };
 
   const sentenceRows = await db

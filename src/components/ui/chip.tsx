@@ -7,12 +7,7 @@ type ChipProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   as?: 'button';
 };
 
-export function Chip({
-  selected = false,
-  className = '',
-  children,
-  ...props
-}: ChipProps) {
+export function Chip({ selected = false, className = '', children, ...props }: ChipProps) {
   return (
     <button
       type="button"

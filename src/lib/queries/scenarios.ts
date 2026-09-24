@@ -54,15 +54,9 @@ export type ScenarioDetail = {
   }[];
 };
 
-export async function getScenarioBySlug(
-  slug: string,
-): Promise<ScenarioDetail | null> {
+export async function getScenarioBySlug(slug: string): Promise<ScenarioDetail | null> {
   await connection();
-  const [tag] = await db
-    .select()
-    .from(schema.tags)
-    .where(eq(schema.tags.slug, slug))
-    .limit(1);
+  const [tag] = await db.select().from(schema.tags).where(eq(schema.tags.slug, slug)).limit(1);
   if (!tag || tag.type !== 'scenario') return null;
 
   const rows = await db

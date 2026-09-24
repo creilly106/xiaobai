@@ -59,8 +59,7 @@ export default async function SettingsPage() {
               <AccentChoice />
             </div>
             <p className="text-xs text-muted-foreground sm:col-span-2">
-              Also available from the palette icon in the header. Saved in this
-              browser.
+              Also available from the palette icon in the header. Saved in this browser.
             </p>
           </CardContent>
         </Card>
@@ -69,12 +68,19 @@ export default async function SettingsPage() {
           <CardHeader className="pb-3">
             <CardTitle className="text-base">
               Suspended cards{' '}
-              <span className="text-xs font-normal text-muted-foreground">({suspended.length})</span>
+              <span className="text-xs font-normal text-muted-foreground">
+                ({suspended.length})
+              </span>
             </CardTitle>
           </CardHeader>
           <CardContent>
             <SuspendedList
-              cards={suspended.map(({ id, hanzi, pinyin, meaning }) => ({ id, hanzi, pinyin, meaning }))}
+              cards={suspended.map(({ id, hanzi, pinyin, meaning }) => ({
+                id,
+                hanzi,
+                pinyin,
+                meaning,
+              }))}
             />
           </CardContent>
         </Card>
@@ -88,9 +94,8 @@ export default async function SettingsPage() {
               <div className="max-w-md">
                 <div className="text-sm font-medium">Reset review history</div>
                 <p className="text-xs text-muted-foreground">
-                  Deletes your review log (stats, heatmap, rating counts) and
-                  resets your streak. Cards keep their current schedule, so
-                  nothing you&apos;ve learned is forgotten.
+                  Deletes your review log (stats, heatmap, rating counts) and resets your streak.
+                  Cards keep their current schedule, so nothing you&apos;ve learned is forgotten.
                 </p>
               </div>
               <ResetReviewsButton />

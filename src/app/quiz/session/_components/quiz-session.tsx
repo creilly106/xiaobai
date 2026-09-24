@@ -123,9 +123,8 @@ export function QuizSession({
           Quiz complete
         </motion.h1>
         <p className="mt-2 text-muted-foreground">
-          You recalled{' '}
-          <span className="font-semibold text-foreground">{recalled}</span> of {total} (
-          {pct}%).
+          You recalled <span className="font-semibold text-foreground">{recalled}</span> of {total}{' '}
+          ({pct}%).
         </p>
         <p className="mt-1 text-xs text-muted-foreground">
           {srsMode

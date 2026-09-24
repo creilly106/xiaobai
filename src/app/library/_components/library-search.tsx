@@ -5,22 +5,19 @@ import { useEffect, useRef, useState, useTransition } from 'react';
 import { Search, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
-export function LibrarySearch({
-  initialQuery,
-  level,
-}: {
-  initialQuery: string;
-  level: string;
-}) {
+export function LibrarySearch({ initialQuery, level }: { initialQuery: string; level: string }) {
   const router = useRouter();
   const pathname = usePathname();
   const [value, setValue] = useState(initialQuery);
   const [pending, startTransition] = useTransition();
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  useEffect(() => () => {
-    if (timer.current) clearTimeout(timer.current);
-  }, []);
+  useEffect(
+    () => () => {
+      if (timer.current) clearTimeout(timer.current);
+    },
+    [],
+  );
 
   function push(q: string) {
     const params = new URLSearchParams();

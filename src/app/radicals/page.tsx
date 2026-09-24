@@ -136,7 +136,12 @@ function RadicalCard({ radical: r, dict }: { radical: Radical; dict: Dictionary 
             </div>
             <div className="mt-0.5 flex items-center gap-1 font-medium">
               {r.pinyin}
-              <AudioButton text={r.hanzi} label={`Play ${r.hanzi}`} className="-my-1" />
+              <AudioButton
+                text={r.hanzi}
+                reading={r.pinyin}
+                label={`Play ${r.hanzi}`}
+                className="-my-1"
+              />
             </div>
             <div className="text-sm">{r.meaning}</div>
           </div>

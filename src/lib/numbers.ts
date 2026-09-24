@@ -78,8 +78,7 @@ export function toChinese(n: number, { liang = true }: ChineseNumberOptions = {}
     // A gap inside the number (10005 → 一万零五) is read as a single 零.
     if (out && (needZero || value < 1000)) out += '零';
     needZero = false;
-    const text =
-      value === 2 && g > 0 && liang ? '两' : groupToChinese(value, liang);
+    const text = value === 2 && g > 0 && liang ? '两' : groupToChinese(value, liang);
     out += text + GROUPS[g];
   }
   // 10–19 at the very start drop the 一: 十五, 十万 (but 一百一十五).

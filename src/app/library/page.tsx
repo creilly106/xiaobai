@@ -12,9 +12,7 @@ export const metadata = { title: 'Library' };
 
 const PAGE_LIMIT = 200;
 
-export default async function LibraryPage({
-  searchParams,
-}: PageProps<'/library'>) {
+export default async function LibraryPage({ searchParams }: PageProps<'/library'>) {
   await connection();
   const sp = await searchParams;
   const q = (Array.isArray(sp.q) ? sp.q[0] : sp.q)?.trim().slice(0, 50) ?? '';
@@ -43,8 +41,7 @@ export default async function LibraryPage({
     levelStats.set(w.hskLevel, s);
   }
   const levels = [...levelStats.keys()].sort((a, b) => a - b);
-  const level =
-    levelParam && levels.includes(Number(levelParam)) ? levelParam : 'all';
+  const level = levelParam && levels.includes(Number(levelParam)) ? levelParam : 'all';
 
   const needle = q.toLowerCase();
   const needlePinyin = plainPinyin(q);
@@ -72,8 +69,8 @@ export default async function LibraryPage({
     <div className="mx-auto w-full max-w-4xl px-4 py-10">
       <h1 className="text-2xl font-semibold">Library</h1>
       <p className="mt-1 text-sm text-muted-foreground">
-        {words.length.toLocaleString()} words across HSK {levels[0]}–
-        {levels[levels.length - 1]}. Click a word to open its character page.
+        {words.length.toLocaleString()} words across HSK {levels[0]}–{levels[levels.length - 1]}.
+        Click a word to open its character page.
       </p>
 
       <section aria-labelledby="levels-heading" className="mt-6">
@@ -94,9 +91,7 @@ export default async function LibraryPage({
                 <div>
                   <div className="text-sm font-medium">HSK {l}</div>
                   <div className="text-xs text-muted-foreground">
-                    {s.inQueue === 0
-                      ? `${s.total} words`
-                      : `${s.inQueue}/${s.total} in queue`}
+                    {s.inQueue === 0 ? `${s.total} words` : `${s.inQueue}/${s.total} in queue`}
                   </div>
                 </div>
                 <HskLevelChip level={l} inQueue={s.inQueue > 0} />
@@ -141,11 +136,7 @@ export default async function LibraryPage({
       {shown.length > 0 && (
         <ul className="mt-2 divide-y divide-border/60 rounded-lg border border-border/60 bg-card">
           {shown.map((w) => (
-            <WordRow
-              key={w.id}
-              word={{ ...w, inQueue: Number(w.cardCount) > 0 }}
-              dict={dict}
-            />
+            <WordRow key={w.id} word={{ ...w, inQueue: Number(w.cardCount) > 0 }} dict={dict} />
           ))}
         </ul>
       )}

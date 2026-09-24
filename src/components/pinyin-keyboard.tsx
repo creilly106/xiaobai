@@ -131,7 +131,9 @@ export function PinyinKeyboard({ value, onChange, onSubmit, disabled }: Props) {
           <div
             key={row}
             className="grid gap-1.5"
-            style={{ gridTemplateColumns: `repeat(${r === 2 ? row.length + 2 : row.length}, minmax(0, 1fr))` }}
+            style={{
+              gridTemplateColumns: `repeat(${r === 2 ? row.length + 2 : row.length}, minmax(0, 1fr))`,
+            }}
           >
             {r === 2 && (
               <button

@@ -76,9 +76,7 @@ export default async function Home() {
                 Today&apos;s session
               </div>
               <div className="mt-1 flex items-baseline gap-2">
-                <span className="text-4xl font-semibold tabular-nums">
-                  {a.totalDue}
-                </span>
+                <span className="text-4xl font-semibold tabular-nums">{a.totalDue}</span>
                 <span className="text-muted-foreground">
                   card{a.totalDue === 1 ? '' : 's'} ready
                 </span>
@@ -87,16 +85,12 @@ export default async function Home() {
                 <Pill>{a.learningDue} learning</Pill>
                 <Pill>{a.reviewDue} review</Pill>
                 <Pill>
-                  {a.newAvailable} new · {newUsedToday}/{stats.dailyNewLimit}{' '}
-                  introduced today
+                  {a.newAvailable} new · {newUsedToday}/{stats.dailyNewLimit} introduced today
                 </Pill>
               </div>
             </div>
             {a.totalDue > 0 ? (
-              <Link
-                href="/study"
-                className={buttonVariants({ size: 'lg', className: 'px-6' })}
-              >
+              <Link href="/study" className={buttonVariants({ size: 'lg', className: 'px-6' })}>
                 Start session
               </Link>
             ) : (
@@ -107,10 +101,7 @@ export default async function Home() {
                     ? `Next card due in ${formatRelativeFuture(a.nextDueInMs)}.`
                     : 'Nothing scheduled.'}
                 <div className="mt-2">
-                  <Link
-                    href="/quiz"
-                    className={buttonVariants({ variant: 'outline', size: 'sm' })}
-                  >
+                  <Link href="/quiz" className={buttonVariants({ variant: 'outline', size: 'sm' })}>
                     Practice with a quiz
                   </Link>
                 </div>

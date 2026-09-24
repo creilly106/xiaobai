@@ -1,28 +1,13 @@
 import 'server-only';
 import { connection } from 'next/server';
-import {
-  and,
-  eq,
-  inArray,
-  isNotNull,
-  isNull,
-  lte,
-  or,
-  sql,
-  type SQL,
-} from 'drizzle-orm';
+import { and, eq, inArray, isNotNull, isNull, lte, or, sql, type SQL } from 'drizzle-orm';
 import { db, schema } from '@/db/client';
 import type { CardState } from '@/db/schema';
 import { modeFilter } from '@/lib/card-modes';
 
 export type QuizItemType = 'word' | 'sentence' | 'both';
 
-export const CARD_STATES: readonly CardState[] = [
-  'new',
-  'learning',
-  'review',
-  'relearning',
-];
+export const CARD_STATES: readonly CardState[] = ['new', 'learning', 'review', 'relearning'];
 
 export type QuizFilters = {
   itemType: QuizItemType;
@@ -150,9 +135,7 @@ async function fromCards(
 
   if (filters.lastReviewOlderThanDays !== undefined) {
     const cutoff = new Date(Date.now() - filters.lastReviewOlderThanDays * 86_400_000);
-    conditions.push(
-      or(isNull(schema.cards.lastReview), lte(schema.cards.lastReview, cutoff))!,
-    );
+    conditions.push(or(isNull(schema.cards.lastReview), lte(schema.cards.lastReview, cutoff))!);
   }
 
   const wordSide: SQL | undefined = wantsWords

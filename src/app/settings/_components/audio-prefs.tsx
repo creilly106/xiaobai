@@ -25,7 +25,12 @@ export function AudioPrefs() {
         />
       </div>
       <div className="flex flex-wrap items-center gap-3 text-sm">
-        <Button variant="outline" size="sm" onClick={() => speak('你好，欢迎学习中文。')} disabled={!tts}>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => speak('你好，欢迎学习中文。')}
+          disabled={!tts}
+        >
           Test voice
         </Button>
         <span className="text-xs text-muted-foreground">

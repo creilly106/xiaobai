@@ -30,7 +30,9 @@ async function main() {
   grammarPoints.forEach((g) => g.examples.forEach((e) => add(e.hanzi)));
 
   const missing = [...seen].filter((c) => !have.has(c) && !charGlosses[c]).sort();
-  console.log(`words=${have.size} glosses=${Object.keys(charGlosses).length} seen=${seen.size} uncovered=${missing.length}`);
+  console.log(
+    `words=${have.size} glosses=${Object.keys(charGlosses).length} seen=${seen.size} uncovered=${missing.length}`,
+  );
   console.log(missing.join(''));
   client.close();
 }

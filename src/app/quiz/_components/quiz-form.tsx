@@ -19,9 +19,7 @@ export function QuizForm({ scenarios, hskLevels }: Props) {
   const router = useRouter();
   const [itemType, setItemType] = useState<ItemType>('both');
   const [selectedHsk, setSelectedHsk] = useState<Set<number>>(new Set());
-  const [selectedScenarios, setSelectedScenarios] = useState<Set<string>>(
-    new Set(),
-  );
+  const [selectedScenarios, setSelectedScenarios] = useState<Set<string>>(new Set());
   const [selectedStates, setSelectedStates] = useState<Set<string>>(new Set());
   const [srsMode, setSrsMode] = useState(false);
   const [pinyinFront, setPinyinFront] = useState(false);
@@ -45,7 +43,8 @@ export function QuizForm({ scenarios, hskLevels }: Props) {
       params.set('answer', answerMode);
       params.set('count', String(Math.max(1, Math.min(count, 50))));
       if (includeGrammar) params.set('grammar', '1');
-      if (selectedScenarios.size > 0) params.set('scenarios', Array.from(selectedScenarios).join(','));
+      if (selectedScenarios.size > 0)
+        params.set('scenarios', Array.from(selectedScenarios).join(','));
       if (knownOnly) params.set('known', '1');
       router.push(`/quiz/cloze?${params.toString()}`);
       return;
@@ -81,9 +80,8 @@ export function QuizForm({ scenarios, hskLevels }: Props) {
               Refresher
             </div>
             <p className="mt-0.5 text-xs text-muted-foreground">
-              Spot-check 10 mature cards (graduated review-state) you
-              haven&apos;t seen in a few days. Practice only — nothing changes
-              in your queue.
+              Spot-check 10 mature cards (graduated review-state) you haven&apos;t seen in a few
+              days. Practice only — nothing changes in your queue.
             </p>
           </div>
           <Button
@@ -193,11 +191,7 @@ export function QuizForm({ scenarios, hskLevels }: Props) {
             <CardContent>
               <div className="flex flex-wrap gap-2">
                 {(['both', 'word', 'sentence'] as const).map((v) => (
-                  <Chip
-                    key={v}
-                    selected={itemType === v}
-                    onClick={() => setItemType(v)}
-                  >
+                  <Chip key={v} selected={itemType === v} onClick={() => setItemType(v)}>
                     {v === 'both'
                       ? 'Words + sentences'
                       : v === 'word'
@@ -214,9 +208,7 @@ export function QuizForm({ scenarios, hskLevels }: Props) {
               <CardHeader className="pb-2">
                 <CardTitle className="text-base">
                   HSK levels{' '}
-                  <span className="text-xs font-normal text-muted-foreground">
-                    (empty = any)
-                  </span>
+                  <span className="text-xs font-normal text-muted-foreground">(empty = any)</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -246,25 +238,19 @@ export function QuizForm({ scenarios, hskLevels }: Props) {
               <CardHeader className="pb-2">
                 <CardTitle className="text-base">
                   Scenarios{' '}
-                  <span className="text-xs font-normal text-muted-foreground">
-                    (empty = any)
-                  </span>
+                  <span className="text-xs font-normal text-muted-foreground">(empty = any)</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 {scenarios.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">
-                    No scenarios seeded.
-                  </p>
+                  <p className="text-sm text-muted-foreground">No scenarios seeded.</p>
                 ) : (
                   <div className="flex flex-wrap gap-2">
                     {scenarios.map((s) => (
                       <Chip
                         key={s.slug}
                         selected={selectedScenarios.has(s.slug)}
-                        onClick={() =>
-                          setSelectedScenarios(toggle(selectedScenarios, s.slug))
-                        }
+                        onClick={() => setSelectedScenarios(toggle(selectedScenarios, s.slug))}
                       >
                         {s.name}
                       </Chip>
@@ -297,15 +283,11 @@ export function QuizForm({ scenarios, hskLevels }: Props) {
                   <Chip
                     key={s.key}
                     selected={selectedStates.has(s.key)}
-                    onClick={() =>
-                      setSelectedStates(toggle(selectedStates, s.key))
-                    }
+                    onClick={() => setSelectedStates(toggle(selectedStates, s.key))}
                     title={s.hint}
                   >
                     {s.label}{' '}
-                    <span className="ml-1 text-[10px] font-normal opacity-70">
-                      ({s.hint})
-                    </span>
+                    <span className="ml-1 text-[10px] font-normal opacity-70">({s.hint})</span>
                   </Chip>
                 ))}
               </div>
@@ -335,11 +317,7 @@ export function QuizForm({ scenarios, hskLevels }: Props) {
         <CardContent>
           <div className="flex flex-wrap items-center gap-2">
             {[5, 10, 20, 50].map((n) => (
-              <Chip
-                key={n}
-                selected={count === n}
-                onClick={() => setCount(n)}
-              >
+              <Chip key={n} selected={count === n} onClick={() => setCount(n)}>
                 {n}
               </Chip>
             ))}

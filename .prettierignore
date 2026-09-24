@@ -1,0 +1,8 @@
+node_modules
+.next
+data
+drizzle
+scripts/.cache
+src/lib/generated
+package-lock.json
+next-env.d.ts

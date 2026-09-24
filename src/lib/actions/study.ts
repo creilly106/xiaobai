@@ -99,8 +99,7 @@ export async function rateCard(
   const todayKey = localDateKey(now);
   if (settings && settings.lastStudyDate !== todayKey) {
     const continues =
-      settings.lastStudyDate != null &&
-      daysBetweenKeys(settings.lastStudyDate, todayKey) === 1;
+      settings.lastStudyDate != null && daysBetweenKeys(settings.lastStudyDate, todayKey) === 1;
     await db
       .update(schema.settings)
       .set({
@@ -120,11 +119,7 @@ export type UndoResult =
   | { undone: true; rating: number; restored: StudyCard; message: string };
 
 export async function undoLastReview(): Promise<UndoResult> {
-  const [last] = await db
-    .select()
-    .from(schema.reviews)
-    .orderBy(desc(schema.reviews.id))
-    .limit(1);
+  const [last] = await db.select().from(schema.reviews).orderBy(desc(schema.reviews.id)).limit(1);
   if (!last) return { undone: false, message: 'Nothing to undo.' };
 
   let prev: Record<string, unknown> = {};

@@ -27,7 +27,7 @@ export function SuspendedList({ cards }: { cards: Item[] }) {
           <span className="min-w-0 flex-1 truncate text-sm text-muted-foreground">
             {c.pinyin} — {c.meaning}
           </span>
-          <AudioButton text={c.hanzi} />
+          <AudioButton text={c.hanzi} reading={c.pinyin} />
           <Button
             size="sm"
             variant="outline"

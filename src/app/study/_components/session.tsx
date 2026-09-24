@@ -1,23 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
-import Link from 'next/link';
-import { AnimatePresence, motion } from 'framer-motion';
-import {
-  Undo2,
-  Eye,
-  EyeOff,
-  Volume2,
-  VolumeX,
-  MoreHorizontal,
-  MoonStar,
-  PauseCircle,
-  TriangleAlert,
-} from 'lucide-react';
 import { toast } from 'sonner';
-import { Progress } from '@/components/ui/progress';
-import { Button, buttonVariants } from '@/components/ui/button';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Flashcard } from '@/components/flashcard';
 import { STATE_LABEL, STUDY_RATINGS, type StudyRating } from '@/components/rating-styles';
 import { primeVoices } from '@/lib/tts';
@@ -35,6 +19,8 @@ import {
 import type { StudyCard } from '@/lib/queries/study';
 import type { Dictionary } from '@/lib/queries/dictionary';
 import { TeachCard } from './teach-card';
+import { SessionComplete } from './session-complete';
+import { LeechBanner, QueueCounts, SessionToolbar } from './session-toolbar';
 
 type Props = {
   initialQueue: StudyCard[];
@@ -73,7 +59,6 @@ export function Session({ initialQueue, dict }: Props) {
   );
   const [flipped, setFlipped] = useState(false);
   const [hinted, setHinted] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
   const [startedAt, setStartedAt] = useState(() => Date.now());
   const [done, setDone] = useState(0);
   const [rated, setRated] = useState(0);
@@ -250,48 +235,17 @@ export function Session({ initialQueue, dict }: Props) {
   }, [flipped, current, pending, submit, doUndo, finishTeach]);
 
   if (!current) {
-    const recalled = tally.hard + tally.good + tally.easy;
     return (
-      <div className="mx-auto w-full max-w-xl px-4 py-16 text-center">
-        <motion.h1
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-2xl font-semibold"
-        >
-          Session complete
-        </motion.h1>
-        <p className="mt-2 text-muted-foreground">
-          {learned > 0 && `${learned} new card${learned === 1 ? '' : 's'} learned · `}
-          {rated} review{rated === 1 ? '' : 's'}
-          {rated > 0 && ` · recalled ${Math.round((recalled / rated) * 100)}%`}
-        </p>
-        {rated > 0 && (
-          <div className="mt-5 grid grid-cols-4 gap-2 text-sm">
-            {STUDY_RATINGS.map((r) => (
-              <div key={r.key} className={`rounded-md border py-2 ${r.className}`}>
-                <div className="font-semibold">{r.label}</div>
-                <div className="tabular-nums">{tally[r.key]}</div>
-              </div>
-            ))}
-          </div>
-        )}
-        <div className="mt-6 flex flex-wrap justify-center gap-3">
-          <Link href="/" className={buttonVariants({})}>
-            Back to home
-          </Link>
-          <Link href="/study" className={buttonVariants({ variant: 'outline' })}>
-            Check for more
-          </Link>
-          <Button variant="ghost" onClick={doUndo} disabled={pending || rated === 0}>
-            <Undo2 /> Undo last
-          </Button>
-        </div>
-      </div>
+      <SessionComplete
+        learned={learned}
+        rated={rated}
+        tally={tally}
+        pending={pending}
+        onUndo={doUndo}
+      />
     );
   }
 
-  const remaining = queue.length;
-  const percent = Math.round((done / Math.max(done + remaining, 1)) * 100);
   const card = current.card;
   const counts = {
     new: queue.filter((e) => e.phase === 'teach').length,
@@ -300,139 +254,32 @@ export function Session({ initialQueue, dict }: Props) {
     review: queue.filter((e) => e.phase === 'test' && e.card.state === 'review').length,
   };
   const isLeech = current.phase === 'test' && card.fails >= LEECH_FAILS;
+  const stateLabel = card.state === 'new' ? 'new' : (STATE_LABEL[card.state] ?? card.state);
 
   return (
     <div className="mx-auto flex min-h-[calc(100dvh-3.5rem)] w-full max-w-2xl flex-col px-4 py-5">
-      <div className="flex items-center gap-2">
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon-sm"
-          aria-label="Undo last rating"
-          aria-keyshortcuts="Control+Z"
-          disabled={rated === 0 || pending}
-          onClick={doUndo}
-          title="Undo last rating (Ctrl+Z)"
-        >
-          <Undo2 />
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon-sm"
-          aria-label="Always show pinyin before revealing the answer"
-          aria-pressed={pinyinAlways}
-          onClick={() => setPinyinPref(pinyinAlways ? '0' : '1')}
-          title={
-            pinyinAlways
-              ? 'Pinyin always shown — click to hide'
-              : 'Pinyin hidden until flip — click to always show'
-          }
-        >
-          {pinyinAlways ? <Eye /> : <EyeOff />}
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon-sm"
-          aria-label="Play audio automatically when the answer is shown"
-          aria-pressed={autoplay}
-          onClick={() => setAutoplayPref(autoplay ? '0' : '1')}
-          title={
-            autoplay
-              ? 'Audio plays on reveal — click to turn off (P replays)'
-              : 'Audio off on reveal — click to turn on (P still plays)'
-          }
-        >
-          {autoplay ? <Volume2 /> : <VolumeX />}
-        </Button>
-        <Progress value={percent} className="flex-1" aria-label="Session progress" />
-        <AnimatePresence mode="popLayout" initial={false}>
-          <motion.span
-            key={done}
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -6 }}
-            transition={{ duration: 0.18 }}
-            className="min-w-12 text-right text-sm tabular-nums text-muted-foreground"
-          >
-            {done} / {done + remaining}
-          </motion.span>
-        </AnimatePresence>
-        <Popover open={menuOpen} onOpenChange={setMenuOpen}>
-          <PopoverTrigger
-            render={
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon-sm"
-                aria-label="Card options"
-                title="Card options"
-                disabled={pending}
-              />
-            }
-          >
-            <MoreHorizontal />
-          </PopoverTrigger>
-          <PopoverContent align="end" className="w-64 gap-1 p-1.5">
-            <CardOption
-              icon={<MoonStar />}
-              label="Skip until tomorrow"
-              desc="Hide this card for today. No rating is recorded."
-              onClick={() => {
-                setMenuOpen(false);
-                setAside('bury');
-              }}
-            />
-            <CardOption
-              icon={<PauseCircle />}
-              label="Suspend card"
-              desc="Stop showing it until you unsuspend it in Settings."
-              onClick={() => {
-                setMenuOpen(false);
-                setAside('suspend');
-              }}
-            />
-          </PopoverContent>
-        </Popover>
-      </div>
-
-      <div
-        className="mb-4 mt-2 flex justify-center gap-3 text-xs text-muted-foreground"
-        aria-label="Cards left"
-      >
-        <span>
-          <span className="font-medium text-primary tabular-nums">{counts.new}</span> new
-        </span>
-        <span>
-          <span className="font-medium text-foreground tabular-nums">{counts.learning}</span>{' '}
-          learning
-        </span>
-        <span>
-          <span className="font-medium text-foreground tabular-nums">{counts.review}</span> review
-        </span>
-      </div>
+      <SessionToolbar
+        done={done}
+        remaining={queue.length}
+        pending={pending}
+        canUndo={rated > 0}
+        onUndo={doUndo}
+        pinyinAlways={pinyinAlways}
+        onTogglePinyin={() => setPinyinPref(pinyinAlways ? '0' : '1')}
+        autoplay={autoplay}
+        onToggleAutoplay={() => setAutoplayPref(autoplay ? '0' : '1')}
+        onBury={() => setAside('bury')}
+        onSuspend={() => setAside('suspend')}
+      />
+      <QueueCounts counts={counts} />
 
       {isLeech && (
-        <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm">
-          <TriangleAlert className="size-4 shrink-0 text-amber-600 dark:text-amber-400" />
-          <span className="min-w-0 flex-1">
-            This one keeps slipping ({card.fails} misses). Try the hint, or give it a rest.
-          </span>
-          <span className="flex gap-1">
-            <Button size="sm" variant="ghost" onClick={() => setAside('bury')} disabled={pending}>
-              Skip today
-            </Button>
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => setAside('suspend')}
-              disabled={pending}
-            >
-              Suspend
-            </Button>
-          </span>
-        </div>
+        <LeechBanner
+          fails={card.fails}
+          pending={pending}
+          onBury={() => setAside('bury')}
+          onSuspend={() => setAside('suspend')}
+        />
       )}
 
       {current.phase === 'teach' ? (
@@ -452,10 +299,10 @@ export function Session({ initialQueue, dict }: Props) {
             pinyin: card.pinyin,
             meaning: card.meaning,
             label: card.listening
-              ? `Listening · ${card.state === 'new' ? 'new' : (STATE_LABEL[card.state] ?? card.state)}`
+              ? `Listening · ${stateLabel}`
               : card.state === 'new'
                 ? 'New · recall it'
-                : (STATE_LABEL[card.state] ?? card.state),
+                : stateLabel,
             listening: card.listening,
           }}
           flipped={flipped}
@@ -473,35 +320,9 @@ export function Session({ initialQueue, dict }: Props) {
         {current.phase === 'teach'
           ? 'Space to continue'
           : flipped
-            ? 'Rate how well you remembered: 1 Again · 2 Hard · 3 Good · 4 Easy'
+            ? '1 Again · 2 Hard · 3 Good · 4 Easy · P to hear it · click a word to hear just that word'
             : 'Space to reveal · H for a hint · Ctrl+Z to undo'}
       </p>
     </div>
-  );
-}
-
-function CardOption({
-  icon,
-  label,
-  desc,
-  onClick,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  desc: string;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="flex w-full items-start gap-2.5 rounded-md px-2.5 py-2 text-left transition-colors hover:bg-muted focus-visible:bg-muted focus-visible:outline-none [&_svg]:mt-0.5 [&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:text-muted-foreground"
-    >
-      {icon}
-      <span>
-        <span className="block text-sm font-medium">{label}</span>
-        <span className="block text-xs text-muted-foreground">{desc}</span>
-      </span>
-    </button>
   );
 }

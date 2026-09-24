@@ -1,13 +1,7 @@
 import { TONE_CONTOUR, type Tone } from '@/lib/pinyin';
 
 /** Pitch shape on the 5-level Chao scale; neutral is a short dot. */
-export function ToneContour({
-  tone,
-  className = 'h-5 w-8',
-}: {
-  tone: Tone;
-  className?: string;
-}) {
+export function ToneContour({ tone, className = 'h-5 w-8' }: { tone: Tone; className?: string }) {
   const pts = TONE_CONTOUR[tone];
   const W = 32;
   const H = 20;

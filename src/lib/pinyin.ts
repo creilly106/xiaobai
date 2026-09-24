@@ -34,7 +34,10 @@ export function toneless(pinyin: string): string {
  * ["xīn", "qíng"]). Returns null when the readings don't line up.
  */
 export function splitWordPinyin(pinyin: string, readingsPerChar: string[][]): string[] | null {
-  const spaced = pinyin.trim().split(/[\s']+/).filter(Boolean);
+  const spaced = pinyin
+    .trim()
+    .split(/[\s']+/)
+    .filter(Boolean);
   if (spaced.length === readingsPerChar.length) return spaced;
 
   const letters = pinyin.replace(/[\s']+/g, '');
@@ -140,9 +143,7 @@ export function gradePinyin(typed: Syllable[], expected: Syllable[]): PinyinGrad
     const target = ends.findIndex((end) => cursor <= end);
     if (target >= 0 && s.tone !== 5) got[target] = s.tone;
   }
-  const ok = expected.every(
-    (s, i) => got[i] === s.tone || (s.alt?.includes(got[i]) ?? false),
-  );
+  const ok = expected.every((s, i) => got[i] === s.tone || (s.alt?.includes(got[i]) ?? false));
   return ok ? 'correct' : 'tones';
 }
 

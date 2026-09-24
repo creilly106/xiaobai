@@ -52,7 +52,10 @@ function shortMeaning(m: string): string {
 /** Readings we trust for a character: every dataset reading plus the dictionary's. */
 function readingsOf(char: string, dictPinyin?: string): string[] {
   const d = getCharDatum(char);
-  const all = [...(d?.readings ?? (d?.pinyin ? [d.pinyin] : [])), ...(dictPinyin ? [dictPinyin] : [])];
+  const all = [
+    ...(d?.readings ?? (d?.pinyin ? [d.pinyin] : [])),
+    ...(dictPinyin ? [dictPinyin] : []),
+  ];
   return all.length > 0 ? all : [];
 }
 
@@ -69,14 +72,13 @@ export function wordSyllables(
   const parts =
     chars.length === 1
       ? [pinyin.trim()]
-      : splitWordPinyin(pinyin, chars.map((c) => readingsOf(c, dict[c]?.pinyin)));
+      : splitWordPinyin(
+          pinyin,
+          chars.map((c) => readingsOf(c, dict[c]?.pinyin)),
+        );
   if (!parts || parts.length !== chars.length) return null;
   return syllablesFromPinyin(parts).map((s, i) =>
-    chars[i] === '一'
-      ? { ...s, alt: [1, 2, 4] }
-      : chars[i] === '不'
-        ? { ...s, alt: [2, 4] }
-        : s,
+    chars[i] === '一' ? { ...s, alt: [1, 2, 4] } : chars[i] === '不' ? { ...s, alt: [2, 4] } : s,
   );
 }
 

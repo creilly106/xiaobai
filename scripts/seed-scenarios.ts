@@ -56,7 +56,11 @@ async function main() {
       if (row) {
         sentenceId = row.id;
         const difficulty = sent.difficulty ?? null;
-        if (row.pinyin !== sent.pinyin || row.meaning !== sent.meaning || row.difficulty !== difficulty) {
+        if (
+          row.pinyin !== sent.pinyin ||
+          row.meaning !== sent.meaning ||
+          row.difficulty !== difficulty
+        ) {
           await db
             .update(schema.sentences)
             .set({ pinyin: sent.pinyin, meaning: sent.meaning, difficulty })
@@ -81,7 +85,9 @@ async function main() {
       const [link] = await db
         .select({ tagId: schema.sentenceTags.tagId })
         .from(schema.sentenceTags)
-        .where(and(eq(schema.sentenceTags.sentenceId, sentenceId), eq(schema.sentenceTags.tagId, tagId)))
+        .where(
+          and(eq(schema.sentenceTags.sentenceId, sentenceId), eq(schema.sentenceTags.tagId, tagId)),
+        )
         .limit(1);
       if (!link) await db.insert(schema.sentenceTags).values({ sentenceId, tagId });
     }
@@ -103,7 +109,12 @@ async function main() {
   const withCards = db
     .select({ id: schema.cards.sentenceId })
     .from(schema.cards)
-    .where(inArray(schema.cards.sentenceId, db.select({ id: schema.sentences.id }).from(schema.sentences)));
+    .where(
+      inArray(
+        schema.cards.sentenceId,
+        db.select({ id: schema.sentences.id }).from(schema.sentences),
+      ),
+    );
   const removed = await db
     .delete(schema.sentences)
     .where(and(notInArray(schema.sentences.id, linked), notInArray(schema.sentences.id, withCards)))

@@ -35,11 +35,7 @@ export function tokenizePerChar(text: string, dict: Dictionary): Token[] {
  * Greedy longest-match segmentation against a Chinese dictionary.
  * Falls back to single characters when no multi-char match exists.
  */
-export function tokenize(
-  text: string,
-  dict: Dictionary,
-  maxLen = 5,
-): Token[] {
+export function tokenize(text: string, dict: Dictionary, maxLen = 5): Token[] {
   const chars = Array.from(text);
   const tokens: Token[] = [];
   let i = 0;

@@ -25,9 +25,7 @@ export function SentenceRow({ sentence, dict }: SentenceRowProps) {
         <div className="mt-0.5 text-sm">{sentence.meaning}</div>
         <div className="mt-1.5 flex flex-wrap gap-2 text-[11px] text-muted-foreground">
           {sentence.difficulty != null && (
-            <span title="Approximate difficulty on the HSK scale">
-              ≈ HSK {sentence.difficulty}
-            </span>
+            <span title="Approximate difficulty on the HSK scale">≈ HSK {sentence.difficulty}</span>
           )}
           {sentence.inQueue && (
             <span className="inline-flex items-center gap-1">

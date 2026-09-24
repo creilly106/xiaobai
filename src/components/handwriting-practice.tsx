@@ -1,12 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { celebrate } from '@/lib/celebrate';
 
@@ -64,13 +59,7 @@ export function HandwritingPractice({ hanzi }: { hanzi: string }) {
   );
 }
 
-function HandwritingQuiz({
-  hanzi,
-  onDone,
-}: {
-  hanzi: string;
-  onDone: () => void;
-}) {
+function HandwritingQuiz({ hanzi, onDone }: { hanzi: string; onDone: () => void }) {
   const chars = Array.from(hanzi);
   const [charIndex, setCharIndex] = useState(0);
   const [mistakes, setMistakes] = useState(0);

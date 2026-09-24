@@ -15,7 +15,9 @@ async function main() {
   const client = createClient({ url: process.env.DATABASE_URL ?? 'file:./data/app.db' });
   const db = drizzle(client, { schema });
 
-  const vocab = await db.select({ id: schema.words.id, hanzi: schema.words.hanzi }).from(schema.words);
+  const vocab = await db
+    .select({ id: schema.words.id, hanzi: schema.words.hanzi })
+    .from(schema.words);
   const idByHanzi = new Map(vocab.map((w) => [w.hanzi, w.id]));
   const vocabSet = new Set(idByHanzi.keys());
 

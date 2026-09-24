@@ -1,12 +1,5 @@
 import { sql } from 'drizzle-orm';
-import {
-  integer,
-  primaryKey,
-  real,
-  sqliteTable,
-  text,
-  uniqueIndex,
-} from 'drizzle-orm/sqlite-core';
+import { integer, primaryKey, real, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core';
 
 export const words = sqliteTable(
   'words',
@@ -141,10 +134,7 @@ export const cards = sqliteTable(
   },
   (t) => ({
     wordModeUnique: uniqueIndex('cards_word_mode_unique').on(t.wordId, t.mode),
-    sentenceModeUnique: uniqueIndex('cards_sentence_mode_unique').on(
-      t.sentenceId,
-      t.mode,
-    ),
+    sentenceModeUnique: uniqueIndex('cards_sentence_mode_unique').on(t.sentenceId, t.mode),
   }),
 );
 

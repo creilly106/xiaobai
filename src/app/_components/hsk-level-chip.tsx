@@ -51,13 +51,7 @@ export function HskLevelChip({ level, inQueue }: Props) {
     );
   }
   return (
-    <Button
-      type="button"
-      variant="default"
-      size="sm"
-      disabled={pending}
-      onClick={add}
-    >
+    <Button type="button" variant="default" size="sm" disabled={pending} onClick={add}>
       Add HSK {level}
     </Button>
   );

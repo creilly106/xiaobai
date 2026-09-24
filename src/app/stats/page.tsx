@@ -22,8 +22,7 @@ export default async function StatsPage() {
   ]);
 
   const totalRatings = ratings.reduce((a, r) => a + r.count, 0);
-  const retentionPct =
-    summary.retention30d == null ? null : Math.round(summary.retention30d * 100);
+  const retentionPct = summary.retention30d == null ? null : Math.round(summary.retention30d * 100);
 
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-10">
@@ -92,9 +91,7 @@ export default async function StatsPage() {
       <div className="mt-6 grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-base">
-              Rating mix — last 30 days
-            </CardTitle>
+            <CardTitle className="text-base">Rating mix — last 30 days</CardTitle>
           </CardHeader>
           <CardContent>
             {totalRatings === 0 ? (
@@ -104,9 +101,7 @@ export default async function StatsPage() {
             ) : (
               <div className="space-y-3">
                 {ratings.map((r) => {
-                  const pct = totalRatings
-                    ? Math.round((r.count / totalRatings) * 100)
-                    : 0;
+                  const pct = totalRatings ? Math.round((r.count / totalRatings) * 100) : 0;
                   const labels = {
                     1: 'Again',
                     2: 'Hard',
@@ -150,11 +145,7 @@ export default async function StatsPage() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 gap-3 text-sm">
-              <StateRow
-                label="New"
-                value={cardsByState.new}
-                hint="Not seen yet"
-              />
+              <StateRow label="New" value={cardsByState.new} hint="Not seen yet" />
               <StateRow
                 label="Learning"
                 value={cardsByState.learning}
@@ -217,15 +208,7 @@ function StatCard({
   );
 }
 
-function StateRow({
-  label,
-  value,
-  hint,
-}: {
-  label: string;
-  value: number;
-  hint: string;
-}) {
+function StateRow({ label, value, hint }: { label: string; value: number; hint: string }) {
   return (
     <div className="rounded-md border border-border/60 px-3 py-2">
       <div className="flex items-center justify-between">

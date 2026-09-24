@@ -38,9 +38,7 @@ async function main() {
       .onConflictDoNothing({ target: schema.words.hanzi });
   }
 
-  const inserted = await db
-    .select({ count: sql<number>`count(*)` })
-    .from(schema.words);
+  const inserted = await db.select({ count: sql<number>`count(*)` }).from(schema.words);
   console.log(`Words table now has ${inserted[0].count} rows.`);
 
   for (const level of [1, 2, 3, 4] as const) {

@@ -1,4 +1,4 @@
-import type { FlashcardRating } from '@/components/flashcard';
+import type { FlashcardRating } from '@/components/card-parts/rating-buttons';
 
 // One palette for every place a recall rating is shown (study, quiz, stats).
 export const RATING_TONE = {

@@ -22,13 +22,10 @@ export default function Error({
       </div>
       <h1 className="mt-4 text-xl font-semibold">Something went wrong</h1>
       <p className="mt-2 text-sm text-muted-foreground">
-        This page hit an error while loading. Your progress is saved — try
-        again, or head back home.
+        This page hit an error while loading. Your progress is saved — try again, or head back home.
       </p>
       {error.digest && (
-        <p className="mt-2 font-mono text-xs text-muted-foreground">
-          Ref: {error.digest}
-        </p>
+        <p className="mt-2 font-mono text-xs text-muted-foreground">Ref: {error.digest}</p>
       )}
       <div className="mt-6 flex gap-3">
         <Button onClick={() => retry()}>Try again</Button>

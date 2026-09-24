@@ -44,7 +44,7 @@ export function WordRow({ word, dict }: { word: Word; dict: Dictionary }) {
         {word.hskLevel != null && <span>HSK {word.hskLevel}</span>}
       </span>
       <span className="col-start-3 row-span-2 row-start-1 sm:col-start-auto sm:row-span-1 sm:row-start-auto">
-        <AudioButton text={word.hanzi} />
+        <AudioButton text={word.hanzi} reading={word.pinyin} />
       </span>
     </li>
   );

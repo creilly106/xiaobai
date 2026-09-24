@@ -48,14 +48,10 @@ export function HanziStrokes({ hanzi }: { hanzi: string }) {
           const root = getComputedStyle(document.documentElement);
           const strokeColor =
             root.getPropertyValue('--stroke-color').trim() ||
-            (document.documentElement.classList.contains('dark')
-              ? '#e2e8f0'
-              : '#0f172a');
+            (document.documentElement.classList.contains('dark') ? '#e2e8f0' : '#0f172a');
           const outlineColor =
             root.getPropertyValue('--stroke-outline').trim() ||
-            (document.documentElement.classList.contains('dark')
-              ? '#334155'
-              : '#e2e8f0');
+            (document.documentElement.classList.contains('dark') ? '#334155' : '#e2e8f0');
           const writer = mod.default.create(slot, ch, {
             width: 112,
             height: 112,
@@ -90,21 +86,13 @@ export function HanziStrokes({ hanzi }: { hanzi: string }) {
   }
 
   if (failed) {
-    return (
-      <p className="text-xs text-muted-foreground">Stroke data unavailable.</p>
-    );
+    return <p className="text-xs text-muted-foreground">Stroke data unavailable.</p>;
   }
 
   return (
     <div className="flex flex-col items-center gap-3">
       <div ref={containerRef} className="flex flex-wrap justify-center gap-2" />
-      <Button
-        variant="outline"
-        size="sm"
-        disabled={!ready}
-        onClick={playAll}
-        type="button"
-      >
+      <Button variant="outline" size="sm" disabled={!ready} onClick={playAll} type="button">
         Replay strokes
       </Button>
     </div>

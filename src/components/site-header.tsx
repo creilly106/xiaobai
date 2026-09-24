@@ -18,9 +18,7 @@ export function SiteHeader() {
           <span lang="zh-Hans" className="text-xl font-semibold leading-none">
             小白
           </span>
-          <span className="text-sm font-medium tracking-tight text-muted-foreground">
-            Xiaobai
-          </span>
+          <span className="text-sm font-medium tracking-tight text-muted-foreground">Xiaobai</span>
         </Link>
         <div className="flex items-center gap-1">
           <MainNav />

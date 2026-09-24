@@ -29,7 +29,8 @@ export default async function StudyPage({ searchParams }: PageProps<'/study'>) {
           {avail.nextDueInMs != null
             ? `Your next review is due in ${formatRelativeFuture(avail.nextDueInMs)}.`
             : 'Nothing else is scheduled right now.'}
-          {avail.reviewLimitHit && " More reviews are waiting, but you've hit today's review limit."}
+          {avail.reviewLimitHit &&
+            " More reviews are waiting, but you've hit today's review limit."}
         </p>
         {avail.lockedSentences > 0 && (
           <p className="mt-2 text-sm text-muted-foreground">
@@ -40,10 +41,7 @@ export default async function StudyPage({ searchParams }: PageProps<'/study'>) {
         )}
         <div className="mt-6 flex flex-wrap justify-center gap-3">
           {newLimitHit ? (
-            <Link
-              href={`/study?extra=${extraNew + EXTRA_STEP}`}
-              className={buttonVariants({})}
-            >
+            <Link href={`/study?extra=${extraNew + EXTRA_STEP}`} className={buttonVariants({})}>
               Learn {Math.min(EXTRA_STEP, avail.newInPool)} more new card
               {Math.min(EXTRA_STEP, avail.newInPool) === 1 ? '' : 's'}
             </Link>

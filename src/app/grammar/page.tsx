@@ -34,9 +34,7 @@ export default function GrammarPage() {
                       <CardTitle className="text-lg">{p.name}</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-sm text-muted-foreground">
-                        {p.englishTitle}
-                      </p>
+                      <p className="text-sm text-muted-foreground">{p.englishTitle}</p>
                       {p.formula && (
                         <p className="mt-2 text-xs text-foreground/80">
                           <span className="font-mono">{p.formula}</span>

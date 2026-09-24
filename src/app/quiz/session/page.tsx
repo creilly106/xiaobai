@@ -1,10 +1,6 @@
 import Link from 'next/link';
 import { buttonVariants } from '@/components/ui/button';
-import {
-  CARD_STATES,
-  getQuizQueue,
-  type QuizItemType,
-} from '@/lib/queries/quiz';
+import { CARD_STATES, getQuizQueue, type QuizItemType } from '@/lib/queries/quiz';
 import { getDictionaryFor } from '@/lib/queries/dictionary';
 import type { CardState } from '@/db/schema';
 import { QuizSession } from './_components/quiz-session';
@@ -30,17 +26,12 @@ function slugList(v: string | undefined): string[] {
   return v.split(',').filter((s) => /^[a-z0-9-]{1,64}$/.test(s));
 }
 
-export default async function QuizSessionPage({
-  searchParams,
-}: PageProps<'/quiz/session'>) {
+export default async function QuizSessionPage({ searchParams }: PageProps<'/quiz/session'>) {
   const params: Params = await searchParams;
   const typeParam = one(params.type);
   const itemType: QuizItemType =
     typeParam === 'word' || typeParam === 'sentence' ? typeParam : 'both';
-  const count = Math.max(
-    1,
-    Math.min(Number.parseInt(one(params.count) ?? '10', 10) || 10, 100),
-  );
+  const count = Math.max(1, Math.min(Number.parseInt(one(params.count) ?? '10', 10) || 10, 100));
   const cardStates = (one(params.states) ?? '')
     .split(',')
     .filter((s): s is CardState => (CARD_STATES as readonly string[]).includes(s));
@@ -51,8 +42,7 @@ export default async function QuizSessionPage({
     hskLevels: intList(one(params.hsk)),
     scenarioSlugs: slugList(one(params.scenarios)),
     cardStates: cardStates.length > 0 ? cardStates : undefined,
-    lastReviewOlderThanDays:
-      Number.isInteger(olderThan) && olderThan >= 0 ? olderThan : undefined,
+    lastReviewOlderThanDays: Number.isInteger(olderThan) && olderThan >= 0 ? olderThan : undefined,
     count,
   });
 

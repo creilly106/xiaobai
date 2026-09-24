@@ -21,18 +21,17 @@ export async function getDashboardStats(): Promise<DashboardStats> {
   await connection();
   const now = new Date();
 
-  const [[wordCount], cardsByState, settings, today, availability] =
-    await Promise.all([
-      db.select({ n: sql<number>`count(*)` }).from(schema.words),
-      db
-        .select({ state: schema.cards.state, n: sql<number>`count(*)` })
-        .from(schema.cards)
-        .where(eq(schema.cards.suspended, false))
-        .groupBy(schema.cards.state),
-      getSettings(),
-      getTodayCounts(now),
-      getAvailability(now),
-    ]);
+  const [[wordCount], cardsByState, settings, today, availability] = await Promise.all([
+    db.select({ n: sql<number>`count(*)` }).from(schema.words),
+    db
+      .select({ state: schema.cards.state, n: sql<number>`count(*)` })
+      .from(schema.cards)
+      .where(eq(schema.cards.suspended, false))
+      .groupBy(schema.cards.state),
+    getSettings(),
+    getTodayCounts(now),
+    getAvailability(now),
+  ]);
 
   const by = new Map(cardsByState.map((r) => [r.state, Number(r.n)]));
   const newCards = by.get('new') ?? 0;

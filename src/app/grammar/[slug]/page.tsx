@@ -15,9 +15,7 @@ export async function generateMetadata({
   return { title: point ? `${point.name} · Grammar` : 'Grammar' };
 }
 
-export default async function GrammarDetail({
-  params,
-}: PageProps<'/grammar/[slug]'>) {
+export default async function GrammarDetail({ params }: PageProps<'/grammar/[slug]'>) {
   const { slug } = await params;
   const point = grammarPoints.find((p) => p.slug === slug);
   if (!point) notFound();
@@ -37,9 +35,7 @@ export default async function GrammarDetail({
 
       {point.formula && (
         <div className="mt-4 rounded-md border border-border/60 bg-muted/40 px-4 py-3">
-          <div className="text-xs uppercase tracking-wider text-muted-foreground">
-            Formula
-          </div>
+          <div className="text-xs uppercase tracking-wider text-muted-foreground">Formula</div>
           <div className="mt-1 font-mono text-sm">{point.formula}</div>
         </div>
       )}

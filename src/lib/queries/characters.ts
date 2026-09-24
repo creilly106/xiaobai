@@ -149,9 +149,7 @@ export async function getCharacterInfo(hanzi: string): Promise<CharacterInfo> {
       hskLevel: schema.words.hskLevel,
     })
     .from(schema.words)
-    .where(
-      and(sql`instr(${schema.words.hanzi}, ${hanzi}) > 0`, ne(schema.words.hanzi, hanzi)),
-    )
+    .where(and(sql`instr(${schema.words.hanzi}, ${hanzi}) > 0`, ne(schema.words.hanzi, hanzi)))
     .orderBy(schema.words.hskLevel, schema.words.id)
     .limit(60);
 
@@ -168,19 +166,14 @@ export async function getCharacterInfo(hanzi: string): Promise<CharacterInfo> {
   const asRadical = isSingle ? asRadicalOf(hanzi) : null;
   let usedIn: PartInfo[] = [];
   if (asRadical) {
-    const shapes = asRadical.form
-      ? [asRadical.form.char]
-      : radicalChars(asRadical.radical);
-    const described = await Promise.all(
-      charactersUsing(shapes).map((c) => describePart(c)),
-    );
+    const shapes = asRadical.form ? [asRadical.form.char] : radicalChars(asRadical.radical);
+    const described = await Promise.all(charactersUsing(shapes).map((c) => describePart(c)));
     // Vocabulary first (by HSK level), then glossed characters; skip obscure ones.
     usedIn = described
       .filter((p) => p.gloss && p.gloss.kind !== 'component')
       .sort(
         (a, b) =>
-          (a.gloss!.hskLevel ?? 99) - (b.gloss!.hskLevel ?? 99) ||
-          a.hanzi.localeCompare(b.hanzi),
+          (a.gloss!.hskLevel ?? 99) - (b.gloss!.hskLevel ?? 99) || a.hanzi.localeCompare(b.hanzi),
       )
       .slice(0, 24);
   }

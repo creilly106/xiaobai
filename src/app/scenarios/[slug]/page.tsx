@@ -14,9 +14,7 @@ export async function generateMetadata({
   return { title: scenario ? scenario.name : 'Scenario not found' };
 }
 
-export default async function ScenarioDetailPage({
-  params,
-}: PageProps<'/scenarios/[slug]'>) {
+export default async function ScenarioDetailPage({ params }: PageProps<'/scenarios/[slug]'>) {
   const { slug } = await params;
   const scenario = await getScenarioBySlug(slug);
   if (!scenario) notFound();
@@ -46,10 +44,7 @@ export default async function ScenarioDetailPage({
                 : `${scenario.inQueueCount} of ${total} sentences in your study queue`}
           </p>
         </div>
-        <AddScenarioButton
-          slug={scenario.slug}
-          remaining={total - scenario.inQueueCount}
-        />
+        <AddScenarioButton slug={scenario.slug} remaining={total - scenario.inQueueCount} />
       </div>
 
       <p className="mt-6 text-xs text-muted-foreground">

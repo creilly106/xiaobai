@@ -2,14 +2,10 @@
 
 import Link from 'next/link';
 import { useMemo } from 'react';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import type { DictEntry, Dictionary } from '@/lib/queries/dictionary';
 import { tokenize, tokenizePerChar } from '@/lib/tokenize';
+import { audioFor } from '@/lib/audio-text';
 import { speak } from '@/lib/tts';
 
 type Props = {
@@ -56,12 +52,12 @@ export function TokenizedHanzi({
               className={`${TOKEN_CLASS} cursor-pointer`}
               onClick={(e) => {
                 e.stopPropagation();
-                speak(t.text);
+                speak(audioFor(t.text, t.entry?.pinyin).text);
               }}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   e.stopPropagation();
-                  speak(t.text);
+                  speak(audioFor(t.text, t.entry?.pinyin).text);
                 }
               }}
             />
@@ -79,7 +75,7 @@ export function TokenizedHanzi({
                 className={`${TOKEN_CLASS} cursor-pointer`}
                 onClick={(e) => {
                   e.stopPropagation();
-                  speak(t.text);
+                  speak(audioFor(t.text, t.entry?.pinyin).text);
                 }}
               >
                 {t.text}
@@ -111,9 +107,7 @@ function EntryCard({
 }) {
   const chars = Array.from(entry.hanzi);
   const parts =
-    chars.length > 1
-      ? chars.map((c) => ({ c, e: dict[c] as DictEntry | undefined }))
-      : [];
+    chars.length > 1 ? chars.map((c) => ({ c, e: dict[c] as DictEntry | undefined })) : [];
   return (
     <div className="min-w-40 text-left">
       <div className="flex items-baseline justify-between gap-3">
@@ -122,7 +116,11 @@ function EntryCard({
           <span className="ml-2 text-sm font-normal opacity-75">{entry.pinyin}</span>
         </span>
         <span className="text-[10px] uppercase tracking-wide opacity-60">
-          {entry.kind !== 'word' ? 'character' : entry.hskLevel != null ? `HSK ${entry.hskLevel}` : ''}
+          {entry.kind !== 'word'
+            ? 'character'
+            : entry.hskLevel != null
+              ? `HSK ${entry.hskLevel}`
+              : ''}
         </span>
       </div>
       <div className="mt-0.5 text-xs leading-snug opacity-90">{entry.meaning}</div>
@@ -142,7 +140,9 @@ function EntryCard({
           ))}
         </ul>
       )}
-      <div className="mt-1.5 text-[10px] opacity-60">{linkable ? 'Click for details' : 'Click to hear it'}</div>
+      <div className="mt-1.5 text-[10px] opacity-60">
+        {linkable ? 'Click for details' : 'Click to hear it'}
+      </div>
     </div>
   );
 }

@@ -7,7 +7,9 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AudioButton } from '@/components/audio-button';
 import { TokenizedHanzi } from '@/components/tokenized-hanzi';
-import { WordTools } from '@/components/flashcard';
+import { ReadingNote } from '@/components/card-parts/listen-notes';
+import { WordTools } from '@/components/card-parts/word-tools';
+import { audioFor } from '@/lib/audio-text';
 import { speak } from '@/lib/tts';
 import { tokenize } from '@/lib/tokenize';
 import type { Dictionary } from '@/lib/queries/dictionary';
@@ -29,13 +31,11 @@ export function TeachCard({ card, dict, onContinue, disabled }: Props) {
   const isWord = card.itemType === 'word';
 
   useEffect(() => {
-    speak(card.hanzi);
-  }, [card.hanzi]);
+    speak(audioFor(card.hanzi, card.pinyin).text);
+  }, [card.hanzi, card.pinyin]);
 
   const parts =
-    !isWord && dict
-      ? tokenize(card.hanzi, dict).filter((t) => t.isChinese && t.entry)
-      : [];
+    !isWord && dict ? tokenize(card.hanzi, dict).filter((t) => t.isChinese && t.entry) : [];
 
   return (
     <>
@@ -72,9 +72,10 @@ export function TeachCard({ card, dict, onContinue, disabled }: Props) {
           </div>
           <div className="flex items-center gap-1">
             <span className="text-2xl text-muted-foreground">{card.pinyin}</span>
-            <AudioButton text={card.hanzi} />
+            <AudioButton text={card.hanzi} reading={card.pinyin} />
           </div>
           <div className="max-w-md text-lg">{card.meaning}</div>
+          <ReadingNote hanzi={card.hanzi} pinyin={card.pinyin} />
 
           {parts.length > 1 && (
             <ul className="mt-1 flex max-w-lg flex-wrap justify-center gap-2 text-sm">

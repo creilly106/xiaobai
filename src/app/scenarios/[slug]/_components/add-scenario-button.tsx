@@ -6,13 +6,7 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { addScenarioToQueue } from '@/lib/actions/scenario';
 
-export function AddScenarioButton({
-  slug,
-  remaining,
-}: {
-  slug: string;
-  remaining: number;
-}) {
+export function AddScenarioButton({ slug, remaining }: { slug: string; remaining: number }) {
   const [pending, startTransition] = useTransition();
 
   if (remaining === 0) {

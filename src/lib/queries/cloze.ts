@@ -69,13 +69,25 @@ async function loadSentences(filters: ClozeFilters): Promise<Sentence[]> {
     for (const r of rows) {
       if (seen.has(r.id)) continue;
       seen.add(r.id);
-      out.push({ key: `s${r.id}`, source: r.scenario, hanzi: r.hanzi, pinyin: r.pinyin, meaning: r.meaning });
+      out.push({
+        key: `s${r.id}`,
+        source: r.scenario,
+        hanzi: r.hanzi,
+        pinyin: r.pinyin,
+        meaning: r.meaning,
+      });
     }
   }
   if (filters.includeGrammar) {
     for (const g of grammarPoints) {
       g.examples.forEach((e, i) =>
-        out.push({ key: `g-${g.slug}-${i}`, source: g.name, hanzi: e.hanzi, pinyin: e.pinyin, meaning: e.meaning }),
+        out.push({
+          key: `g-${g.slug}-${i}`,
+          source: g.name,
+          hanzi: e.hanzi,
+          pinyin: e.pinyin,
+          meaning: e.meaning,
+        }),
       );
     }
   }

@@ -10,6 +10,7 @@
  */
 import 'dotenv/config';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { gunzipSync } from 'node:zlib';
 import path from 'node:path';
 import { createClient } from '@libsql/client';
 import { drizzle } from 'drizzle-orm/libsql';
@@ -17,9 +18,9 @@ import * as schema from '../src/db/schema';
 import { radicalChars, radicals } from '../src/lib/radicals-data';
 import { grammarPoints } from '../src/lib/grammar-data';
 import { charGlosses } from '../src/lib/char-glosses';
+import { markTone, type Tone } from '../src/lib/pinyin';
 
-const SOURCE_URL =
-  'https://raw.githubusercontent.com/skishore/makemeahanzi/master/dictionary.txt';
+const SOURCE_URL = 'https://raw.githubusercontent.com/skishore/makemeahanzi/master/dictionary.txt';
 const CACHE = path.join('scripts', '.cache', 'makemeahanzi-dictionary.txt');
 const OUT = path.join('src', 'lib', 'generated', 'char-data.json');
 
@@ -62,7 +63,44 @@ async function loadSource(): Promise<string> {
   return text;
 }
 
+const CEDICT_URL = 'https://www.mdbg.net/chinese/export/cedict/cedict_1_0_ts_utf-8_mdbg.txt.gz';
+const CEDICT_CACHE = path.join('scripts', '.cache', 'cedict.txt.gz');
+
+/**
+ * Every everyday reading of each single character, from CC-CEDICT
+ * (https://cc-cedict.org, CC BY-SA 4.0). Make Me a Hanzi usually lists only
+ * one reading, which hides polyphones like 还 hái/huán. Proper-noun readings
+ * (capitalised) and "variant of" entries are skipped.
+ */
+async function loadCedictReadings(): Promise<Map<string, Set<string>>> {
+  if (!existsSync(CEDICT_CACHE)) {
+    console.log(`Downloading ${CEDICT_URL} …`);
+    const res = await fetch(CEDICT_URL);
+    if (!res.ok) throw new Error(`Download failed: ${res.status}`);
+    mkdirSync(path.dirname(CEDICT_CACHE), { recursive: true });
+    writeFileSync(CEDICT_CACHE, Buffer.from(await res.arrayBuffer()));
+  }
+  const text = gunzipSync(readFileSync(CEDICT_CACHE)).toString('utf8');
+  const line = /^\S+ (\S+) \[([^\]]+)\] \/(.*)\/$/;
+  const out = new Map<string, Set<string>>();
+  for (const raw of text.split('\n')) {
+    const m = line.exec(raw.trim());
+    if (!m) continue;
+    const [, simplified, numbered, defs] = m;
+    if (Array.from(simplified).length !== 1 || /^[A-Z]/.test(numbered)) continue;
+    if (/^(old |archaic )?variant of|^see /i.test(defs)) continue;
+    const tm = /^([a-z:]+)([1-5])$/.exec(numbered.toLowerCase());
+    if (!tm) continue;
+    const reading = markTone(tm[1].replace(/u:/g, 'v'), Number(tm[2]) as Tone);
+    const set = out.get(simplified) ?? new Set<string>();
+    set.add(reading.normalize('NFC'));
+    out.set(simplified, set);
+  }
+  return out;
+}
+
 async function main() {
+  const cedict = await loadCedictReadings();
   const source = new Map<string, Source>();
   for (const line of (await loadSource()).split('\n')) {
     if (!line.trim()) continue;
@@ -100,12 +138,18 @@ async function main() {
       missing.push(c);
       continue;
     }
+    // Polyphones (了 le/liǎo) — callers that need an unambiguous sound check this.
+    const readings = [
+      ...new Set([
+        ...row.pinyin.map((p) => p.normalize('NFC').toLowerCase()),
+        ...(cedict.get(c) ?? []),
+      ]),
+    ];
     out[c] = {
       ids: row.decomposition,
       radical: row.radical,
       ...(row.pinyin[0] ? { pinyin: row.pinyin[0] } : {}),
-      // Polyphones (了 le/liǎo) — callers that need an unambiguous sound check this.
-      ...(row.pinyin.length > 1 ? { readings: row.pinyin } : {}),
+      ...(readings.length > 1 ? { readings } : {}),
       ...(row.definition ? { definition: row.definition } : {}),
       ...(row.etymology ? { etymology: row.etymology } : {}),
     };

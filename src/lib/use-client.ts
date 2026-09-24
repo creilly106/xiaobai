@@ -36,10 +36,7 @@ function readPref(key: string): string | null {
  * A string preference persisted in localStorage, synced across components and
  * tabs. Returns `fallback` during SSR so markup always hydrates cleanly.
  */
-export function useStoredPref(
-  key: string,
-  fallback: string,
-): [string, (next: string) => void] {
+export function useStoredPref(key: string, fallback: string): [string, (next: string) => void] {
   const value = useSyncExternalStore(
     (onChange) => {
       const handler = (e: Event) => {

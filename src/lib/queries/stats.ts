@@ -3,12 +3,7 @@ import { connection } from 'next/server';
 import { and, eq, gte, inArray, sql } from 'drizzle-orm';
 import { db, schema } from '@/db/client';
 import type { CardState } from '@/db/schema';
-import {
-  addDays,
-  effectiveStreak,
-  localDateKey,
-  startOfLocalDay as startOfDay,
-} from '@/lib/dates';
+import { addDays, effectiveStreak, localDateKey, startOfLocalDay as startOfDay } from '@/lib/dates';
 
 export type StatsSummary = {
   totalReviews: number;
@@ -25,9 +20,7 @@ export async function getStatsSummary(): Promise<StatsSummary> {
   const now = new Date();
   const thirtyDaysAgo = addDays(startOfDay(now), -30);
 
-  const [totalRow] = await db
-    .select({ n: sql<number>`count(*)` })
-    .from(schema.reviews);
+  const [totalRow] = await db.select({ n: sql<number>`count(*)` }).from(schema.reviews);
 
   const [activeRow] = await db
     .select({ n: sql<number>`count(*)` })
@@ -58,11 +51,7 @@ export async function getStatsSummary(): Promise<StatsSummary> {
     totalReviews: Number(totalRow?.n ?? 0),
     activeCards: Number(activeRow?.n ?? 0),
     retention30d: retention,
-    streakDays: effectiveStreak(
-      settings?.streakDays ?? 0,
-      settings?.lastStudyDate ?? null,
-      now,
-    ),
+    streakDays: effectiveStreak(settings?.streakDays ?? 0, settings?.lastStudyDate ?? null, now),
   };
 }
 

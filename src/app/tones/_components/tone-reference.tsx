@@ -7,9 +7,21 @@ import { ToneContour } from './tone-contour';
 const EXAMPLES: { tone: Tone; hanzi: string; pinyin: string; meaning: string; tip: string }[] = [
   { tone: 1, hanzi: '妈', pinyin: 'mā', meaning: 'mum', tip: 'Hold one high note, like singing.' },
   { tone: 2, hanzi: '麻', pinyin: 'má', meaning: 'hemp; numb', tip: 'Rise like asking "huh?"' },
-  { tone: 3, hanzi: '马', pinyin: 'mǎ', meaning: 'horse', tip: 'Drop low, creaky. In speech it often stays low.' },
+  {
+    tone: 3,
+    hanzi: '马',
+    pinyin: 'mǎ',
+    meaning: 'horse',
+    tip: 'Drop low, creaky. In speech it often stays low.',
+  },
   { tone: 4, hanzi: '骂', pinyin: 'mà', meaning: 'to scold', tip: 'Fall sharply, like "No!"' },
-  { tone: 5, hanzi: '吗', pinyin: 'ma', meaning: 'question particle', tip: 'Short and light, never stressed.' },
+  {
+    tone: 5,
+    hanzi: '吗',
+    pinyin: 'ma',
+    meaning: 'question particle',
+    tip: 'Short and light, never stressed.',
+  },
 ];
 
 export function ToneReference() {

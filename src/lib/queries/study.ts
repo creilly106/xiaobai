@@ -6,6 +6,7 @@ import type { CardState } from '@/db/schema';
 import { db, schema } from '@/db/client';
 import { getAvailability, getSettings } from './settings';
 import { isListeningMode, modeFilter } from '@/lib/card-modes';
+import { audioFor } from '@/lib/audio-text';
 import { getNewCardPool } from './new-cards';
 
 export type StudyCard = {
@@ -28,6 +29,8 @@ export type ListeningInfo = {
   audio: string;
   /** Set when `audio` names the word through a longer word containing it. */
   viaWord: string | null;
+  /** Set when a character with several readings is played inside this word. */
+  inWord: string | null;
   /** Other vocabulary with exactly the same sound (tones included). */
   soundAlikes: { hanzi: string; pinyin: string; meaning: string }[];
 };
@@ -149,7 +152,10 @@ async function withListening(cards: StudyCard[]): Promise<StudyCard[]> {
   return cards.map((card) => {
     if (!isListeningMode(card.mode)) return card;
     if (card.itemType === 'sentence') {
-      return { ...card, listening: { audio: card.hanzi, viaWord: null, soundAlikes: [] } };
+      return {
+        ...card,
+        listening: { audio: card.hanzi, viaWord: null, inWord: null, soundAlikes: [] },
+      };
     }
     const soundAlikes = (bySound.get(soundKey(card.pinyin)) ?? [])
       .filter((w) => w.hanzi !== card.hanzi)
@@ -167,11 +173,21 @@ async function withListening(cards: StudyCard[]): Promise<StudyCard[]> {
               Array.from(a.hanzi).length - Array.from(b.hanzi).length,
           )[0]?.hanzi ?? null;
     }
+    // A character with several readings is played inside a word instead —
+    // "X的Y" would still end on the ambiguous character by itself.
+    const reading = audioFor(card.hanzi, card.pinyin);
+    if (reading.via) {
+      return {
+        ...card,
+        listening: { audio: reading.via, viaWord: null, inWord: reading.via, soundAlikes },
+      };
+    }
     return {
       ...card,
       listening: {
         audio: viaWord ? `${viaWord}的${card.hanzi}` : card.hanzi,
         viaWord,
+        inWord: null,
         soundAlikes,
       },
     };
