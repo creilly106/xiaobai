@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Pinyin } from '@/components/pinyin';
 import { TONE_TEXT, type Tone } from '@/lib/pinyin';
 import type { PracticeSummary } from '@/lib/queries/practice';
 
@@ -105,7 +106,7 @@ export function PracticeCard({ summary }: { summary: PracticeSummary }) {
                     <span lang="zh-Hans" className="text-lg">
                       {w.hanzi}
                     </span>
-                    <span className="text-sm text-muted-foreground">{w.pinyin}</span>
+                    <Pinyin text={w.pinyin} className="text-sm text-muted-foreground" />
                     <span className="min-w-0 flex-1 truncate text-sm">{w.meaning}</span>
                     <span className="text-xs text-muted-foreground">×{w.misses}</span>
                   </Link>

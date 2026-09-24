@@ -1,5 +1,6 @@
 import { Card } from '@/components/ui/card';
 import { AudioButton } from '@/components/audio-button';
+import { Pinyin } from '@/components/pinyin';
 import { HanziStrokes } from '@/components/hanzi-strokes';
 import type { CharacterInfo } from '@/lib/queries/characters';
 
@@ -26,7 +27,7 @@ export function Hero({ info }: { info: CharacterInfo }) {
             <div className="flex items-center gap-2">
               {gloss?.pinyin && (
                 <div className="text-3xl font-medium tracking-tight text-muted-foreground">
-                  {gloss.pinyin}
+                  <Pinyin text={gloss.pinyin} />
                 </div>
               )}
               <AudioButton text={hanzi} reading={gloss?.pinyin} label={`Play ${hanzi}`} />

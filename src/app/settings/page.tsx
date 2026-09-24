@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { AccentChoice, ThemeChoice } from '@/components/appearance';
+import { AccentChoice, ThemeChoice, ToneColorsChoice } from '@/components/appearance';
 import { ResetReviewsButton } from '@/app/stats/_components/reset-button';
 import { getSettings } from '@/lib/queries/settings';
 import { getSuspendedCards } from '@/lib/queries/study';
@@ -64,6 +64,9 @@ export default async function SettingsPage() {
             <div className="space-y-2">
               <div className="text-sm font-medium">Accent colour</div>
               <AccentChoice />
+            </div>
+            <div className="sm:col-span-2">
+              <ToneColorsChoice />
             </div>
             <p className="text-xs text-muted-foreground sm:col-span-2">
               Also available from the palette icon in the header. Saved in this browser.

@@ -5,6 +5,7 @@ import { grammarPoints } from '@/lib/grammar-data';
 import { getDictionaryFor } from '@/lib/queries/dictionary';
 import { TokenizedHanzi } from '@/components/tokenized-hanzi';
 import { AudioButton } from '@/components/audio-button';
+import { Pinyin } from '@/components/pinyin';
 import { Card, CardContent } from '@/components/ui/card';
 
 export async function generateMetadata({
@@ -54,7 +55,7 @@ export default async function GrammarDetail({ params }: PageProps<'/grammar/[slu
                   <div lang="zh-Hans" className="text-xl">
                     <TokenizedHanzi hanzi={ex.hanzi} dict={dict} />
                   </div>
-                  <div className="mt-1 text-sm text-muted-foreground">{ex.pinyin}</div>
+                  <Pinyin text={ex.pinyin} className="mt-1 block text-sm text-muted-foreground" />
                   <div className="mt-0.5 text-sm">{ex.meaning}</div>
                 </div>
                 <AudioButton text={ex.hanzi} label={`Play ${ex.hanzi}`} />

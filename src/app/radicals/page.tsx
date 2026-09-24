@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
 import { AudioButton } from '@/components/audio-button';
+import { Pinyin } from '@/components/pinyin';
 import { radicals, type Radical } from '@/lib/radicals-data';
 import { decompose } from '@/lib/ids-data';
 import { getDictionaryFor, type Dictionary } from '@/lib/queries/dictionary';
@@ -135,7 +136,7 @@ function RadicalCard({ radical: r, dict }: { radical: Radical; dict: Dictionary 
               )}
             </div>
             <div className="mt-0.5 flex items-center gap-1 font-medium">
-              {r.pinyin}
+              <Pinyin text={r.pinyin} />
               <AudioButton
                 text={r.hanzi}
                 reading={r.pinyin}

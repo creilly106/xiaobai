@@ -6,6 +6,7 @@ import { Lightbulb } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AudioButton } from '@/components/audio-button';
+import { Pinyin } from '@/components/pinyin';
 import { TokenizedHanzi } from '@/components/tokenized-hanzi';
 import { ListenNotes, ListenPrompt, ReadingNote } from '@/components/card-parts/listen-notes';
 import { RatingButtons, type FlashcardRating } from '@/components/card-parts/rating-buttons';
@@ -141,7 +142,7 @@ export function Flashcard<K extends string>({
                 </div>
               )}
               {showPinyinOnFront && !flipped && (
-                <div className="text-xl text-muted-foreground">{item.pinyin}</div>
+                <Pinyin text={item.pinyin} className="text-xl text-muted-foreground" />
               )}
               <AnimatePresence mode="wait" initial={false}>
                 {flipped ? (
@@ -154,7 +155,7 @@ export function Flashcard<K extends string>({
                     className="flex flex-col items-center gap-3"
                   >
                     <div className="flex items-center gap-1">
-                      <span className="text-2xl text-muted-foreground">{item.pinyin}</span>
+                      <Pinyin text={item.pinyin} className="text-2xl text-muted-foreground" />
                       <AudioButton text={item.hanzi} reading={item.pinyin} />
                     </div>
                     <div className="max-w-md text-lg">{item.meaning}</div>

@@ -1,4 +1,5 @@
 import { AudioButton } from '@/components/audio-button';
+import { Pinyin } from '@/components/pinyin';
 import { TokenizedHanzi } from '@/components/tokenized-hanzi';
 import type { Dictionary } from '@/lib/queries/dictionary';
 
@@ -21,7 +22,7 @@ export function SentenceRow({ sentence, dict }: SentenceRowProps) {
         <div lang="zh-Hans" className="text-xl leading-relaxed">
           <TokenizedHanzi hanzi={sentence.hanzi} dict={dict} />
         </div>
-        <div className="mt-0.5 text-sm text-muted-foreground">{sentence.pinyin}</div>
+        <Pinyin text={sentence.pinyin} className="mt-0.5 block text-sm text-muted-foreground" />
         <div className="mt-0.5 text-sm">{sentence.meaning}</div>
         <div className="mt-1.5 flex flex-wrap gap-2 text-[11px] text-muted-foreground">
           {sentence.difficulty != null && (

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AudioButton } from '@/components/audio-button';
+import { Pinyin } from '@/components/pinyin';
 import type { CharacterInfo, PartInfo } from '@/lib/queries/characters';
 import { PartLink } from './part-link';
 
@@ -91,7 +92,7 @@ export function ContainingWords({ info }: { info: CharacterInfo }) {
                     <span lang="zh-Hans" className="truncate text-lg">
                       {w.hanzi}
                     </span>
-                    <span className="truncate text-sm text-muted-foreground">{w.pinyin}</span>
+                    <Pinyin text={w.pinyin} className="truncate text-sm text-muted-foreground" />
                     <span className="col-span-2 text-sm sm:col-span-1">{w.meaning}</span>
                   </Link>
                   <AudioButton text={w.hanzi} reading={w.pinyin} label={`Play ${w.hanzi}`} />

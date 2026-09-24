@@ -6,6 +6,7 @@ import { Sparkles } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AudioButton } from '@/components/audio-button';
+import { Pinyin } from '@/components/pinyin';
 import { TokenizedHanzi } from '@/components/tokenized-hanzi';
 import { ReadingNote } from '@/components/card-parts/listen-notes';
 import { WordTools } from '@/components/card-parts/word-tools';
@@ -72,7 +73,7 @@ export function TeachCard({ card, dict, onContinue, disabled }: Props) {
             )}
           </div>
           <div className="flex items-center gap-1">
-            <span className="text-2xl text-muted-foreground">{card.pinyin}</span>
+            <Pinyin text={card.pinyin} className="text-2xl text-muted-foreground" />
             <AudioButton text={card.hanzi} reading={card.pinyin} />
           </div>
           <div className="max-w-md text-lg">{card.meaning}</div>

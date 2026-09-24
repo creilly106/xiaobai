@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ACCENTS, ACCENT_STORAGE_KEY } from '@/lib/accent';
 import { useHydrated, useStoredPref } from '@/lib/use-client';
+import { TONE_COLORS_KEY } from '@/lib/prefs';
+import { ToggleSwitch } from '@/components/ui/chip';
 
 const THEMES = [
   { key: 'system', label: 'System', icon: Monitor },
@@ -89,7 +91,31 @@ export function AccentChoice() {
   );
 }
 
-/** Header control: one button, one popover for both theme and accent. */
+/** On/off for colouring pinyin by tone across the app. */
+export function ToneColorsChoice() {
+  const [pref, setPref] = useStoredPref(TONE_COLORS_KEY, '0');
+  return (
+    <div className="flex items-center justify-between gap-3">
+      <div className="text-sm">
+        Colour pinyin by tone
+        <div className="text-xs text-muted-foreground">
+          <span className="text-red-600 dark:text-red-400">mā</span>{' '}
+          <span className="text-orange-600 dark:text-orange-400">má</span>{' '}
+          <span className="text-green-600 dark:text-green-400">mǎ</span>{' '}
+          <span className="text-blue-600 dark:text-blue-400">mà</span>{' '}
+          <span className="text-zinc-500 dark:text-zinc-400">ma</span>
+        </div>
+      </div>
+      <ToggleSwitch
+        value={pref === '1'}
+        onChange={(v) => setPref(v ? '1' : '0')}
+        label="Colour pinyin by tone"
+      />
+    </div>
+  );
+}
+
+/** Header control: one button, one popover for theme, accent and tone colours. */
 export function AppearanceMenu() {
   useAccent();
   return (
@@ -114,6 +140,9 @@ export function AppearanceMenu() {
         <div className="space-y-1.5">
           <div className="text-xs font-medium text-muted-foreground">Accent</div>
           <AccentChoice />
+        </div>
+        <div className="border-t border-border/60 pt-3">
+          <ToneColorsChoice />
         </div>
       </PopoverContent>
     </Popover>

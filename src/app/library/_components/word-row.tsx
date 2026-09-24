@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { AudioButton } from '@/components/audio-button';
+import { Pinyin } from '@/components/pinyin';
 import { TokenizedHanzi } from '@/components/tokenized-hanzi';
 import type { Dictionary } from '@/lib/queries/dictionary';
 
@@ -27,7 +28,7 @@ export function WordRow({ word, dict }: { word: Word; dict: Dictionary }) {
           </Link>
         )}
       </span>
-      <span className="truncate text-sm text-muted-foreground">{word.pinyin}</span>
+      <Pinyin text={word.pinyin} className="truncate text-sm text-muted-foreground" />
       <span className="col-start-2 text-sm sm:col-start-auto">
         <Link href={href} className="hover:underline">
           {word.meaning}

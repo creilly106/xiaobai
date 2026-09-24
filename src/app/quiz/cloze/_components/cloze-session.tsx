@@ -6,6 +6,7 @@ import { Check, Volume2, X, CircleAlert } from 'lucide-react';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { AudioButton } from '@/components/audio-button';
+import { Pinyin } from '@/components/pinyin';
 import { TokenizedHanzi } from '@/components/tokenized-hanzi';
 import { PinyinKeyboard } from '@/components/pinyin-keyboard';
 import { EMPTY_DRAFT, draftIsEmpty, gradeDraft, type PinyinDraft } from '@/lib/pinyin-draft';
@@ -185,7 +186,7 @@ export function ClozeSession({
         )}
         {result && (
           <div className="mt-3 flex items-center justify-center gap-1 text-muted-foreground">
-            {item.pinyin && <span>{item.pinyin}</span>}
+            {item.pinyin && <Pinyin text={item.pinyin} />}
             <AudioButton text={item.hanzi} />
           </div>
         )}
@@ -258,7 +259,7 @@ export function ClozeSession({
             <span lang="zh-Hans" className="text-lg">
               {item.word.hanzi}
             </span>
-            <span className="font-medium">{item.word.pinyin}</span>
+            <Pinyin text={item.word.pinyin} className="font-medium" />
             <span className="text-muted-foreground">{item.word.meaning}</span>
             {mode === 'type' && result.grade !== 'correct' && (
               <span className="w-full text-xs text-muted-foreground">You typed {result.given}</span>
