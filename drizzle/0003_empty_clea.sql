@@ -1,0 +1,1 @@
+ALTER TABLE `settings` ADD `listening_enabled` integer DEFAULT true NOT NULL;

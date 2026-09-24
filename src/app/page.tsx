@@ -1,69 +1,183 @@
-import Image from "next/image";
+import Link from 'next/link';
+import {
+  AudioLines,
+  BookOpenText,
+  Dices,
+  Hash,
+  Languages,
+  MessagesSquare,
+  Puzzle,
+} from 'lucide-react';
+import { buttonVariants } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { getDashboardStats } from '@/lib/queries/dashboard';
+import { formatRelativeFuture } from '@/lib/dates';
+import { SetupHskButton } from './_components/setup-hsk-button';
+import { StatTile, QueueTile } from './_components/stat-tiles';
 
-export default function Home() {
+const EXPLORE = [
+  {
+    href: '/scenarios',
+    label: 'Scenarios',
+    desc: 'Real-life phrase packs',
+    icon: MessagesSquare,
+  },
+  { href: '/quiz', label: 'Quiz', desc: 'Custom practice drills', icon: Dices },
+  { href: '/tones', label: 'Tones', desc: 'Train your ear', icon: AudioLines },
+  { href: '/numbers', label: 'Numbers', desc: 'Count, read and hear them', icon: Hash },
+  {
+    href: '/grammar',
+    label: 'Grammar',
+    desc: 'How sentences are built',
+    icon: Languages,
+  },
+  {
+    href: '/radicals',
+    label: 'Radicals',
+    desc: 'Building blocks of hanzi',
+    icon: Puzzle,
+  },
+  {
+    href: '/library',
+    label: 'Library',
+    desc: 'Every word, searchable',
+    icon: BookOpenText,
+  },
+] as const;
+
+export default async function Home() {
+  const stats = await getDashboardStats();
+  const a = stats.availability;
+  const hasCards = stats.totalCards > 0;
+  const weekday = new Date().toLocaleDateString('en', { weekday: 'long' });
+  const newUsedToday = stats.dailyNewLimit - a.newRemainingToday;
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <div className="mx-auto w-full max-w-5xl px-4 py-10">
+      <div className="mb-6">
+        <h1 className="text-3xl font-semibold tracking-tight">
+          <span lang="zh-Hans">你好</span>
+          <span className="text-muted-foreground"> · {weekday}</span>
+        </h1>
+        <p className="mt-1 text-muted-foreground">
+          {!hasCards
+            ? 'Your study queue is empty. Add HSK 1 to begin.'
+            : a.totalDue > 0
+              ? 'Your next session is ready.'
+              : "You're all caught up for now."}
+        </p>
+      </div>
+
+      {hasCards ? (
+        <Card className="mb-6 border-primary/30">
+          <CardContent className="flex flex-col gap-5 p-6 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                Today&apos;s session
+              </div>
+              <div className="mt-1 flex items-baseline gap-2">
+                <span className="text-4xl font-semibold tabular-nums">
+                  {a.totalDue}
+                </span>
+                <span className="text-muted-foreground">
+                  card{a.totalDue === 1 ? '' : 's'} ready
+                </span>
+              </div>
+              <div className="mt-3 flex flex-wrap gap-2 text-xs">
+                <Pill>{a.learningDue} learning</Pill>
+                <Pill>{a.reviewDue} review</Pill>
+                <Pill>
+                  {a.newAvailable} new · {newUsedToday}/{stats.dailyNewLimit}{' '}
+                  introduced today
+                </Pill>
+              </div>
+            </div>
+            {a.totalDue > 0 ? (
+              <Link
+                href="/study"
+                className={buttonVariants({ size: 'lg', className: 'px-6' })}
+              >
+                Start session
+              </Link>
+            ) : (
+              <div className="text-sm text-muted-foreground sm:text-right">
+                {a.reviewLimitHit
+                  ? "Today's review limit is reached."
+                  : a.nextDueInMs != null
+                    ? `Next card due in ${formatRelativeFuture(a.nextDueInMs)}.`
+                    : 'Nothing scheduled.'}
+                <div className="mt-2">
+                  <Link
+                    href="/quiz"
+                    className={buttonVariants({ variant: 'outline', size: 'sm' })}
+                  >
+                    Practice with a quiz
+                  </Link>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      ) : (
+        <Card className="mb-6">
+          <CardContent className="flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm text-muted-foreground">
+              HSK 1 is 149 core words — the standard starting point.
+            </p>
+            <SetupHskButton level={1} label="Add HSK 1 to my queue" />
+          </CardContent>
+        </Card>
+      )}
+
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+        <StatTile
+          label="Streak"
+          value={`${stats.streakDays} day${stats.streakDays === 1 ? '' : 's'}`}
+          streak={stats.streakDays >= 1}
+          delay={0}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+        <StatTile label="Reviews today" value={stats.reviewsToday} delay={0.05} />
+        <StatTile label="Cards in queue" value={stats.totalCards} delay={0.1} />
+        <StatTile label="Words in library" value={stats.totalWords} delay={0.15} />
+      </div>
+
+      {hasCards && (
+        <>
+          <h2 className="mb-3 mt-8 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            Your queue
+          </h2>
+          <div className="grid gap-4 sm:grid-cols-3">
+            <QueueTile label="Not started" value={stats.newCards} delay={0.2} />
+            <QueueTile label="Learning" value={stats.learningCards} delay={0.25} />
+            <QueueTile label="Long-term review" value={stats.reviewCards} delay={0.3} />
+          </div>
+        </>
+      )}
+
+      <h2 className="mb-3 mt-8 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+        Explore
+      </h2>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7">
+        {EXPLORE.map(({ href, label, desc, icon: Icon }) => (
+          <Link key={href} href={href} className="group">
+            <Card className="h-full transition-colors group-hover:border-primary/50">
+              <CardContent className="flex flex-col gap-2 p-4">
+                <Icon className="size-5 text-muted-foreground transition-colors group-hover:text-primary" />
+                <div className="font-medium">{label}</div>
+                <div className="text-xs text-muted-foreground">{desc}</div>
+              </CardContent>
+            </Card>
+          </Link>
+        ))}
+      </div>
     </div>
+  );
+}
+
+function Pill({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="inline-flex items-center rounded-full border border-border/60 bg-muted/40 px-2.5 py-0.5 text-muted-foreground">
+      {children}
+    </span>
   );
 }

@@ -39,3 +39,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local database
+/data/
+
+
+# downloaded source data for scripts/build-char-data.ts
+/scripts/.cache/
