@@ -1,0 +1,3 @@
+# Keep LF line endings everywhere (matches Prettier's default) so Windows
+# checkouts don't flip files to CRLF and fail `npm run format:check`.
+* text=auto eol=lf
