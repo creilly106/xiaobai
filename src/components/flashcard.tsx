@@ -16,6 +16,12 @@ import { ExampleLine } from '@/components/card-parts/example-line';
 import type { Dictionary } from '@/lib/queries/dictionary';
 import type { ListeningInfo, ProductionInfo } from '@/lib/queries/study';
 import type { PinyinGrade } from '@/lib/pinyin';
+import type { Verdict } from '@/lib/meaning-grade';
+import {
+  MeaningPrompt,
+  MeaningResult,
+  type MeaningAnswer,
+} from '@/components/card-parts/meaning-prompt';
 import {
   ProductionPrompt,
   TypedResult,
@@ -40,6 +46,8 @@ export type FlashcardItem = {
   example?: { zh: string; en: string };
   /** Your own note, shown with the answer. */
   note?: string | null;
+  /** Type the English before revealing; `accepted` lists senses a word may match. */
+  typeMeaning?: { accepted?: string[] };
 };
 
 type Props<K extends string> = {
@@ -54,7 +62,7 @@ type Props<K extends string> = {
   /** Shows a "Hint" button on the front that reveals the pinyin. */
   onHint?: () => void;
   /** Which rating to suggest after a typed answer is checked. */
-  gradeToRating?: Partial<Record<PinyinGrade, K>>;
+  gradeToRating?: Partial<Record<PinyinGrade | Verdict, K>>;
 };
 
 export function Flashcard<K extends string>({
@@ -75,6 +83,11 @@ export function Flashcard<K extends string>({
     null,
   );
   const typedAnswer = typed?.key === item.key ? typed.answer : null;
+  const [meaningTyped, setMeaningTyped] = useState<{
+    key: FlashcardItem['key'];
+    answer: MeaningAnswer;
+  } | null>(null);
+  const meaningAnswer = meaningTyped?.key === item.key ? meaningTyped.answer : null;
   useCardAudio({
     cardKey: item.key,
     hanzi: item.hanzi,
@@ -146,6 +159,19 @@ export function Flashcard<K extends string>({
               {showPinyinOnFront && !flipped && (
                 <Pinyin text={item.pinyin} className="text-xl text-muted-foreground" />
               )}
+              {item.typeMeaning && !flipped && (
+                <MeaningPrompt
+                  key={item.key}
+                  itemType={item.itemType}
+                  meaning={item.meaning}
+                  accepted={item.typeMeaning.accepted}
+                  onChecked={(answer) => {
+                    setMeaningTyped({ key: item.key, answer });
+                    onFlip();
+                  }}
+                  onGiveUp={onFlip}
+                />
+              )}
               <AnimatePresence mode="wait" initial={false}>
                 {flipped ? (
                   <motion.div
@@ -162,6 +188,7 @@ export function Flashcard<K extends string>({
                     </div>
                     <div className="max-w-md text-lg">{item.meaning}</div>
                     {typedAnswer && <TypedResult answer={typedAnswer} pinyin={item.pinyin} />}
+                    {meaningAnswer && <MeaningResult answer={meaningAnswer} />}
                     {item.listening ? (
                       <ListenNotes
                         hanzi={item.hanzi}
@@ -187,7 +214,7 @@ export function Flashcard<K extends string>({
                     )}
                     {isWord && <WordTools key={item.key} hanzi={item.hanzi} />}
                   </motion.div>
-                ) : (
+                ) : item.typeMeaning ? null : (
                   <FrontHint
                     kind={
                       item.listening ? 'listening' : item.production ? 'production' : 'recognition'
@@ -205,7 +232,13 @@ export function Flashcard<K extends string>({
         ratings={ratings}
         enabled={flipped && !disabled}
         onRate={onRate}
-        suggested={typedAnswer ? gradeToRating?.[typedAnswer.grade] : undefined}
+        suggested={
+          typedAnswer
+            ? gradeToRating?.[typedAnswer.grade]
+            : meaningAnswer
+              ? gradeToRating?.[meaningAnswer.verdict]
+              : undefined
+        }
       />
     </>
   );

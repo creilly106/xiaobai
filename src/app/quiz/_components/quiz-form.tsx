@@ -24,7 +24,7 @@ export function QuizForm({ scenarios, hskLevels }: Props) {
   const [srsMode, setSrsMode] = useState(false);
   const [pinyinFront, setPinyinFront] = useState(false);
   const [count, setCount] = useState<number>(10);
-  const [format, setFormat] = useState<'cards' | 'cloze'>('cards');
+  const [format, setFormat] = useState<'cards' | 'meaning' | 'cloze'>('cards');
   const [answerMode, setAnswerMode] = useState<'choose' | 'type'>('choose');
   const [includeScenarioSentences, setIncludeScenarioSentences] = useState(true);
   const [includeGrammar, setIncludeGrammar] = useState(true);
@@ -68,6 +68,7 @@ export function QuizForm({ scenarios, hskLevels }: Props) {
     }
     if (srsMode) params.set('srs', '1');
     if (pinyinFront) params.set('pinyinFront', '1');
+    if (format === 'meaning') params.set('answer', 'type');
     router.push(`/quiz/session?${params.toString()}`);
   }
 
@@ -107,13 +108,18 @@ export function QuizForm({ scenarios, hskLevels }: Props) {
         </div>
       </div>
 
-      <div role="radiogroup" aria-label="Quiz format" className="grid gap-2 sm:grid-cols-2">
+      <div role="radiogroup" aria-label="Quiz format" className="grid gap-2 sm:grid-cols-3">
         {(
           [
             {
               key: 'cards',
               label: 'Flashcards',
               desc: 'See the Chinese, recall the meaning, rate yourself.',
+            },
+            {
+              key: 'meaning',
+              label: 'Type the meaning',
+              desc: 'See the Chinese, type the English — it gets checked for you.',
             },
             {
               key: 'cloze',
@@ -207,7 +213,7 @@ export function QuizForm({ scenarios, hskLevels }: Props) {
         </>
       )}
 
-      {format === 'cards' && (
+      {format !== 'cloze' && (
         <>
           <Card>
             <CardHeader className="pb-2">
@@ -321,14 +327,14 @@ export function QuizForm({ scenarios, hskLevels }: Props) {
 
           <ToggleRow
             label="Update spaced-repetition memory"
-            desc="When on, your Missed/Hard/Got it/Easy taps update the scheduler (FSRS) — so this drill also becomes real study. Otherwise it's practice only. Requires a card-states filter above so the items are already in your queue."
+            desc="When on, your Missed/Hard/Got it/Easy ratings update the scheduler (FSRS) — so this drill also becomes real study. Otherwise it's practice only. Requires a card-states filter above so the items are already in your queue."
             value={srsMode}
             onChange={setSrsMode}
           />
 
           <ToggleRow
             label="Show pinyin on front"
-            desc="Reveal the pronunciation before you flip. Useful for meaning-only drills."
+            desc="Show the pronunciation with the characters. Useful for meaning-only drills."
             value={pinyinFront}
             onChange={setPinyinFront}
           />

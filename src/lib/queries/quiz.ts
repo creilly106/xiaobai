@@ -4,6 +4,8 @@ import { and, eq, inArray, isNotNull, isNull, lte, or, sql, type SQL } from 'dri
 import { db, schema } from '@/db/client';
 import type { CardState } from '@/db/schema';
 import { modeFilter } from '@/lib/card-modes';
+import { senses } from '@/lib/dictionary-search';
+import { sensesOf } from '@/lib/meaning-grade';
 
 export type QuizItemType = 'word' | 'sentence' | 'both';
 
@@ -25,6 +27,8 @@ export type QuizItem = {
   pinyin: string;
   meaning: string;
   cardId?: number;
+  /** Meanings a typed answer may match (words only; see withAcceptedMeanings). */
+  accepted?: string[];
 };
 
 function shuffle<T>(arr: T[]): T[] {
@@ -194,4 +198,42 @@ export async function listHskLevels(): Promise<number[]> {
     .where(isNotNull(schema.words.hskLevel))
     .orderBy(schema.words.hskLevel);
   return rows.map((r) => r.level).filter((n): n is number => n != null);
+}
+
+/**
+ * For typed-meaning quizzes: every sense a word could reasonably be given as —
+ * its library meaning plus all its CC-CEDICT senses (not names).
+ */
+/** Senses that point elsewhere rather than give a meaning. */
+const CROSS_REF = /^(old |archaic |erhua )?variant of|^see |^used in |^abbr\. for|^surname /i;
+
+export async function withAcceptedMeanings(items: QuizItem[]): Promise<QuizItem[]> {
+  const hanzi = [...new Set(items.filter((i) => i.itemType === 'word').map((i) => i.hanzi))];
+  const rows = hanzi.length
+    ? await db
+        .select({
+          simplified: schema.dictionary.simplified,
+          definitions: schema.dictionary.definitions,
+        })
+        .from(schema.dictionary)
+        .where(
+          and(inArray(schema.dictionary.simplified, hanzi), eq(schema.dictionary.proper, false)),
+        )
+    : [];
+  const extra = new Map<string, string[]>();
+  for (const r of rows)
+    extra.set(r.simplified, [
+      ...(extra.get(r.simplified) ?? []),
+      ...senses(r.definitions)
+        .flatMap(sensesOf)
+        .filter((m) => !CROSS_REF.test(m)),
+    ]);
+  return items.map((item) =>
+    item.itemType === 'word'
+      ? {
+          ...item,
+          accepted: [...new Set([...sensesOf(item.meaning), ...(extra.get(item.hanzi) ?? [])])],
+        }
+      : item,
+  );
 }

@@ -1,6 +1,11 @@
 import Link from 'next/link';
 import { buttonVariants } from '@/components/ui/button';
-import { CARD_STATES, getQuizQueue, type QuizItemType } from '@/lib/queries/quiz';
+import {
+  CARD_STATES,
+  getQuizQueue,
+  withAcceptedMeanings,
+  type QuizItemType,
+} from '@/lib/queries/quiz';
 import { getDictionaryFor } from '@/lib/queries/dictionary';
 import type { CardState } from '@/db/schema';
 import { QuizSession } from './_components/quiz-session';
@@ -37,7 +42,8 @@ export default async function QuizSessionPage({ searchParams }: PageProps<'/quiz
     .filter((s): s is CardState => (CARD_STATES as readonly string[]).includes(s));
   const olderThan = Number.parseInt(one(params.olderThanDays) ?? '', 10);
 
-  const queue = await getQuizQueue({
+  const typed = one(params.answer) === 'type';
+  const found = await getQuizQueue({
     itemType,
     hskLevels: intList(one(params.hsk)),
     scenarioSlugs: slugList(one(params.scenarios)),
@@ -45,6 +51,7 @@ export default async function QuizSessionPage({ searchParams }: PageProps<'/quiz
     lastReviewOlderThanDays: Number.isInteger(olderThan) && olderThan >= 0 ? olderThan : undefined,
     count,
   });
+  const queue = typed ? await withAcceptedMeanings(found) : found;
 
   if (queue.length === 0) {
     return (
@@ -69,6 +76,7 @@ export default async function QuizSessionPage({ searchParams }: PageProps<'/quiz
       srsMode={one(params.srs) === '1'}
       dict={dict}
       showPinyinOnFront={one(params.pinyinFront) === '1'}
+      answerMode={typed ? 'type' : 'rate'}
     />
   );
 }

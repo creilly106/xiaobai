@@ -15,6 +15,9 @@ import type { QuizItem } from '@/lib/queries/quiz';
 import { trackPractice } from '@/lib/track-practice';
 import type { Dictionary } from '@/lib/queries/dictionary';
 
+/** Typed-meaning verdict → the rating suggested (you can still pick another). */
+const VERDICT_TO_OUTCOME = { right: 'good', close: 'hard', wrong: 'missed' } as const;
+
 const OUTCOME_TO_RATING: Record<QuizOutcome, ReviewRating> = {
   missed: 1,
   hard: 2,
@@ -27,12 +30,16 @@ export function QuizSession({
   srsMode = false,
   dict,
   showPinyinOnFront = false,
+  answerMode = 'rate',
 }: {
   initialQueue: QuizItem[];
   srsMode?: boolean;
   dict?: Dictionary;
   showPinyinOnFront?: boolean;
+  /** rate: recall then rate yourself; type: type the English, get it checked. */
+  answerMode?: 'rate' | 'type';
 }) {
+  const typing = answerMode === 'type';
   const queue = initialQueue;
   const [index, setIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
@@ -191,6 +198,7 @@ export function QuizSession({
           pinyin: current.pinyin,
           meaning: current.meaning,
           label: current.itemType === 'word' ? 'Word' : 'Sentence',
+          ...(typing ? { typeMeaning: { accepted: current.accepted } } : {}),
         }}
         flipped={flipped}
         onFlip={() => setFlipped(true)}
@@ -199,11 +207,14 @@ export function QuizSession({
         disabled={pending}
         dict={dict}
         showPinyinOnFront={showPinyinOnFront}
+        gradeToRating={typing ? VERDICT_TO_OUTCOME : undefined}
       />
       <p className="mt-3 text-center text-xs text-muted-foreground pointer-coarse:hidden">
         {flipped
-          ? '1 Missed · 2 Hard · 3 Got it · 4 Easy · P to hear it'
-          : 'Space to reveal the answer'}
+          ? `${typing ? 'Enter accepts the suggestion · ' : ''}1 Missed · 2 Hard · 3 Got it · 4 Easy · P to hear it`
+          : typing
+            ? 'Type the meaning, then Enter to check'
+            : 'Space to reveal the answer'}
       </p>
     </div>
   );

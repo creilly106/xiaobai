@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 
 export type FlashcardRating<K extends string = string> = {
@@ -23,11 +24,18 @@ export function RatingButtons<K extends string>({
   /** Highlighted after a typed answer is checked; you still choose. */
   suggested?: K;
 }) {
+  // Focus the suggestion so Enter (or Space) accepts it.
+  const suggestedRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    if (enabled && suggested) suggestedRef.current?.focus({ preventScroll: true });
+  }, [enabled, suggested]);
+
   return (
     <div className="mt-4 grid grid-cols-4 gap-2" role="group" aria-label="Rate your recall">
       {ratings.map((r) => (
         <motion.button
           key={r.key}
+          ref={suggested === r.key ? suggestedRef : undefined}
           type="button"
           disabled={!enabled}
           onClick={() => onRate(r.key)}
