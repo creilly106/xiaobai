@@ -3,7 +3,8 @@
  * table so any word can be looked up and added to study. Safe to re-run: the
  * table is replaced wholesale. Your words, cards and notes are untouched.
  *
- *   npm run data:dictionary
+ *   npm run data:dictionary             (replace the table)
+ *   npm run data:dictionary -- --if-empty (only fill an empty table; used on deploy)
  */
 import 'dotenv/config';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
@@ -12,12 +13,11 @@ import { gunzipSync } from 'node:zlib';
 import { createClient, type InStatement } from '@libsql/client';
 import { parseCedictLine } from '../src/lib/cedict';
 import { dbCredentials, isRemoteDb } from '../src/db/config';
+import { ensureTatoeba } from './tatoeba-source';
 
 const URL = 'https://www.mdbg.net/chinese/export/cedict/cedict_1_0_ts_utf-8_mdbg.txt.gz';
 const CACHE = path.join('scripts', '.cache', 'cedict.txt.gz');
 const CHUNK = 200;
-/** Tatoeba's Chinese–English pairs, downloaded by scripts/build-examples.ts. */
-const CORPUS = path.join('scripts', '.cache', 'cmn-eng', 'cmn.txt');
 const HSK_BOOST = 10_000;
 const MAX_NGRAM = 4;
 
@@ -27,13 +27,14 @@ const MAX_NGRAM = 4;
  */
 function corpusCounts(): Map<string, number> {
   const counts = new Map<string, number>();
-  if (!existsSync(CORPUS)) {
-    console.warn(
-      `No corpus at ${CORPUS} (run npm run data:examples first) — ranking without frequency.`,
-    );
+  let corpus: string;
+  try {
+    corpus = ensureTatoeba();
+  } catch (err) {
+    console.warn('Could not get the Tatoeba corpus — ranking without frequency.', err);
     return counts;
   }
-  for (const line of readFileSync(CORPUS, 'utf8').split('\n')) {
+  for (const line of readFileSync(corpus, 'utf8').split('\n')) {
     const zh = Array.from(line.split('\t')[1] ?? '');
     for (let i = 0; i < zh.length; i++) {
       for (let n = 1; n <= MAX_NGRAM && i + n <= zh.length; n++) {
@@ -63,6 +64,14 @@ async function main() {
     .filter((e) => e !== null);
 
   const client = createClient(dbCredentials());
+  if (process.argv.includes('--if-empty')) {
+    const { rows } = await client.execute('SELECT count(*) AS n FROM dictionary');
+    if (Number(rows[0].n) > 0) {
+      console.log(`Dictionary already has ${rows[0].n} entries — skipping import.`);
+      client.close();
+      return;
+    }
+  }
   const hsk = new Set(
     (await client.execute('SELECT hanzi FROM words WHERE hsk_level IS NOT NULL')).rows.map((r) =>
       String(r.hanzi),

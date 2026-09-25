@@ -9,17 +9,13 @@
  *   npm run data:examples
  */
 import 'dotenv/config';
-import { execFileSync } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { createClient } from '@libsql/client';
 import { dbCredentials } from '../src/db/config';
 import { segmentWords } from '../src/lib/segment';
+import { ensureTatoeba } from './tatoeba-source';
 
-const ZIP_URL = 'https://www.manythings.org/anki/cmn-eng.zip';
-const CACHE_DIR = path.join('scripts', '.cache');
-const ZIP = path.join(CACHE_DIR, 'cmn-eng.zip');
-const TXT = path.join(CACHE_DIR, 'cmn-eng', 'cmn.txt');
 const OUT = path.join('src', 'lib', 'generated', 'examples.json');
 
 const PER_WORD = 3;
@@ -38,19 +34,8 @@ export type ExampleData = {
   words: Record<string, number[]>;
 };
 
-function ensureSource() {
-  if (existsSync(TXT)) return;
-  mkdirSync(CACHE_DIR, { recursive: true });
-  if (!existsSync(ZIP)) {
-    console.log(`Downloading ${ZIP_URL} …`);
-    // The site rejects Node's default fetch headers; curl works.
-    execFileSync('curl', ['-sSL', '-A', 'curl/8.0', '-o', ZIP, ZIP_URL]);
-  }
-  execFileSync('tar', ['-xf', ZIP, '-C', path.join(CACHE_DIR), '--one-top-level=cmn-eng']);
-}
-
 async function main() {
-  ensureSource();
+  const TXT = ensureTatoeba();
   const client = createClient(dbCredentials());
   const words = (await client.execute('SELECT hanzi FROM words')).rows.map((r) => String(r.hanzi));
   client.close();
