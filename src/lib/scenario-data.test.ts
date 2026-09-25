@@ -1,26 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { splitPinyinWord } from './pinyin-split';
+import { pinyinSyllableCount } from './pinyin-split';
 import { scenarios } from './scenario-data';
 
 const HAN = /[㐀-鿿]/gu;
-
-/** Pinyin syllables in a line ("nǐ hǎo, wǒ jiào Kāngnà." → 5). */
-function syllableCount(pinyin: string): number | null {
-  let total = 0;
-  for (const word of pinyin.split(/[^\p{L}’']+/u).filter(Boolean)) {
-    const parts = word.split(/[’']/);
-    for (const part of parts) {
-      const lower = part.toLowerCase();
-      // Erhua: "nǎr", "diǎnr" are one syllable plus r.
-      const split =
-        splitPinyinWord(lower) ??
-        (lower.endsWith('r') ? splitPinyinWord(lower.slice(0, -1)) : null);
-      if (!split) return null;
-      total += split.length;
-    }
-  }
-  return total;
-}
 
 const allLines = scenarios.flatMap((s) => [
   ...s.sentences.flatMap((p) => [p, ...(p.variants ?? [])]).map((l) => ({ slug: s.slug, ...l })),
@@ -57,7 +39,7 @@ describe('scenario data', () => {
       .flatMap((l) => {
         const chars = l.hanzi.match(HAN) ?? [];
         const erhua = chars.filter((c, i) => c === '儿' && i > 0).length;
-        const syllables = syllableCount(l.pinyin);
+        const syllables = pinyinSyllableCount(l.pinyin);
         const ok =
           syllables !== null && (syllables === chars.length || syllables === chars.length - erhua);
         return ok ? [] : [`${l.slug}: ${l.hanzi} / ${l.pinyin} (${syllables} vs ${chars.length})`];

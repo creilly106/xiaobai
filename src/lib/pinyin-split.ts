@@ -66,3 +66,21 @@ export function splitPinyinText(text: string): PinyinSegment[] {
   }
   return out;
 }
+
+/** Pinyin syllables in a line ("nǐ hǎo, wǒ jiào Kāngnà." → 5). */
+export function pinyinSyllableCount(pinyin: string): number | null {
+  let total = 0;
+  for (const word of pinyin.split(/[^\p{L}’']+/u).filter(Boolean)) {
+    const parts = word.split(/[’']/);
+    for (const part of parts) {
+      const lower = part.toLowerCase();
+      // Erhua: "nǎr", "diǎnr" are one syllable plus r.
+      const split =
+        splitPinyinWord(lower) ??
+        (lower.endsWith('r') ? splitPinyinWord(lower.slice(0, -1)) : null);
+      if (!split) return null;
+      total += split.length;
+    }
+  }
+  return total;
+}

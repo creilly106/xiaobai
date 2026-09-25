@@ -630,4 +630,164 @@ export const grammarPoints: GrammarPoint[] = [
     ],
     notes: 'The opposite is 还没(有)…(呢): 我还没吃呢 (I haven’t eaten yet).',
   },
+  {
+    slug: 'yue-lai-yue',
+    time: 'change',
+    name: '越来越… / 越…越…',
+    englishTitle: 'More and more',
+    hskLevel: 3,
+    formula: '越来越 + Adjective  ·  越 + A + 越 + B',
+    description:
+      '越来越 before an adjective says something keeps getting more so. 越…越… links two things: the more of one, the more of the other.',
+    examples: [
+      {
+        hanzi: '天气越来越冷了。',
+        pinyin: 'tiānqì yuè lái yuè lěng le.',
+        meaning: "It's getting colder and colder.",
+      },
+      {
+        hanzi: '他的汉语越来越好。',
+        pinyin: 'tā de Hànyǔ yuè lái yuè hǎo.',
+        meaning: 'His Chinese keeps getting better.',
+      },
+      {
+        hanzi: '我越学越喜欢。',
+        pinyin: 'wǒ yuè xué yuè xǐhuan.',
+        meaning: 'The more I learn, the more I like it.',
+      },
+    ],
+    notes: 'Leave out 很 and 非常 here: ✗ 越来越很冷.',
+  },
+  {
+    slug: 'haishi-huozhe',
+    name: '还是 vs 或者',
+    englishTitle: 'Two kinds of "or"',
+    hskLevel: 3,
+    formula: 'A 还是 B？ (asking)  ·  A 或者 B (offering)',
+    description:
+      'Both mean "or". 还是 asks someone to choose, so it goes in questions. 或者 offers options in statements.',
+    examples: [
+      {
+        hanzi: '你喝茶还是喝咖啡？',
+        pinyin: 'nǐ hē chá háishi hē kāfēi?',
+        meaning: 'Would you like tea or coffee?',
+      },
+      {
+        hanzi: '我们坐地铁或者坐出租车都可以。',
+        pinyin: 'wǒmen zuò dìtiě huòzhě zuò chūzūchē dōu kěyǐ.',
+        meaning: 'We can take the subway or a taxi — either is fine.',
+      },
+      {
+        hanzi: '你今天去还是明天去？',
+        pinyin: 'nǐ jīntiān qù háishi míngtiān qù?',
+        meaning: 'Are you going today or tomorrow?',
+      },
+    ],
+    notes: '还是 also means "still", and "had better": 你还是去吧 (you’d better go).',
+  },
+  {
+    slug: 'chule-yiwai',
+    name: '除了…以外',
+    englishTitle: 'Except / besides',
+    hskLevel: 3,
+    formula: '除了 A (以外)，… 都 / 也 / 还 …',
+    description:
+      'With 都, it means "except A". With 也 or 还, it means "besides A, also…". 以外 is optional.',
+    examples: [
+      {
+        hanzi: '除了他以外，我们都去了。',
+        pinyin: 'chúle tā yǐwài, wǒmen dōu qù le.',
+        meaning: 'Everyone went except him.',
+      },
+      {
+        hanzi: '除了汉语，我还学习英语。',
+        pinyin: 'chúle Hànyǔ, wǒ hái xuéxí Yīngyǔ.',
+        meaning: 'Besides Chinese, I also study English.',
+      },
+      {
+        hanzi: '除了周末，他都工作。',
+        pinyin: 'chúle zhōumò, tā dōu gōngzuò.',
+        meaning: 'He works every day except weekends.',
+      },
+    ],
+  },
+  {
+    slug: 'ruguo-jiu',
+    name: '如果…就…',
+    englishTitle: 'If … then …',
+    hskLevel: 3,
+    formula: '如果 + condition，(Subject) + 就 + result',
+    description:
+      'Put the condition first, after 如果, and 就 just before the verb of what follows.',
+    examples: [
+      {
+        hanzi: '如果明天下雨，我就不去了。',
+        pinyin: 'rúguǒ míngtiān xià yǔ, wǒ jiù bú qù le.',
+        meaning: "If it rains tomorrow, I won't go.",
+      },
+      {
+        hanzi: '如果你累了，就休息一下吧。',
+        pinyin: 'rúguǒ nǐ lèi le, jiù xiūxi yíxià ba.',
+        meaning: "If you're tired, take a break.",
+      },
+      {
+        hanzi: '如果有问题，就给我打电话。',
+        pinyin: 'rúguǒ yǒu wèntí, jiù gěi wǒ dǎ diànhuà.',
+        meaning: "If there's a problem, call me.",
+      },
+    ],
+    notes:
+      'The condition comes first. English often puts "if…" at the end; Chinese almost never does.',
+  },
+  {
+    slug: 'yibian',
+    name: '一边…一边…',
+    englishTitle: 'Doing two things at once',
+    hskLevel: 3,
+    formula: 'Subject + 一边 + Verb 1 + 一边 + Verb 2',
+    description: 'Put 一边 before each of two actions done at the same time by the same person.',
+    examples: [
+      {
+        hanzi: '他一边吃饭一边看电视。',
+        pinyin: 'tā yìbiān chī fàn yìbiān kàn diànshì.',
+        meaning: 'He watches TV while he eats.',
+      },
+      {
+        hanzi: '我们一边走一边聊天。',
+        pinyin: 'wǒmen yìbiān zǒu yìbiān liáotiān.',
+        meaning: 'We chatted as we walked.',
+      },
+      {
+        hanzi: '她喜欢一边听音乐一边学习。',
+        pinyin: 'tā xǐhuan yìbiān tīng yīnyuè yìbiān xuéxí.',
+        meaning: 'She likes listening to music while she studies.',
+      },
+    ],
+  },
+  {
+    slug: 'xian-ranhou',
+    name: '先…然后…',
+    englishTitle: 'First …, then …',
+    hskLevel: 3,
+    formula: '先 + Verb 1，然后 (再) + Verb 2 (，最后 + Verb 3)',
+    description:
+      '先 marks what happens first; 然后 (often with 再) brings in the next step, and 最后 the last one.',
+    examples: [
+      {
+        hanzi: '我先洗澡，然后吃饭。',
+        pinyin: 'wǒ xiān xǐzǎo, ránhòu chī fàn.',
+        meaning: "I'll shower first, then eat.",
+      },
+      {
+        hanzi: '你先往前走，然后往左拐。',
+        pinyin: 'nǐ xiān wǎng qián zǒu, ránhòu wǎng zuǒ guǎi.',
+        meaning: 'Go straight first, then turn left.',
+      },
+      {
+        hanzi: '我们先去超市，然后再回家。',
+        pinyin: 'wǒmen xiān qù chāoshì, ránhòu zài huí jiā.',
+        meaning: "We'll go to the supermarket first, then home.",
+      },
+    ],
+  },
 ];
