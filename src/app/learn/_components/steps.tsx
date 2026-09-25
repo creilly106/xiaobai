@@ -5,6 +5,7 @@ import { Volume2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { AudioButton } from '@/components/audio-button';
+import { FlagButton } from '@/components/flag-button';
 import { Pinyin } from '@/components/pinyin';
 import { PinyinKeyboard } from '@/components/pinyin-keyboard';
 import { WordTools } from '@/components/card-parts/word-tools';
@@ -44,6 +45,7 @@ export function TeachStep({ step }: { step: Extract<LessonStep, { kind: 'teach' 
       <div className="flex items-center gap-1">
         <Pinyin text={word.pinyin} className="text-2xl text-muted-foreground" />
         <AudioButton text={word.hanzi} reading={word.pinyin} />
+        <FlagButton subject={word.hanzi} detail={`${word.pinyin} · ${word.meaning}`} />
       </div>
       <div className="max-w-md text-xl">{word.meaning}</div>
       <WordTools key={word.hanzi} hanzi={word.hanzi} />

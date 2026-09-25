@@ -9,6 +9,8 @@ import { SuspendedList } from './_components/suspended-list';
 import { AudioPrefs } from './_components/audio-prefs';
 import { BackupPanel } from './_components/backup-panel';
 import { listBackupFiles } from '@/lib/backup';
+import { getOpenFlags } from '@/lib/queries/flags';
+import { FlagsPanel } from './_components/flags-panel';
 import { Button } from '@/components/ui/button';
 import { signOut } from '@/lib/actions/auth';
 import { gateEnabled } from '@/lib/auth';
@@ -16,10 +18,11 @@ import { gateEnabled } from '@/lib/auth';
 export const metadata: Metadata = { title: 'Settings' };
 
 export default async function SettingsPage() {
-  const [settings, suspended, localBackups] = await Promise.all([
+  const [settings, suspended, localBackups, flags] = await Promise.all([
     getSettings(),
     getSuspendedCards(),
     listBackupFiles(),
+    getOpenFlags(),
   ]);
   const initial = {
     dailyNewLimit: settings.dailyNewLimit,
@@ -106,6 +109,15 @@ export default async function SettingsPage() {
           </CardHeader>
           <CardContent>
             <BackupPanel localBackups={localBackups} />
+          </CardContent>
+        </Card>
+
+        <Card id="flags">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">Flagged items</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <FlagsPanel flags={flags} />
           </CardContent>
         </Card>
 

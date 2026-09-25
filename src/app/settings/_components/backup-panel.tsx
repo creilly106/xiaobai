@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Download, Upload } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button, buttonVariants } from '@/components/ui/button';
+import { LocalDate } from '@/components/local-date';
 import {
   Dialog,
   DialogContent,
@@ -78,7 +79,7 @@ export function BackupPanel({ localBackups }: { localBackups: LocalBackup[] }) {
           <ul className="mt-1 space-y-0.5">
             {localBackups.slice(0, 5).map((b) => (
               <li key={b.name}>
-                <code>{b.name}</code> · {new Date(b.savedAt).toLocaleString()} ·{' '}
+                <code>{b.name}</code> · <LocalDate value={b.savedAt} withTime /> ·{' '}
                 {Math.round(b.bytes / 1024)} KB
               </li>
             ))}

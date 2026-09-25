@@ -174,6 +174,22 @@ const tests: Test[] = [
     },
   },
   {
+    name: 'flags: a phrase can be flagged and shows up in Settings',
+    async run(page) {
+      await page.goto(`${base}/scenarios/ordering-food`);
+      await page.getByRole('button', { name: 'Flag a problem with this' }).first().tap();
+      await page.getByRole('button', { name: 'Wrong translation' }).tap();
+      await page.getByLabel('Note').fill('e2e test flag');
+      await page.getByRole('button', { name: 'Send' }).tap();
+      await page.getByText(/Flagged — thanks/).waitFor({ timeout: 5000 });
+      await page.goto(`${base}/settings#flags`);
+      const row = page.locator('li', { hasText: 'e2e test flag' });
+      assert((await row.count()) === 1, 'flag not listed in Settings');
+      await row.getByRole('button', { name: 'Delete flag' }).tap();
+      await row.waitFor({ state: 'detached', timeout: 5000 });
+    },
+  },
+  {
     name: 'scenarios: time chips and "Your turn"',
     async run(page) {
       await page.goto(`${base}/scenarios/relationships`);

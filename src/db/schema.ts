@@ -250,6 +250,27 @@ export const lessonProgress = sqliteTable('lesson_progress', {
     .default(sql`(unixepoch() * 1000)`),
 });
 
+export type FlagReason = 'translation' | 'pinyin' | 'audio' | 'too-hard' | 'too-easy' | 'other';
+
+/** Something you flagged while studying (bad translation, odd audio…), to be fixed. */
+export const flags = sqliteTable('flags', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  /** What was flagged: the Chinese text, or a lesson id. */
+  subject: text('subject').notNull(),
+  /** The English/pinyin shown at the time, to recognise it later. */
+  detail: text('detail'),
+  reason: text('reason').$type<FlagReason>().notNull(),
+  note: text('note'),
+  /** Where you were: a page path or lesson id. */
+  context: text('context'),
+  createdAt: integer('created_at', { mode: 'timestamp_ms' })
+    .notNull()
+    .default(sql`(unixepoch() * 1000)`),
+  resolvedAt: integer('resolved_at', { mode: 'timestamp_ms' }),
+});
+
+export type Flag = typeof flags.$inferSelect;
+
 export type PracticeKind = 'tone' | 'number' | 'cloze' | 'quiz';
 
 /** One answer in a practice drill (tone trainer, numbers, fill in the blank, quiz). */

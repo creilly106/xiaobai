@@ -6,6 +6,7 @@ import { Lightbulb } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AudioButton } from '@/components/audio-button';
+import { FlagButton } from '@/components/flag-button';
 import { Pinyin } from '@/components/pinyin';
 import { TokenizedHanzi } from '@/components/tokenized-hanzi';
 import { ListenNotes, ListenPrompt, ReadingNote } from '@/components/card-parts/listen-notes';
@@ -186,6 +187,10 @@ export function Flashcard<K extends string>({
                     <div className="flex items-center gap-1">
                       <Pinyin text={item.pinyin} className="text-2xl text-muted-foreground" />
                       <AudioButton text={item.hanzi} reading={item.pinyin} />
+                      <FlagButton
+                        subject={item.hanzi}
+                        detail={`${item.pinyin} · ${item.meaning}`}
+                      />
                     </div>
                     <div className="max-w-md text-lg">{item.meaning}</div>
                     {typedAnswer && <TypedResult answer={typedAnswer} pinyin={item.pinyin} />}

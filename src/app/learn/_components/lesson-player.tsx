@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Pinyin } from '@/components/pinyin';
+import { FlagButton } from '@/components/flag-button';
 import { celebrate } from '@/lib/celebrate';
 import { completeCheckpoint, completeLesson, type WordResult } from '@/lib/actions/path';
 import { isQuestion, MAX_RETRIES, stepTargets, type LessonStep } from '@/lib/path/lesson-builder';
@@ -259,6 +260,11 @@ function FeedbackBar({
                 </span>{' '}
                 <Pinyin text={solution.pinyin} className="text-muted-foreground" /> —{' '}
                 {solution.meaning}
+                <FlagButton
+                  subject={solution.hanzi}
+                  detail={`${solution.pinyin} · ${solution.meaning}`}
+                  className="ml-1 align-middle"
+                />
               </div>
             )}
           </div>

@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react';
 import { Check, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 import { AudioButton } from '@/components/audio-button';
+import { FlagButton } from '@/components/flag-button';
 import { Pinyin } from '@/components/pinyin';
 import { TokenizedHanzi } from '@/components/tokenized-hanzi';
 import { Button } from '@/components/ui/button';
@@ -94,6 +95,7 @@ export function PhraseRow({
       </div>
       <div className="flex items-center gap-0.5">
         <AudioButton text={v.hanzi} />
+        <FlagButton subject={v.hanzi} detail={`${v.pinyin} · ${v.meaning}`} />
         {v.studyable && (
           <Button
             type="button"
