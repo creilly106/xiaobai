@@ -4,6 +4,7 @@ import { hsk2 } from '../../../scripts/data/hsk2';
 import { hsk3 } from '../../../scripts/data/hsk3';
 import { hsk4 } from '../../../scripts/data/hsk4';
 import { grammarPoints } from '../grammar-data';
+import { scenarios } from '../scenario-data';
 import { segmentSpans } from '../segment';
 import { COMPLETE_LEVELS, LESSONS, UNITS, wordsThrough } from './index';
 
@@ -30,6 +31,11 @@ describe('curriculum', () => {
 
   it('keeps lessons short', () => {
     for (const l of LESSONS) expect(l.words.length).toBeLessThanOrEqual(7);
+  });
+
+  it('links units to real scenarios', () => {
+    const slugs = new Set(scenarios.map((s) => s.slug));
+    for (const u of UNITS) if (u.scenario) expect(slugs.has(u.scenario), u.scenario).toBe(true);
   });
 
   it('only references real grammar points', () => {

@@ -37,7 +37,7 @@ export function AudioPrefs() {
         <div>
           <div className="text-sm font-medium">Play audio when an answer is revealed</div>
           <p className="text-xs text-muted-foreground">
-            In Study and Quiz. Press P to replay, or click any word to hear just that word.
+            In Review and Quiz. Press P to replay, or click any word to hear just that word.
           </p>
         </div>
         <ToggleSwitch

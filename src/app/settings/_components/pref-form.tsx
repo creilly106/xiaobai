@@ -123,9 +123,9 @@ export function StudyPrefForm({ initial }: Props) {
         <div className="min-w-0 flex-1">
           <div className="text-sm font-medium">New HSK words come from Learn</div>
           <p className="text-xs text-muted-foreground">
-            On: Study only reviews HSK words once a Learn lesson has taught them (words you add
-            yourself and scenario sentences still come through). Off: Study introduces any new card,
-            up to the daily new-card limit.
+            On: Review only shows HSK words once a Learn lesson has taught them (words you add
+            yourself and scenario sentences still come through). Off: Review introduces any new
+            card, up to the daily new-card limit.
           </p>
         </div>
         <ToggleSwitch

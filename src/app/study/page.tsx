@@ -5,10 +5,10 @@ import { getStudyQueue } from '@/lib/queries/study';
 import { getAvailability, getSettings } from '@/lib/queries/settings';
 import { getReviewsToday } from '@/lib/queries/progress';
 import { getDictionaryFor } from '@/lib/queries/dictionary';
-import { formatRelativeFuture } from '@/lib/dates';
+import { NextDue } from '@/components/next-due';
 import { Session } from './_components/session';
 
-export const metadata: Metadata = { title: 'Study' };
+export const metadata: Metadata = { title: 'Review' };
 
 const EXTRA_STEP = 5;
 
@@ -27,9 +27,11 @@ export default async function StudyPage({ searchParams }: PageProps<'/study'>) {
         </div>
         <h1 className="mt-3 text-2xl font-semibold">You&apos;re all caught up</h1>
         <p className="mt-2 text-muted-foreground">
-          {avail.nextDueInMs != null
-            ? `Your next review is due in ${formatRelativeFuture(avail.nextDueInMs)}.`
-            : 'Nothing else is scheduled right now.'}
+          {avail.nextDueInMs != null ? (
+            <NextDue inMs={avail.nextDueInMs} count={avail.nextDueCount} />
+          ) : (
+            'Nothing else is scheduled right now.'
+          )}
           {avail.reviewLimitHit &&
             " More reviews are waiting, but you've hit today's review limit."}
         </p>

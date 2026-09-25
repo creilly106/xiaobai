@@ -161,10 +161,10 @@ function UnitCard({ unit, number }: { unit: PathUnitView; number: number }) {
               )}
               {unit.scenario && (
                 <Link
-                  href={`/scenarios/${unit.scenario}`}
+                  href={`/scenarios/${unit.scenario}?view=dialogues`}
                   className={buttonVariants({ variant: 'ghost', size: 'sm' })}
                 >
-                  Related scenario <ArrowRight />
+                  Practise the dialogue <ArrowRight />
                 </Link>
               )}
             </div>

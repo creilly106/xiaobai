@@ -91,11 +91,6 @@ export function layoutOf(hanzi: string): string | null {
   return first ? (IDC_LAYOUTS[first] ?? null) : null;
 }
 
-/** True when the dataset has no smaller parts for this character. */
-export function isAtomic(hanzi: string): boolean {
-  return decompose(hanzi).length === 0;
-}
-
 /** Every character in the dataset whose top-level parts include one of `parts`. */
 export function charactersUsing(parts: string[]): string[] {
   const wanted = new Set(parts);

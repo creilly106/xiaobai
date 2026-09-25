@@ -12,7 +12,7 @@ import {
 import { buttonVariants } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { getDashboardStats } from '@/lib/queries/dashboard';
-import { formatRelativeFuture } from '@/lib/dates';
+import { NextDue } from '@/components/next-due';
 import { getPath } from '@/lib/queries/path';
 import { StatTile, QueueTile } from './_components/stat-tiles';
 
@@ -140,11 +140,13 @@ export default async function Home() {
             ) : (
               hasCards && (
                 <div className="text-sm text-muted-foreground">
-                  {a.reviewLimitHit
-                    ? "Today's review limit is reached."
-                    : a.nextDueInMs != null
-                      ? `Next card due in ${formatRelativeFuture(a.nextDueInMs)}.`
-                      : 'Nothing scheduled.'}
+                  {a.reviewLimitHit ? (
+                    "Today's review limit is reached."
+                  ) : a.nextDueInMs != null ? (
+                    <NextDue inMs={a.nextDueInMs} count={a.nextDueCount} />
+                  ) : (
+                    'Nothing scheduled.'
+                  )}
                 </div>
               )
             )}

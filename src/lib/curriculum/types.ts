@@ -33,9 +33,7 @@ export type Unit = {
   hskLevel: number;
   title: string;
   description: string;
-  /** Related scenario for further practice. */
+  /** Related scenario: its phrases and dialogues round off the unit. */
   scenario?: string;
   lessons: Lesson[];
-  /** A short conversation to finish the unit with. */
-  dialogue?: { title: string; lines: DialogueLine[] };
 };

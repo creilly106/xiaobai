@@ -35,7 +35,8 @@ export async function getDashboardStats(): Promise<DashboardStats> {
   ]);
 
   const by = new Map(cardsByState.map((r) => [r.state, Number(r.n)]));
-  const newCards = by.get('new') ?? 0;
+  // HSK words waiting for their Learn lesson aren't really in your queue yet.
+  const newCards = Math.max(0, (by.get('new') ?? 0) - availability.pathWords);
   const learningCards = (by.get('learning') ?? 0) + (by.get('relearning') ?? 0);
   const reviewCards = by.get('review') ?? 0;
 

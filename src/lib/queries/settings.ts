@@ -81,6 +81,8 @@ export type Availability = {
   nextDueAt: number | null;
   /** Milliseconds from `now` until `nextDueAt` (computed here so pages stay pure). */
   nextDueInMs: number | null;
+  /** Cards coming due within a few minutes of `nextDueAt` (they arrive together). */
+  nextDueCount: number;
   /** Reviews are due but today's review limit is used up. */
   reviewLimitHit: boolean;
   /** New scenario sentences waiting until you know more of their words. */
@@ -92,6 +94,8 @@ export type Availability = {
 };
 
 const LEARNING_STATES: CardState[] = ['learning', 'relearning'];
+/** Cards due this close together are reported as one batch ("6 cards in 4 min"). */
+const NEXT_DUE_WINDOW_MS = 5 * 60_000;
 
 /** What can be studied right now, after applying the daily limits. */
 export async function getAvailability(now = new Date()): Promise<Availability> {
@@ -118,6 +122,7 @@ export async function getAvailability(now = new Date()): Promise<Availability> {
   const newAvailable = Math.min(pool.cardIds.length, newRemainingToday);
 
   let nextDueAt: number | null = null;
+  let nextDueCount = 0;
   if (learningDue + reviewDue + newAvailable === 0) {
     const [next] = await db
       .select({ due: schema.cards.due })
@@ -133,6 +138,21 @@ export async function getAvailability(now = new Date()): Promise<Availability> {
       .orderBy(asc(schema.cards.due))
       .limit(1);
     nextDueAt = next?.due.getTime() ?? null;
+    if (nextDueAt != null) {
+      const [row] = await db
+        .select({ n: sql<number>`count(*)` })
+        .from(schema.cards)
+        .where(
+          and(
+            eq(schema.cards.suspended, false),
+            gt(schema.cards.due, now),
+            lte(schema.cards.due, new Date(nextDueAt + NEXT_DUE_WINDOW_MS)),
+            modeFilter(followUpsFrom(settings)),
+            inArray(schema.cards.state, [...LEARNING_STATES, 'review'] as CardState[]),
+          ),
+        );
+      nextDueCount = Number(row?.n ?? 0);
+    }
   }
 
   return {
@@ -144,6 +164,7 @@ export async function getAvailability(now = new Date()): Promise<Availability> {
     totalDue: learningDue + reviewDue + newAvailable,
     nextDueAt,
     nextDueInMs: nextDueAt == null ? null : Math.max(0, nextDueAt - now.getTime()),
+    nextDueCount,
     reviewLimitHit: reviewRemainingToday === 0 && (by.get('review') ?? 0) > 0,
     lockedSentences: pool.lockedSentences,
     pathWords: pool.pathWords,

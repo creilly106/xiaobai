@@ -206,7 +206,7 @@ export function QuizForm({ scenarios, hskLevels }: Props) {
           </Card>
           <ToggleRow
             label="Only blank words I've studied"
-            desc="Tests words you've already met in Study. Off: any word can be the blank (studied ones are still picked more often)."
+            desc="Tests words you've already met in Learn or Review. Off: any word can be the blank (studied ones are still picked more often)."
             value={knownOnly}
             onChange={setKnownOnly}
           />

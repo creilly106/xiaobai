@@ -3,13 +3,17 @@ import { asc, eq, isNotNull, sql } from 'drizzle-orm';
 import { db, schema } from '@/db/client';
 import { HskLevelChip } from '@/app/_components/hsk-level-chip';
 import { getDictionaryFor } from '@/lib/queries/dictionary';
+import { getSettings } from '@/lib/queries/settings';
 import { isCjk, plainPinyin } from '@/lib/text';
 import { LibrarySearch } from './library-search';
 import { WordRow } from './word-row';
 
 const PAGE_LIMIT = 200;
 
-/** The HSK 1–4 word lists, with per-level queue controls and search. */
+/**
+ * The HSK 1–4 word lists with search, and progress per level. Add/remove
+ * buttons only appear when new words aren't coming from the Learn path.
+ */
 export async function HskTab({ q, levelParam }: { q: string; levelParam?: string }) {
   const words = await db
     .select({
@@ -19,6 +23,7 @@ export async function HskTab({ q, levelParam }: { q: string; levelParam?: string
       meaning: schema.words.meaning,
       hskLevel: schema.words.hskLevel,
       cardCount: sql<number>`count(${schema.cards.id})`,
+      learned: sql<number>`max(case when ${schema.cards.state} <> 'new' then 1 else 0 end)`,
     })
     .from(schema.words)
     .leftJoin(schema.cards, eq(schema.cards.wordId, schema.words.id))
@@ -26,11 +31,14 @@ export async function HskTab({ q, levelParam }: { q: string; levelParam?: string
     .groupBy(schema.words.id)
     .orderBy(asc(schema.words.hskLevel), asc(schema.words.id));
 
-  const levelStats = new Map<number, { total: number; inQueue: number }>();
+  const { newWordsFrom } = await getSettings();
+  const pathMode = newWordsFrom === 'path';
+  const levelStats = new Map<number, { total: number; inQueue: number; learned: number }>();
   for (const w of words) {
-    const s = levelStats.get(w.hskLevel!) ?? { total: 0, inQueue: 0 };
+    const s = levelStats.get(w.hskLevel!) ?? { total: 0, inQueue: 0, learned: 0 };
     s.total += 1;
     if (Number(w.cardCount) > 0) s.inQueue += 1;
+    if (Number(w.learned) > 0) s.learned += 1;
     levelStats.set(w.hskLevel!, s);
   }
   const levels = [...levelStats.keys()].sort((a, b) => a - b);
@@ -70,7 +78,7 @@ export async function HskTab({ q, levelParam }: { q: string; levelParam?: string
           id="levels-heading"
           className="mb-2 text-xs font-medium uppercase tracking-wider text-muted-foreground"
         >
-          Study queue by level
+          {pathMode ? 'Progress by level' : 'Study queue by level'}
         </h2>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {levels.map((l) => {
@@ -80,13 +88,25 @@ export async function HskTab({ q, levelParam }: { q: string; levelParam?: string
                 key={l}
                 className="flex items-center justify-between gap-3 rounded-lg border border-border/60 bg-card px-3 py-2.5"
               >
-                <div>
+                <div className="min-w-0 flex-1">
                   <div className="text-sm font-medium">HSK {l}</div>
                   <div className="text-xs text-muted-foreground">
-                    {s.inQueue === 0 ? `${s.total} words` : `${s.inQueue}/${s.total} in queue`}
+                    {pathMode
+                      ? `${s.learned} of ${s.total} learned`
+                      : s.inQueue === 0
+                        ? `${s.total} words`
+                        : `${s.inQueue}/${s.total} in queue`}
                   </div>
+                  {pathMode && (
+                    <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded bg-muted">
+                      <div
+                        className="h-full rounded bg-primary"
+                        style={{ width: `${Math.round((s.learned / s.total) * 100)}%` }}
+                      />
+                    </div>
+                  )}
                 </div>
-                <HskLevelChip level={l} inQueue={s.inQueue > 0} />
+                {!pathMode && <HskLevelChip level={l} inQueue={s.inQueue > 0} />}
               </div>
             );
           })}
