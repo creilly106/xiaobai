@@ -10,6 +10,9 @@ import { AudioPrefs } from './_components/audio-prefs';
 import { BackupPanel } from './_components/backup-panel';
 import { listBackupFiles } from '@/lib/backup';
 import { getOpenFlags } from '@/lib/queries/flags';
+import { listSnapshots } from '@/lib/queries/snapshots';
+import { LocalDate } from '@/components/local-date';
+import { RemindersPanel } from './_components/reminders-panel';
 import { FlagsPanel } from './_components/flags-panel';
 import { Button } from '@/components/ui/button';
 import { signOut } from '@/lib/actions/auth';
@@ -18,11 +21,12 @@ import { gateEnabled } from '@/lib/auth';
 export const metadata: Metadata = { title: 'Settings' };
 
 export default async function SettingsPage() {
-  const [settings, suspended, localBackups, flags] = await Promise.all([
+  const [settings, suspended, localBackups, flags, snapshots] = await Promise.all([
     getSettings(),
     getSuspendedCards(),
     listBackupFiles(),
     getOpenFlags(),
+    listSnapshots(),
   ]);
   const initial = {
     dailyNewLimit: settings.dailyNewLimit,
@@ -44,7 +48,7 @@ export default async function SettingsPage() {
       <div className="mt-6 space-y-6">
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-base">Study preferences</CardTitle>
+            <CardTitle className="text-base">Learning preferences</CardTitle>
           </CardHeader>
           <CardContent>
             <StudyPrefForm initial={initial} />
@@ -57,6 +61,15 @@ export default async function SettingsPage() {
           </CardHeader>
           <CardContent>
             <AudioPrefs />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">Daily reminder</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <RemindersPanel />
           </CardContent>
         </Card>
 
@@ -109,6 +122,34 @@ export default async function SettingsPage() {
           </CardHeader>
           <CardContent>
             <BackupPanel localBackups={localBackups} />
+            <div className="mt-5 border-t pt-4">
+              <div className="text-sm font-medium">Automatic weekly copies</div>
+              <p className="text-xs text-muted-foreground">
+                A copy of your progress is kept each week (the last four), in case something goes
+                wrong. Download one to keep it safe, or to restore it above.
+              </p>
+              {snapshots.length === 0 ? (
+                <p className="mt-2 text-xs text-muted-foreground">
+                  None yet — the first is made within a day.
+                </p>
+              ) : (
+                <ul className="mt-2 space-y-1 text-sm">
+                  {snapshots.map((s) => (
+                    <li key={s.id}>
+                      <a
+                        href={`/api/backup/snapshot/${s.id}`}
+                        className="underline hover:text-foreground"
+                      >
+                        <LocalDate value={s.createdAt} withTime />
+                      </a>{' '}
+                      <span className="text-xs text-muted-foreground">
+                        · {Math.round(Number(s.bytes) / 1024)} KB
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           </CardContent>
         </Card>
 

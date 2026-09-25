@@ -1,10 +1,11 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import Script from 'next/script';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { Toaster } from '@/components/ui/sonner';
 import { SiteHeader } from '@/components/site-header';
 import { ThemeProvider } from '@/components/theme-provider';
 import { TimeZoneCookie } from '@/components/time-zone-cookie';
+import { ServiceWorker } from '@/components/service-worker';
 import { ACCENT_INIT_SCRIPT } from '@/lib/accent';
 import './globals.css';
 
@@ -25,6 +26,15 @@ export const metadata: Metadata = {
   },
   description:
     'Xiaobai (小白 — "beginner") is a spaced-repetition, scenario, and grammar workbench for learning Chinese from scratch.',
+  // Opened from the iPhone home screen: full-screen, no Safari bars.
+  appleWebApp: { capable: true, title: 'Xiaobai', statusBarStyle: 'default' },
+};
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+    { media: '(prefers-color-scheme: dark)', color: '#0a0a0a' },
+  ],
 };
 
 export default function RootLayout({ children }: LayoutProps<'/'>) {
@@ -50,6 +60,7 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
           </main>
           <Toaster />
           <TimeZoneCookie />
+          <ServiceWorker />
         </ThemeProvider>
       </body>
     </html>

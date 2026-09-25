@@ -42,7 +42,8 @@ const INSERT_CHUNK = 100;
  * Reference data that can be re-imported (npm run data:dictionary). Left out
  * of backups — it's 125k rows — and left untouched by restores.
  */
-const NOT_BACKED_UP = new Set(['dictionary']);
+// The dictionary is reference data; snapshots would nest; subscriptions belong to a device.
+const NOT_BACKED_UP = new Set(['dictionary', 'db_snapshots', 'push_subscriptions']);
 
 async function tableNames(): Promise<string[]> {
   const rs = await sqlite.execute(

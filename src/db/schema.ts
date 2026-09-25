@@ -271,6 +271,29 @@ export const flags = sqliteTable('flags', {
 
 export type Flag = typeof flags.$inferSelect;
 
+/** A phone/browser that asked for daily reminders (Web Push). */
+export const pushSubscriptions = sqliteTable('push_subscriptions', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  endpoint: text('endpoint').notNull().unique(),
+  p256dh: text('p256dh').notNull(),
+  auth: text('auth').notNull(),
+  /** The device's IANA timezone, so "have you studied today?" uses your day. */
+  timeZone: text('time_zone'),
+  createdAt: integer('created_at', { mode: 'timestamp_ms' })
+    .notNull()
+    .default(sql`(unixepoch() * 1000)`),
+  lastSentAt: integer('last_sent_at', { mode: 'timestamp_ms' }),
+});
+
+/** Weekly copies of your data (the same JSON as a Settings backup), kept in the database. */
+export const dbSnapshots = sqliteTable('db_snapshots', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  createdAt: integer('created_at', { mode: 'timestamp_ms' })
+    .notNull()
+    .default(sql`(unixepoch() * 1000)`),
+  data: text('data').notNull(),
+});
+
 export type PracticeKind = 'tone' | 'number' | 'cloze' | 'quiz';
 
 /** One answer in a practice drill (tone trainer, numbers, fill in the blank, quiz). */

@@ -6,7 +6,11 @@ import { AUTH_COOKIE, gateEnabled, isValidSession } from '@/lib/auth';
  * to page routes) and API routes; static assets are excluded by the matcher.
  */
 export function proxy(request: NextRequest) {
-  if (!gateEnabled() || request.nextUrl.pathname === '/login') return NextResponse.next();
+  const path = request.nextUrl.pathname;
+  // The daily cron job authenticates with CRON_SECRET instead of the password.
+  if (!gateEnabled() || path === '/login' || path.startsWith('/api/cron/')) {
+    return NextResponse.next();
+  }
   if (isValidSession(request.cookies.get(AUTH_COOKIE)?.value)) return NextResponse.next();
 
   if (request.method !== 'GET' && request.method !== 'HEAD') {
@@ -20,6 +24,6 @@ export function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|strokes/|audio/|icon\\.svg|manifest\\.webmanifest|favicon\\.ico).*)',
+    '/((?!_next/static|_next/image|strokes/|audio/|icon\\.svg|icon-\\d+\\.png|apple-icon|sw\\.js|manifest\\.webmanifest|favicon\\.ico).*)',
   ],
 };
