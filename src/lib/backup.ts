@@ -4,6 +4,7 @@ import path from 'node:path';
 import type { InStatement, Value } from '@libsql/client';
 import { sqlite } from '@/db/client';
 import { localDateKey } from '@/lib/dates';
+import { userTimeZone } from '@/lib/timezone';
 
 // Whole-database backups as JSON: every table, every row, raw column values.
 // JSON rather than a copy of the .db file so it also works against a hosted
@@ -125,7 +126,9 @@ export async function restoreBackup(backup: Backup): Promise<{ rows: number }> {
 export async function writeBackupFile(kind: 'auto' | 'pre-restore'): Promise<string> {
   await mkdir(BACKUP_DIR, { recursive: true });
   const stamp =
-    kind === 'auto' ? localDateKey(new Date()) : new Date().toISOString().replace(/[:.]/g, '-');
+    kind === 'auto'
+      ? localDateKey(new Date(), await userTimeZone())
+      : new Date().toISOString().replace(/[:.]/g, '-');
   const name = `${kind}-${stamp}.json`;
   await writeFile(path.join(BACKUP_DIR, name), JSON.stringify(await createBackup()));
   if (kind === 'auto') await pruneAutoBackups();

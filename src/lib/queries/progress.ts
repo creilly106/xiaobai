@@ -7,13 +7,15 @@ import { followUpsFrom, modeFilter } from '@/lib/card-modes';
 import { addDays, startOfLocalDay } from '@/lib/dates';
 import { bucketForecast, type ForecastDay } from '@/lib/forecast';
 import { getSettings } from './settings';
+import { userTimeZone } from '@/lib/timezone';
 
 /** Reviews coming due each day for the next `days` days (overdue counts as today). */
 export async function getForecast(days = 7): Promise<ForecastDay[]> {
   await connection();
   const now = new Date();
   const settings = await getSettings();
-  const until = addDays(startOfLocalDay(now), days);
+  const tz = await userTimeZone();
+  const until = addDays(startOfLocalDay(now, tz), days);
   const rows = await db
     .select({ due: schema.cards.due })
     .from(schema.cards)
@@ -29,6 +31,7 @@ export async function getForecast(days = 7): Promise<ForecastDay[]> {
     rows.map((r) => r.due.getTime()),
     now,
     days,
+    tz,
   );
 }
 
@@ -74,6 +77,6 @@ export async function getReviewsToday(): Promise<number> {
   const [row] = await db
     .select({ n: sql<number>`count(*)` })
     .from(schema.reviews)
-    .where(gte(schema.reviews.reviewedAt, startOfLocalDay(new Date())));
+    .where(gte(schema.reviews.reviewedAt, startOfLocalDay(new Date(), await userTimeZone())));
   return Number(row?.n ?? 0);
 }

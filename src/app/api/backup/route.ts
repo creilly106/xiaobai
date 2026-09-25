@@ -1,11 +1,12 @@
 import { revalidatePath } from 'next/cache';
 import { assertBackup, createBackup, restoreBackup, writeBackupFile } from '@/lib/backup';
 import { localDateKey } from '@/lib/dates';
+import { userTimeZone } from '@/lib/timezone';
 
 /** Download everything as one JSON file. */
 export async function GET() {
   const backup = await createBackup();
-  const filename = `xiaobai-backup-${localDateKey(new Date())}.json`;
+  const filename = `xiaobai-backup-${localDateKey(new Date(), await userTimeZone())}.json`;
   return new Response(JSON.stringify(backup), {
     headers: {
       'Content-Type': 'application/json; charset=utf-8',

@@ -6,6 +6,7 @@ import { segmentWords } from '@/lib/segment';
 import { isFollowUpMode, modeFilter, type FollowUpSettings } from '@/lib/card-modes';
 import type { NewWordsFrom } from '@/db/schema';
 import { dailyRank, isSentenceUnlocked, orderNewCards, type NewWord } from '@/lib/queue-order';
+import { userTimeZone } from '@/lib/timezone';
 
 export type NewCardPool = {
   /** Eligible new cards, in the order they should be introduced. */
@@ -80,7 +81,7 @@ export async function getNewCardPool(
   let lockedSentences = 0;
   let pathWords = 0;
   const words: NewWord[] = [];
-  const day = localDateKey(now);
+  const day = localDateKey(now, await userTimeZone());
 
   const listening: number[] = [];
   for (const c of newCards) {

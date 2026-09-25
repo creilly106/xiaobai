@@ -9,6 +9,7 @@ import { getStudyCard, type StudyCard } from '@/lib/queries/study';
 import { addDays, daysBetweenKeys, localDateKey, startOfLocalDay } from '@/lib/dates';
 import { backfillFollowUpCards } from '@/lib/listening-backfill';
 import { writeBackupFile } from '@/lib/backup';
+import { userTimeZone } from '@/lib/timezone';
 
 export type ReviewRating = 1 | 2 | 3 | 4;
 
@@ -103,7 +104,7 @@ export async function rateCard(
     });
   }
 
-  const todayKey = localDateKey(now);
+  const todayKey = localDateKey(now, await userTimeZone());
   if (settings && settings.lastStudyDate !== todayKey) {
     // First review of the day: keep a local backup (last 7 days are kept).
     try {
@@ -190,7 +191,7 @@ async function snapshot(cardId: number): Promise<CardSnapshot> {
 export async function buryCard(cardId: number): Promise<CardSnapshot> {
   assertCardId(cardId);
   const before = await snapshot(cardId);
-  const tomorrow = addDays(startOfLocalDay(new Date()), 1);
+  const tomorrow = addDays(startOfLocalDay(new Date(), await userTimeZone()), 1);
   await db.update(schema.cards).set({ due: tomorrow }).where(eq(schema.cards.id, cardId));
   revalidateStudy();
   return before;

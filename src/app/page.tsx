@@ -14,6 +14,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { getDashboardStats } from '@/lib/queries/dashboard';
 import { NextDue } from '@/components/next-due';
 import { getPath } from '@/lib/queries/path';
+import { userTimeZone } from '@/lib/timezone';
 import { StatTile, QueueTile } from './_components/stat-tiles';
 
 const EXPLORE = [
@@ -50,7 +51,10 @@ export default async function Home() {
   const [stats, path] = await Promise.all([getDashboardStats(), getPath()]);
   const a = stats.availability;
   const hasCards = stats.totalCards > 0;
-  const weekday = new Date().toLocaleDateString('en', { weekday: 'long' });
+  const weekday = new Date().toLocaleDateString('en', {
+    weekday: 'long',
+    timeZone: await userTimeZone(),
+  });
   const newUsedToday = stats.dailyNewLimit - a.newRemainingToday;
 
   return (

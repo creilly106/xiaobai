@@ -6,6 +6,7 @@ import type { CardState, NewWordsFrom } from '@/db/schema';
 import { startOfLocalDay } from '@/lib/dates';
 import { getNewCardPool } from './new-cards';
 import { followUpsFrom, modeFilter } from '@/lib/card-modes';
+import { userTimeZone } from '@/lib/timezone';
 
 export type AppSettings = {
   id: number | null;
@@ -64,7 +65,7 @@ export async function getTodayCounts(now = new Date()) {
       total: sql<number>`count(*)`,
     })
     .from(schema.reviews)
-    .where(gte(schema.reviews.reviewedAt, startOfLocalDay(now)));
+    .where(gte(schema.reviews.reviewedAt, startOfLocalDay(now, await userTimeZone())));
   return {
     newIntroduced: Number(row?.introduced ?? 0),
     reviewsDone: Number(row?.reviewed ?? 0),

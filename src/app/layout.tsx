@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import { Toaster } from '@/components/ui/sonner';
 import { SiteHeader } from '@/components/site-header';
 import { ThemeProvider } from '@/components/theme-provider';
+import { TimeZoneCookie } from '@/components/time-zone-cookie';
 import { ACCENT_INIT_SCRIPT } from '@/lib/accent';
 import './globals.css';
 
@@ -48,6 +49,7 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
             {children}
           </main>
           <Toaster />
+          <TimeZoneCookie />
         </ThemeProvider>
       </body>
     </html>

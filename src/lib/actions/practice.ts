@@ -4,6 +4,7 @@ import { and, eq, gt, inArray } from 'drizzle-orm';
 import { db, schema } from '@/db/client';
 import type { PracticeKind } from '@/db/schema';
 import { addDays, startOfLocalDay } from '@/lib/dates';
+import { userTimeZone } from '@/lib/timezone';
 
 export type PracticeEntry = {
   kind: PracticeKind;
@@ -54,7 +55,7 @@ export async function logPractice(entries: PracticeEntry[]): Promise<{ reviewSoo
   ];
   let reviewSooner = 0;
   if (missedWords.length > 0) {
-    const tomorrow = addDays(startOfLocalDay(new Date()), 1);
+    const tomorrow = addDays(startOfLocalDay(new Date(), await userTimeZone()), 1);
     const ids = await db
       .select({ id: schema.words.id })
       .from(schema.words)

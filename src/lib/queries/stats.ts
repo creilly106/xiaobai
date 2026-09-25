@@ -4,6 +4,7 @@ import { and, eq, gte, inArray, sql } from 'drizzle-orm';
 import { db, schema } from '@/db/client';
 import type { CardState } from '@/db/schema';
 import { addDays, effectiveStreak, localDateKey, startOfLocalDay as startOfDay } from '@/lib/dates';
+import { userTimeZone } from '@/lib/timezone';
 
 export type StatsSummary = {
   totalReviews: number;
@@ -18,7 +19,7 @@ export type RatingDist = { rating: 1 | 2 | 3 | 4; count: number };
 export async function getStatsSummary(): Promise<StatsSummary> {
   await connection();
   const now = new Date();
-  const thirtyDaysAgo = addDays(startOfDay(now), -30);
+  const thirtyDaysAgo = addDays(startOfDay(now, await userTimeZone()), -30);
 
   const [totalRow] = await db.select({ n: sql<number>`count(*)` }).from(schema.reviews);
 
@@ -51,13 +52,19 @@ export async function getStatsSummary(): Promise<StatsSummary> {
     totalReviews: Number(totalRow?.n ?? 0),
     activeCards: Number(activeRow?.n ?? 0),
     retention30d: retention,
-    streakDays: effectiveStreak(settings?.streakDays ?? 0, settings?.lastStudyDate ?? null, now),
+    streakDays: effectiveStreak(
+      settings?.streakDays ?? 0,
+      settings?.lastStudyDate ?? null,
+      now,
+      await userTimeZone(),
+    ),
   };
 }
 
 export async function getHeatmap(days = 84): Promise<HeatmapDay[]> {
   await connection();
-  const today = startOfDay(new Date());
+  const tz = await userTimeZone();
+  const today = startOfDay(new Date(), tz);
   const first = addDays(today, -(days - 1));
   const rows = await db
     .select({ reviewedAt: schema.reviews.reviewedAt })
@@ -66,10 +73,10 @@ export async function getHeatmap(days = 84): Promise<HeatmapDay[]> {
 
   const bucket = new Map<string, number>();
   for (let i = 0; i < days; i++) {
-    bucket.set(localDateKey(addDays(first, i)), 0);
+    bucket.set(localDateKey(addDays(first, i), tz), 0);
   }
   for (const r of rows) {
-    const key = localDateKey(new Date(r.reviewedAt));
+    const key = localDateKey(new Date(r.reviewedAt), tz);
     bucket.set(key, (bucket.get(key) ?? 0) + 1);
   }
   return Array.from(bucket, ([date, count]) => ({ date, count }));
@@ -77,7 +84,7 @@ export async function getHeatmap(days = 84): Promise<HeatmapDay[]> {
 
 export async function getRatingDistribution(days = 30): Promise<RatingDist[]> {
   await connection();
-  const cutoff = addDays(startOfDay(new Date()), -days);
+  const cutoff = addDays(startOfDay(new Date(), await userTimeZone()), -days);
   const rows = await db
     .select({
       rating: schema.reviews.rating,

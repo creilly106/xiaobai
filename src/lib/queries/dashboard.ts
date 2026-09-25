@@ -4,6 +4,7 @@ import { connection } from 'next/server';
 import { db, schema } from '@/db/client';
 import { effectiveStreak } from '@/lib/dates';
 import { getAvailability, getSettings, getTodayCounts, type Availability } from './settings';
+import { userTimeZone } from '@/lib/timezone';
 
 export type DashboardStats = {
   totalWords: number;
@@ -47,7 +48,12 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     learningCards,
     reviewCards,
     reviewsToday: today.total,
-    streakDays: effectiveStreak(settings.streakDays, settings.lastStudyDate, now),
+    streakDays: effectiveStreak(
+      settings.streakDays,
+      settings.lastStudyDate,
+      now,
+      await userTimeZone(),
+    ),
     dailyNewLimit: settings.dailyNewLimit,
     dailyGoal: settings.dailyGoal,
     availability,
