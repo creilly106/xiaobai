@@ -1,0 +1,1 @@
+ALTER TABLE `sentence_tags` ADD `role` text DEFAULT 'phrase' NOT NULL;

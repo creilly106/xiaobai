@@ -1,5 +1,5 @@
 /**
- * Syncs scripts/data/scenarios.ts into the database. Safe to re-run:
+ * Syncs src/lib/scenario-data.ts into the database. Safe to re-run:
  * - creates/updates scenario tags and sentences,
  * - unlinks sentences that were removed from a scenario,
  * - deletes unlinked sentences unless you have a study card for them
@@ -11,7 +11,11 @@ import { dbCredentials } from '../src/db/config';
 import { drizzle } from 'drizzle-orm/libsql';
 import { and, eq, inArray, notInArray } from 'drizzle-orm';
 import * as schema from '../src/db/schema';
-import { scenarios } from './data/scenarios';
+import type { SentenceRole } from '../src/db/schema';
+import { scenarios } from '../src/lib/scenario-data';
+
+/** Anything with Chinese, pinyin and a meaning; phrases may add a difficulty. */
+type Line = { hanzi: string; pinyin: string; meaning: string; difficulty?: number };
 
 async function main() {
   const client = createClient(dbCredentials());
@@ -45,7 +49,17 @@ async function main() {
     }
 
     const keep: number[] = [];
-    for (const sent of s.sentences) {
+    // Phrases, their time variants and dialogue lines, each once per scenario
+    // (a line that is also a phrase counts as the phrase).
+    const entries = new Map<string, { sent: Line; role: SentenceRole }>();
+    const addEntry = (sent: Line, role: SentenceRole) => {
+      if (!entries.has(sent.hanzi)) entries.set(sent.hanzi, { sent, role });
+    };
+    for (const sent of s.sentences) addEntry(sent, 'phrase');
+    for (const sent of s.sentences) for (const v of sent.variants ?? []) addEntry(v, 'variant');
+    for (const d of s.dialogues ?? []) for (const line of d.lines) addEntry(line, 'dialogue');
+
+    for (const { sent, role } of entries.values()) {
       const [row] = await db
         .select()
         .from(schema.sentences)
@@ -54,7 +68,7 @@ async function main() {
       let sentenceId: number;
       if (row) {
         sentenceId = row.id;
-        const difficulty = sent.difficulty ?? null;
+        const difficulty = sent.difficulty ?? row.difficulty;
         if (
           row.pinyin !== sent.pinyin ||
           row.meaning !== sent.meaning ||
@@ -82,13 +96,24 @@ async function main() {
       keep.push(sentenceId);
 
       const [link] = await db
-        .select({ tagId: schema.sentenceTags.tagId })
+        .select({ tagId: schema.sentenceTags.tagId, role: schema.sentenceTags.role })
         .from(schema.sentenceTags)
         .where(
           and(eq(schema.sentenceTags.sentenceId, sentenceId), eq(schema.sentenceTags.tagId, tagId)),
         )
         .limit(1);
-      if (!link) await db.insert(schema.sentenceTags).values({ sentenceId, tagId });
+      if (!link) await db.insert(schema.sentenceTags).values({ sentenceId, tagId, role });
+      else if (link.role !== role) {
+        await db
+          .update(schema.sentenceTags)
+          .set({ role })
+          .where(
+            and(
+              eq(schema.sentenceTags.sentenceId, sentenceId),
+              eq(schema.sentenceTags.tagId, tagId),
+            ),
+          );
+      }
     }
 
     const stale = await db

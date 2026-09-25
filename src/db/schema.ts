@@ -71,6 +71,9 @@ export const tags = sqliteTable(
   }),
 );
 
+/** How a sentence belongs to a scenario: a main phrase, a time variant of one, or a dialogue line. */
+export type SentenceRole = 'phrase' | 'variant' | 'dialogue';
+
 export const sentenceTags = sqliteTable(
   'sentence_tags',
   {
@@ -80,6 +83,7 @@ export const sentenceTags = sqliteTable(
     tagId: integer('tag_id')
       .notNull()
       .references(() => tags.id, { onDelete: 'cascade' }),
+    role: text('role').$type<SentenceRole>().notNull().default('phrase'),
   },
   (t) => ({
     pk: primaryKey({ columns: [t.sentenceId, t.tagId] }),

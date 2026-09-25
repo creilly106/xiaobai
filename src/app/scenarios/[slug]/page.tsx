@@ -3,8 +3,10 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getScenarioBySlug } from '@/lib/queries/scenarios';
 import { getDictionaryFor } from '@/lib/queries/dictionary';
-import { SentenceRow } from './_components/sentence-row';
+import { scenarioBySlug } from '@/lib/scenario-data';
 import { AddScenarioButton } from './_components/add-scenario-button';
+import { DialogueCard } from './_components/dialogue-card';
+import { PhraseRow, type PhraseVersion } from './_components/phrase-row';
 
 export async function generateMetadata({
   params,
@@ -14,12 +16,49 @@ export async function generateMetadata({
   return { title: scenario ? scenario.name : 'Scenario not found' };
 }
 
-export default async function ScenarioDetailPage({ params }: PageProps<'/scenarios/[slug]'>) {
+export default async function ScenarioDetailPage({
+  params,
+  searchParams,
+}: PageProps<'/scenarios/[slug]'>) {
   const { slug } = await params;
+  const view = (await searchParams).view === 'dialogues' ? 'dialogues' : 'phrases';
   const scenario = await getScenarioBySlug(slug);
   if (!scenario) notFound();
-  const dict = await getDictionaryFor(scenario.sentences.map((s) => s.hanzi));
-  const total = scenario.sentences.length;
+  const content = scenarioBySlug(slug);
+
+  // Study state comes from the database; structure (variants, dialogues) from the content file.
+  const saved = new Map(scenario.sentences.map((s) => [s.hanzi, s]));
+  const phrases = content
+    ? [...content.sentences]
+        .sort((a, b) => (a.difficulty ?? 9) - (b.difficulty ?? 9))
+        .map((s) => ({
+          key: s.hanzi,
+          difficulty: s.difficulty ?? null,
+          versions: [{ ...s, label: s.label ?? 'Now' }, ...(s.variants ?? [])].map(
+            (v): PhraseVersion => ({
+              label: v.label,
+              hanzi: v.hanzi,
+              pinyin: v.pinyin,
+              meaning: v.meaning,
+              studyable: saved.has(v.hanzi),
+              inQueue: saved.get(v.hanzi)?.inQueue ?? false,
+            }),
+          ),
+        }))
+    : scenario.sentences
+        .filter((s) => s.role === 'phrase')
+        .map((s) => ({
+          key: s.hanzi,
+          difficulty: s.difficulty,
+          versions: [{ ...s, label: 'Now', studyable: true }],
+        }));
+  const dialogues = content?.dialogues ?? [];
+  const total = phrases.length;
+
+  const dict = await getDictionaryFor([
+    ...phrases.flatMap((p) => p.versions.map((v) => v.hanzi)),
+    ...dialogues.flatMap((d) => d.lines.map((l) => l.hanzi)),
+  ]);
 
   return (
     <div className="mx-auto w-full max-w-3xl px-4 py-10">
@@ -38,23 +77,79 @@ export default async function ScenarioDetailPage({ params }: PageProps<'/scenari
           )}
           <p className="mt-2 text-xs text-muted-foreground">
             {scenario.inQueueCount === 0
-              ? `${total} sentences · not in your study queue yet`
+              ? `${total} phrases · not in your study queue yet`
               : scenario.inQueueCount === total
-                ? `All ${total} sentences are in your study queue`
-                : `${scenario.inQueueCount} of ${total} sentences in your study queue`}
+                ? `All ${total} phrases are in your study queue`
+                : `${scenario.inQueueCount} of ${total} phrases in your study queue`}
           </p>
         </div>
         <AddScenarioButton slug={scenario.slug} remaining={total - scenario.inQueueCount} />
       </div>
 
-      <p className="mt-6 text-xs text-muted-foreground">
-        Hover any word for its meaning; click to open its character page.
-      </p>
-      <div className="mt-2 divide-y divide-border/60 rounded-md border border-border/60 bg-card">
-        {scenario.sentences.map((s) => (
-          <SentenceRow key={s.id} sentence={s} dict={dict} />
-        ))}
-      </div>
+      {dialogues.length > 0 && (
+        <div role="tablist" className="mt-6 inline-flex rounded-lg border p-1 text-sm">
+          {(
+            [
+              ['phrases', `Phrases (${total})`],
+              ['dialogues', `Dialogues (${dialogues.length})`],
+            ] as const
+          ).map(([key, label]) => (
+            <Link
+              key={key}
+              role="tab"
+              aria-selected={view === key}
+              href={key === 'phrases' ? `/scenarios/${slug}` : `/scenarios/${slug}?view=dialogues`}
+              scroll={false}
+              className={`rounded-md px-3 py-1 transition-colors ${
+                view === key
+                  ? 'bg-muted font-medium'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              {label}
+            </Link>
+          ))}
+        </div>
+      )}
+
+      {view === 'phrases' || dialogues.length === 0 ? (
+        <>
+          <p className="mt-4 text-xs text-muted-foreground">
+            Hover any word for its meaning. Where a phrase has{' '}
+            <span className="rounded-full border px-1.5">Past</span> or{' '}
+            <span className="rounded-full border px-1.5">Future</span> chips, tap them to see how
+            Chinese shows the time.{' '}
+            <Link href="/grammar/time" className="underline hover:text-foreground">
+              How time works
+            </Link>
+          </p>
+          <div className="mt-2 divide-y divide-border/60 rounded-md border border-border/60 bg-card">
+            {phrases.map((p) => (
+              <PhraseRow
+                key={p.key}
+                slug={slug}
+                versions={p.versions}
+                difficulty={p.difficulty}
+                dict={dict}
+              />
+            ))}
+          </div>
+        </>
+      ) : (
+        <div className="mt-4 space-y-4">
+          {dialogues.map((d, i) => (
+            <DialogueCard
+              key={d.title}
+              slug={slug}
+              index={i}
+              title={d.title}
+              lines={d.lines}
+              inQueue={d.lines.every((l) => saved.get(l.hanzi)?.inQueue)}
+              dict={dict}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

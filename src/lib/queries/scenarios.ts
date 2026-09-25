@@ -1,6 +1,7 @@
 import 'server-only';
 import { connection } from 'next/server';
-import { asc, eq, sql } from 'drizzle-orm';
+import { and, asc, eq, sql } from 'drizzle-orm';
+import type { SentenceRole } from '@/db/schema';
 import { db, schema } from '@/db/client';
 
 export type ScenarioSummary = {
@@ -26,7 +27,11 @@ export async function listScenarios(): Promise<ScenarioSummary[]> {
       inQueueCount: inQueueExpr,
     })
     .from(schema.tags)
-    .leftJoin(schema.sentenceTags, eq(schema.sentenceTags.tagId, schema.tags.id))
+    // Counts are about the main phrases, not their time variants or dialogue lines.
+    .leftJoin(
+      schema.sentenceTags,
+      and(eq(schema.sentenceTags.tagId, schema.tags.id), eq(schema.sentenceTags.role, 'phrase')),
+    )
     .leftJoin(schema.cards, eq(schema.cards.sentenceId, schema.sentenceTags.sentenceId))
     .where(eq(schema.tags.type, 'scenario'))
     .groupBy(schema.tags.id)
@@ -50,6 +55,7 @@ export type ScenarioDetail = {
     pinyin: string;
     meaning: string;
     difficulty: number | null;
+    role: SentenceRole;
     inQueue: boolean;
   }[];
 };
@@ -66,6 +72,7 @@ export async function getScenarioBySlug(slug: string): Promise<ScenarioDetail | 
       pinyin: schema.sentences.pinyin,
       meaning: schema.sentences.meaning,
       difficulty: schema.sentences.difficulty,
+      role: schema.sentenceTags.role,
       cardCount: sql<number>`count(${schema.cards.id})`,
     })
     .from(schema.sentenceTags)
@@ -85,7 +92,7 @@ export async function getScenarioBySlug(slug: string): Promise<ScenarioDetail | 
     slug: tag.slug,
     name: tag.name,
     description: tag.description,
-    inQueueCount: sentences.filter((s) => s.inQueue).length,
+    inQueueCount: sentences.filter((s) => s.role === 'phrase' && s.inQueue).length,
     sentences,
   };
 }
