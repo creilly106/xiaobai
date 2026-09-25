@@ -66,12 +66,12 @@ async function main() {
   const client = createClient(dbCredentials());
   if (process.argv.includes('--if-empty')) {
     // Refresh the English search index (created by migration 0011).
-  try {
-    await client.execute("INSERT INTO dictionary_fts(dictionary_fts) VALUES('rebuild')");
-  } catch {
-    console.warn('No dictionary_fts index yet — run npm run db:migrate.');
-  }
-  const { rows } = await client.execute('SELECT count(*) AS n FROM dictionary');
+    try {
+      await client.execute("INSERT INTO dictionary_fts(dictionary_fts) VALUES('rebuild')");
+    } catch {
+      console.warn('No dictionary_fts index yet — run npm run db:migrate.');
+    }
+    const { rows } = await client.execute('SELECT count(*) AS n FROM dictionary');
     if (Number(rows[0].n) > 0) {
       console.log(`Dictionary already has ${rows[0].n} entries — skipping import.`);
       client.close();
