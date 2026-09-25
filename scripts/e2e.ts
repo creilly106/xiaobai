@@ -6,13 +6,17 @@
  *   cp data/app.db data/e2e.db
  *   DATABASE_URL=file:./data/e2e.db npm run build && npx next start -p 3200
  *   npm run e2e -- http://localhost:3200
+ *   npm run e2e -- http://localhost:3200 --headed   (watch it in a visible window)
  *
  * Needs the password gate off (no APP_PASSWORD).
  */
 import { existsSync } from 'node:fs';
 import { chromium, type Page } from 'playwright-core';
 
-const base = (process.argv[2] ?? 'http://localhost:3200').replace(/\/$/, '');
+const args = process.argv.slice(2);
+const base = (args.find((a) => !a.startsWith('--')) ?? 'http://localhost:3200').replace(/\/$/, '');
+/** --headed: open a visible Chrome window and slow down, to watch the run. */
+const headed = args.includes('--headed');
 const CHROME = [
   'C:/Program Files/Google/Chrome/Application/chrome.exe',
   'C:/Program Files (x86)/Google/Chrome/Application/chrome.exe',
@@ -225,7 +229,11 @@ async function answer(page: Page, step: string) {
 
 async function main() {
   const executablePath = CHROME.find((p) => existsSync(p));
-  const browser = await chromium.launch({ executablePath, headless: true });
+  const browser = await chromium.launch({
+    executablePath,
+    headless: !headed,
+    slowMo: headed ? 150 : 0,
+  });
   const context = await browser.newContext({
     viewport: { width: 390, height: 844 },
     deviceScaleFactor: 3,
