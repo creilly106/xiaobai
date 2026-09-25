@@ -33,6 +33,11 @@ export default async function StudyPage({ searchParams }: PageProps<'/study'>) {
           {avail.reviewLimitHit &&
             " More reviews are waiting, but you've hit today's review limit."}
         </p>
+        {avail.pathWords > 0 && (
+          <p className="mt-2 text-sm text-muted-foreground">
+            New words come from Learn — take the next lesson to add more to your reviews.
+          </p>
+        )}
         {avail.lockedSentences > 0 && (
           <p className="mt-2 text-sm text-muted-foreground">
             {avail.lockedSentences} scenario sentence
@@ -45,6 +50,10 @@ export default async function StudyPage({ searchParams }: PageProps<'/study'>) {
             <Link href={`/study?extra=${extraNew + EXTRA_STEP}`} className={buttonVariants({})}>
               Learn {Math.min(EXTRA_STEP, avail.newInPool)} more new card
               {Math.min(EXTRA_STEP, avail.newInPool) === 1 ? '' : 's'}
+            </Link>
+          ) : avail.pathWords > 0 ? (
+            <Link href="/learn" className={buttonVariants({})}>
+              Continue learning
             </Link>
           ) : (
             <Link href="/scenarios" className={buttonVariants({})}>

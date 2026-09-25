@@ -15,6 +15,7 @@ type Props = {
     listeningEnabled: boolean;
     productionEnabled: boolean;
     dailyGoal: number;
+    newWordsFrom: 'path' | 'queue';
   };
 };
 
@@ -25,6 +26,7 @@ export function StudyPrefForm({ initial }: Props) {
   const [listening, setListening] = useState(initial.listeningEnabled);
   const [production, setProduction] = useState(initial.productionEnabled);
   const [goal, setGoal] = useState(initial.dailyGoal);
+  const [fromPath, setFromPath] = useState(initial.newWordsFrom === 'path');
   const [pending, startTransition] = useTransition();
 
   function save(e: React.FormEvent) {
@@ -38,6 +40,7 @@ export function StudyPrefForm({ initial }: Props) {
           listeningEnabled: listening,
           productionEnabled: production,
           dailyGoal: goal,
+          newWordsFrom: fromPath ? 'path' : 'queue',
         });
         // Show what was actually stored (out-of-range values are clamped).
         if (saved.dailyNewLimit != null) setNewLimit(saved.dailyNewLimit);
@@ -116,6 +119,21 @@ export function StudyPrefForm({ initial }: Props) {
           <span className="text-sm text-muted-foreground">%</span>
         </div>
       </PrefRow>
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border/60 px-4 py-3">
+        <div className="min-w-0 flex-1">
+          <div className="text-sm font-medium">New HSK words come from Learn</div>
+          <p className="text-xs text-muted-foreground">
+            On: Study only reviews HSK words once a Learn lesson has taught them (words you add
+            yourself and scenario sentences still come through). Off: Study introduces any new card,
+            up to the daily new-card limit.
+          </p>
+        </div>
+        <ToggleSwitch
+          value={fromPath}
+          onChange={setFromPath}
+          label="New HSK words come from Learn"
+        />
+      </div>
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border/60 px-4 py-3">
         <div className="min-w-0 flex-1">
           <div className="text-sm font-medium">Listening cards</div>

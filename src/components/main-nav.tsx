@@ -3,29 +3,44 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
-import { Menu } from 'lucide-react';
+import { ChevronDown, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 
-type NavItem = { href: string; label: string; match?: string[] };
+type NavItem = { href: string; label: string; desc?: string; match?: string[] };
 
-export const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
+/** Groups shown as a dropdown on wide screens; the rest are plain links. */
+export const NAV_GROUPS: { label: string; menu?: boolean; items: NavItem[] }[] = [
   {
-    label: 'Practice',
+    label: 'Learn',
     items: [
-      { href: '/study', label: 'Study' },
-      { href: '/quiz', label: 'Quiz' },
-      { href: '/scenarios', label: 'Scenarios' },
-      { href: '/tones', label: 'Tones' },
-      { href: '/numbers', label: 'Numbers' },
+      { href: '/learn', label: 'Learn' },
+      { href: '/study', label: 'Review' },
     ],
   },
   {
-    label: 'Reference',
+    label: 'Practice',
+    menu: true,
     items: [
-      { href: '/grammar', label: 'Grammar' },
-      { href: '/radicals', label: 'Radicals' },
-      { href: '/library', label: 'Library', match: ['/characters'] },
+      { href: '/quiz', label: 'Quiz', desc: 'Flashcards, typed meanings, fill in the blank' },
+      { href: '/tones', label: 'Tones', desc: 'Hear it, pick the tones' },
+      { href: '/numbers', label: 'Numbers', desc: 'Counting, prices, dates and times' },
+    ],
+  },
+  {
+    label: 'Explore',
+    menu: true,
+    items: [
+      { href: '/scenarios', label: 'Scenarios', desc: 'Real-life phrases by situation' },
+      {
+        href: '/library',
+        label: 'Library',
+        desc: 'Your words and the full dictionary',
+        match: ['/characters'],
+      },
+      { href: '/grammar', label: 'Grammar', desc: 'Sentence patterns with examples' },
+      { href: '/radicals', label: 'Radicals', desc: 'The building blocks of characters' },
     ],
   },
   {
@@ -39,28 +54,75 @@ function isActive(pathname: string, item: NavItem): boolean {
   return prefixes.some((p) => pathname === p || pathname.startsWith(`${p}/`));
 }
 
+const linkClass = (active: boolean) =>
+  `rounded-md px-3 py-1.5 transition-colors ${
+    active
+      ? 'bg-muted font-medium text-foreground'
+      : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
+  }`;
+
 export function MainNav() {
   const pathname = usePathname();
   return (
     <nav aria-label="Main" className="hidden items-center gap-0.5 text-sm lg:flex">
-      {NAV_GROUPS.flatMap((g) => g.items).map((item) => {
-        const active = isActive(pathname, item);
-        return (
-          <Link
-            key={item.href}
-            href={item.href}
-            aria-current={active ? 'page' : undefined}
-            className={`rounded-md px-3 py-1.5 transition-colors ${
-              active
-                ? 'bg-muted font-medium text-foreground'
-                : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
-            }`}
-          >
-            {item.label}
-          </Link>
-        );
-      })}
+      {NAV_GROUPS.map((group) =>
+        group.menu ? (
+          <NavMenu key={group.label} label={group.label} items={group.items} pathname={pathname} />
+        ) : (
+          group.items.map((item) => {
+            const active = isActive(pathname, item);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                aria-current={active ? 'page' : undefined}
+                className={linkClass(active)}
+              >
+                {item.label}
+              </Link>
+            );
+          })
+        ),
+      )}
     </nav>
+  );
+}
+
+function NavMenu({
+  label,
+  items,
+  pathname,
+}: {
+  label: string;
+  items: NavItem[];
+  pathname: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const active = items.some((item) => isActive(pathname, item));
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger className={`${linkClass(active)} inline-flex items-center gap-1`}>
+        {label}
+        <ChevronDown className="size-3.5 opacity-60" />
+      </PopoverTrigger>
+      <PopoverContent align="start" className="w-72 gap-0.5 p-1.5">
+        {items.map((item) => {
+          const current = isActive(pathname, item);
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              onClick={() => setOpen(false)}
+              aria-current={current ? 'page' : undefined}
+              className={`rounded-md px-3 py-2 transition-colors hover:bg-muted/70 ${current ? 'bg-muted' : ''}`}
+            >
+              <div className="font-medium">{item.label}</div>
+              {item.desc && <div className="text-xs text-muted-foreground">{item.desc}</div>}
+            </Link>
+          );
+        })}
+      </PopoverContent>
+    </Popover>
   );
 }
 

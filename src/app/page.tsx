@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import {
+  ArrowRight,
   AudioLines,
   BookOpenText,
   Dices,
@@ -12,7 +13,7 @@ import { buttonVariants } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { getDashboardStats } from '@/lib/queries/dashboard';
 import { formatRelativeFuture } from '@/lib/dates';
-import { SetupHskButton } from './_components/setup-hsk-button';
+import { getPath } from '@/lib/queries/path';
 import { StatTile, QueueTile } from './_components/stat-tiles';
 
 const EXPLORE = [
@@ -46,7 +47,7 @@ const EXPLORE = [
 ] as const;
 
 export default async function Home() {
-  const stats = await getDashboardStats();
+  const [stats, path] = await Promise.all([getDashboardStats(), getPath()]);
   const a = stats.availability;
   const hasCards = stats.totalCards > 0;
   const weekday = new Date().toLocaleDateString('en', { weekday: 'long' });
@@ -61,19 +62,44 @@ export default async function Home() {
         </h1>
         <p className="mt-1 text-muted-foreground">
           {!hasCards
-            ? 'Your study queue is empty. Add HSK 1 to begin.'
+            ? 'Start with your first lesson.'
             : a.totalDue > 0
-              ? 'Your next session is ready.'
-              : "You're all caught up for now."}
+              ? 'Reviews are ready — and your next lesson is waiting.'
+              : 'Reviews are done for now. Time for a lesson?'}
         </p>
       </div>
 
-      {hasCards ? (
-        <Card className="mb-6 border-primary/30">
-          <CardContent className="flex flex-col gap-5 p-6 sm:flex-row sm:items-center sm:justify-between">
-            <div>
+      <div className="mb-6 grid gap-4 md:grid-cols-2">
+        <Card className="border-2 border-primary/40 bg-primary/5">
+          <CardContent className="flex h-full flex-col gap-4 p-6">
+            <div className="flex-1">
               <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Today&apos;s session
+                Learn · {path.finished} / {path.total} lessons
+              </div>
+              {path.current ? (
+                <>
+                  <div className="mt-1 text-2xl font-semibold">{path.current.title}</div>
+                  <div className="text-sm text-muted-foreground">{path.current.unitTitle}</div>
+                </>
+              ) : (
+                <div className="mt-1 text-2xl font-semibold">Path complete for now</div>
+              )}
+            </div>
+            <Link
+              href={path.current ? `/learn/${path.current.id}` : '/learn'}
+              className={buttonVariants({ size: 'lg', className: 'self-start px-6' })}
+            >
+              {path.finished === 0 ? 'Start learning' : path.current ? 'Continue' : 'View path'}
+              <ArrowRight />
+            </Link>
+          </CardContent>
+        </Card>
+
+        <Card className="border-primary/30">
+          <CardContent className="flex h-full flex-col gap-4 p-6">
+            <div className="flex-1">
+              <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                Review
               </div>
               <div className="mt-1 flex items-baseline gap-2">
                 <span className="text-4xl font-semibold tabular-nums">{a.totalDue}</span>
@@ -81,45 +107,50 @@ export default async function Home() {
                   card{a.totalDue === 1 ? '' : 's'} ready
                 </span>
               </div>
-              <div className="mt-3 flex flex-wrap gap-2 text-xs">
-                <Pill>{a.learningDue} learning</Pill>
-                <Pill>{a.reviewDue} review</Pill>
-                <Pill>
-                  {a.newAvailable} new · {newUsedToday}/{stats.dailyNewLimit} introduced today
-                </Pill>
-              </div>
-              {stats.dailyGoal > 0 && <GoalBar done={stats.reviewsToday} goal={stats.dailyGoal} />}
+              {hasCards ? (
+                <div className="mt-3 flex flex-wrap gap-2 text-xs">
+                  <Pill>{a.learningDue} learning</Pill>
+                  <Pill>{a.reviewDue} review</Pill>
+                  {a.newAvailable > 0 && (
+                    <Pill>
+                      {a.newAvailable} new · {newUsedToday}/{stats.dailyNewLimit} introduced today
+                    </Pill>
+                  )}
+                </div>
+              ) : (
+                <p className="mt-2 text-sm text-muted-foreground">
+                  Words from your lessons come back here to review.
+                </p>
+              )}
+              {stats.dailyGoal > 0 && hasCards && (
+                <GoalBar done={stats.reviewsToday} goal={stats.dailyGoal} />
+              )}
             </div>
             {a.totalDue > 0 ? (
-              <Link href="/study" className={buttonVariants({ size: 'lg', className: 'px-6' })}>
-                Start session
+              <Link
+                href="/study"
+                className={buttonVariants({
+                  size: 'lg',
+                  variant: 'outline',
+                  className: 'self-start px-6',
+                })}
+              >
+                Start review
               </Link>
             ) : (
-              <div className="text-sm text-muted-foreground sm:text-right">
-                {a.reviewLimitHit
-                  ? "Today's review limit is reached."
-                  : a.nextDueInMs != null
-                    ? `Next card due in ${formatRelativeFuture(a.nextDueInMs)}.`
-                    : 'Nothing scheduled.'}
-                <div className="mt-2">
-                  <Link href="/quiz" className={buttonVariants({ variant: 'outline', size: 'sm' })}>
-                    Practice with a quiz
-                  </Link>
+              hasCards && (
+                <div className="text-sm text-muted-foreground">
+                  {a.reviewLimitHit
+                    ? "Today's review limit is reached."
+                    : a.nextDueInMs != null
+                      ? `Next card due in ${formatRelativeFuture(a.nextDueInMs)}.`
+                      : 'Nothing scheduled.'}
                 </div>
-              </div>
+              )
             )}
           </CardContent>
         </Card>
-      ) : (
-        <Card className="mb-6">
-          <CardContent className="flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-sm text-muted-foreground">
-              HSK 1 is 149 core words — the standard starting point.
-            </p>
-            <SetupHskButton level={1} label="Add HSK 1 to my queue" />
-          </CardContent>
-        </Card>
-      )}
+      </div>
 
       <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         <StatTile

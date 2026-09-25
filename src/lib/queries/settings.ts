@@ -2,7 +2,7 @@ import 'server-only';
 import { and, asc, eq, gt, gte, inArray, lte, sql } from 'drizzle-orm';
 import { connection } from 'next/server';
 import { db, schema } from '@/db/client';
-import type { CardState } from '@/db/schema';
+import type { CardState, NewWordsFrom } from '@/db/schema';
 import { startOfLocalDay } from '@/lib/dates';
 import { getNewCardPool } from './new-cards';
 import { followUpsFrom, modeFilter } from '@/lib/card-modes';
@@ -15,6 +15,7 @@ export type AppSettings = {
   listeningEnabled: boolean;
   productionEnabled: boolean;
   dailyGoal: number;
+  newWordsFrom: NewWordsFrom;
   streakDays: number;
   lastStudyDate: string | null;
 };
@@ -26,6 +27,7 @@ export const DEFAULT_SETTINGS: Omit<AppSettings, 'id'> = {
   listeningEnabled: true,
   productionEnabled: true,
   dailyGoal: 20,
+  newWordsFrom: 'path',
   streakDays: 0,
   lastStudyDate: null,
 };
@@ -42,6 +44,7 @@ export async function getSettings(): Promise<AppSettings> {
     listeningEnabled: row.listeningEnabled,
     productionEnabled: row.productionEnabled,
     dailyGoal: row.dailyGoal,
+    newWordsFrom: row.newWordsFrom,
     streakDays: row.streakDays,
     lastStudyDate: row.lastStudyDate,
   };
@@ -82,6 +85,8 @@ export type Availability = {
   reviewLimitHit: boolean;
   /** New scenario sentences waiting until you know more of their words. */
   lockedSentences: number;
+  /** New HSK words waiting for their Learn lesson. */
+  pathWords: number;
   /** New cards that could be studied if the daily limit allowed. */
   newInPool: number;
 };
@@ -109,7 +114,7 @@ export async function getAvailability(now = new Date()): Promise<Availability> {
   const by = new Map(rows.map((r) => [r.state, Number(r.n)]));
   const learningDue = (by.get('learning') ?? 0) + (by.get('relearning') ?? 0);
   const reviewDue = Math.min(by.get('review') ?? 0, reviewRemainingToday);
-  const pool = await getNewCardPool(now, followUpsFrom(settings));
+  const pool = await getNewCardPool(now, followUpsFrom(settings), settings.newWordsFrom);
   const newAvailable = Math.min(pool.cardIds.length, newRemainingToday);
 
   let nextDueAt: number | null = null;
@@ -141,6 +146,7 @@ export async function getAvailability(now = new Date()): Promise<Availability> {
     nextDueInMs: nextDueAt == null ? null : Math.max(0, nextDueAt - now.getTime()),
     reviewLimitHit: reviewRemainingToday === 0 && (by.get('review') ?? 0) > 0,
     lockedSentences: pool.lockedSentences,
+    pathWords: pool.pathWords,
     newInPool: pool.cardIds.length,
   };
 }

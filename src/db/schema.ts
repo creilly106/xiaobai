@@ -168,6 +168,8 @@ export const reviews = sqliteTable('reviews', {
   nextDue: integer('next_due', { mode: 'timestamp_ms' }).notNull(),
 });
 
+export type NewWordsFrom = 'path' | 'queue';
+
 export const settings = sqliteTable('settings', {
   id: integer('id').primaryKey(),
   dailyNewLimit: integer('daily_new_limit').notNull().default(15),
@@ -179,6 +181,11 @@ export const settings = sqliteTable('settings', {
   productionEnabled: integer('production_enabled', { mode: 'boolean' }).notNull().default(true),
   /** Cards to review each day to hit your goal (0 = no goal). */
   dailyGoal: integer('daily_goal').notNull().default(20),
+  /**
+   * Where Study gets new HSK words: 'path' leaves them to lessons in Learn;
+   * 'queue' introduces any new card up to the daily limit.
+   */
+  newWordsFrom: text('new_words_from').$type<NewWordsFrom>().notNull().default('path'),
   streakDays: integer('streak_days').notNull().default(0),
   lastStudyDate: text('last_study_date'),
   createdAt: integer('created_at', { mode: 'timestamp_ms' })
@@ -223,6 +230,21 @@ export const dictionary = sqliteTable(
 );
 
 export type DictionaryEntry = typeof dictionary.$inferSelect;
+
+export type LessonStatus = 'done' | 'tested';
+
+/** Lessons finished on the Learn path ('tested' = skipped by passing a unit checkpoint). */
+export const lessonProgress = sqliteTable('lesson_progress', {
+  /** Curriculum lesson id, e.g. "h1-u2-l3". */
+  lessonId: text('lesson_id').primaryKey(),
+  status: text('status').$type<LessonStatus>().notNull(),
+  /** Best first-try accuracy, 0–100. */
+  bestScore: integer('best_score').notNull().default(0),
+  attempts: integer('attempts').notNull().default(0),
+  completedAt: integer('completed_at', { mode: 'timestamp_ms' })
+    .notNull()
+    .default(sql`(unixepoch() * 1000)`),
+});
 
 export type PracticeKind = 'tone' | 'number' | 'cloze' | 'quiz';
 

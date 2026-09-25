@@ -261,7 +261,7 @@ export async function getStudyQueue({
   const settings = await getSettings();
   const [avail, pool] = await Promise.all([
     getAvailability(now),
-    getNewCardPool(now, followUpsFrom(settings)),
+    getNewCardPool(now, followUpsFrom(settings), settings.newWordsFrom),
   ]);
 
   const learning = await dueCards(['learning', 'relearning'], now, followUpsFrom(settings))

@@ -3,6 +3,7 @@
 import { eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { db, schema } from '@/db/client';
+import type { NewWordsFrom } from '@/db/schema';
 import { backfillFollowUpCards } from '@/lib/listening-backfill';
 
 // Mirrors the input bounds in settings/_components/pref-form.tsx.
@@ -30,6 +31,7 @@ export async function updateSettings(patch: {
   listeningEnabled?: boolean;
   productionEnabled?: boolean;
   dailyGoal?: number;
+  newWordsFrom?: NewWordsFrom;
 }) {
   const clean = {
     dailyNewLimit: clampInt(patch.dailyNewLimit, SETTINGS_LIMITS.dailyNewLimit),
@@ -40,6 +42,10 @@ export async function updateSettings(patch: {
       typeof patch.listeningEnabled === 'boolean' ? patch.listeningEnabled : undefined,
     productionEnabled:
       typeof patch.productionEnabled === 'boolean' ? patch.productionEnabled : undefined,
+    newWordsFrom:
+      patch.newWordsFrom === 'path' || patch.newWordsFrom === 'queue'
+        ? patch.newWordsFrom
+        : undefined,
   };
 
   const [settings] = await db.select().from(schema.settings).limit(1);
@@ -52,6 +58,7 @@ export async function updateSettings(patch: {
       listeningEnabled: clean.listeningEnabled ?? true,
       productionEnabled: clean.productionEnabled ?? true,
       dailyGoal: clean.dailyGoal ?? 20,
+      newWordsFrom: clean.newWordsFrom ?? 'path',
     });
   } else {
     await db
@@ -63,6 +70,7 @@ export async function updateSettings(patch: {
         ...(clean.listeningEnabled != null && { listeningEnabled: clean.listeningEnabled }),
         ...(clean.productionEnabled != null && { productionEnabled: clean.productionEnabled }),
         ...(clean.dailyGoal != null && { dailyGoal: clean.dailyGoal }),
+        ...(clean.newWordsFrom != null && { newWordsFrom: clean.newWordsFrom }),
         updatedAt: new Date(),
       })
       .where(eq(schema.settings.id, settings.id));

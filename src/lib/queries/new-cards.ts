@@ -4,6 +4,7 @@ import { db, schema } from '@/db/client';
 import { localDateKey } from '@/lib/dates';
 import { segmentWords } from '@/lib/segment';
 import { isFollowUpMode, modeFilter, type FollowUpSettings } from '@/lib/card-modes';
+import type { NewWordsFrom } from '@/db/schema';
 import { dailyRank, isSentenceUnlocked, orderNewCards, type NewWord } from '@/lib/queue-order';
 
 export type NewCardPool = {
@@ -11,6 +12,8 @@ export type NewCardPool = {
   cardIds: number[];
   /** New sentence cards still waiting on their words. */
   lockedSentences: number;
+  /** New HSK word cards left for lessons on the Learn path. */
+  pathWords: number;
 };
 
 /**
@@ -18,11 +21,15 @@ export type NewCardPool = {
  *   1. scenario sentences whose words you mostly know,
  *   2. words needed by your queued scenario sentences,
  *   3. everything else by HSK level (shuffled daily within a level).
+ * With `newWordsFrom: 'path'`, HSK words are left to Learn lessons (which
+ * introduce them) unless a queued sentence needs them; your own words and
+ * sentences still come through here.
  * Sentences that aren't unlocked yet are left out entirely.
  */
 export async function getNewCardPool(
   now = new Date(),
   followUps: FollowUpSettings = { listening: true, production: true },
+  newWordsFrom: NewWordsFrom = 'path',
 ): Promise<NewCardPool> {
   const [newCards, wordRows, startedWordRows, sentenceCards] = await Promise.all([
     db
@@ -32,6 +39,7 @@ export async function getNewCardPool(
         wordId: schema.cards.wordId,
         sentenceId: schema.cards.sentenceId,
         wordHanzi: schema.words.hanzi,
+        wordSource: schema.words.source,
         hskLevel: schema.words.hskLevel,
         sentHanzi: schema.sentences.hanzi,
       })
@@ -70,6 +78,7 @@ export async function getNewCardPool(
 
   const unlockedSentences: number[] = [];
   let lockedSentences = 0;
+  let pathWords = 0;
   const words: NewWord[] = [];
   const day = localDateKey(now);
 
@@ -85,6 +94,10 @@ export async function getNewCardPool(
         unlockedSentences.push(c.id);
       } else lockedSentences += 1;
     } else if (c.wordHanzi) {
+      if (newWordsFrom === 'path' && c.wordSource === 'hsk' && !needed.has(c.wordHanzi)) {
+        pathWords += 1;
+        continue;
+      }
       words.push({
         id: c.id,
         needed: needed.has(c.wordHanzi),
@@ -97,5 +110,6 @@ export async function getNewCardPool(
   return {
     cardIds: orderNewCards({ sentences: unlockedSentences, words, listening }),
     lockedSentences,
+    pathWords,
   };
 }

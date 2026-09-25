@@ -64,6 +64,13 @@
       "when": 1790290350021,
       "tag": "0008_pretty_silver_surfer",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "6",
+      "when": 1790294059809,
+      "tag": "0009_youthful_mantis",
+      "breakpoints": true
     }
   ]
 }
