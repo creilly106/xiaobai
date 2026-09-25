@@ -52,13 +52,14 @@ export async function getSettings(): Promise<AppSettings> {
 
 /**
  * How much of today's budget has been used. A review whose previous state
- * was "new" is the moment a new card was introduced.
+ * was "new" is the moment a new card was introduced — except in a Learn
+ * lesson, which paces new words itself.
  */
 export async function getTodayCounts(now = new Date()) {
   await connection();
   const [row] = await db
     .select({
-      introduced: sql<number>`sum(case when json_extract(${schema.reviews.prevState}, '$.state') = 'new' then 1 else 0 end)`,
+      introduced: sql<number>`sum(case when json_extract(${schema.reviews.prevState}, '$.state') = 'new' and json_extract(${schema.reviews.prevState}, '$.via') is not 'lesson' then 1 else 0 end)`,
       reviewed: sql<number>`sum(case when json_extract(${schema.reviews.prevState}, '$.state') = 'review' then 1 else 0 end)`,
       total: sql<number>`count(*)`,
     })

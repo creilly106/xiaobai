@@ -11,6 +11,8 @@ export type FlashcardRating<K extends string = string> = {
   className: string;
 };
 
+const MIN_THINK_MS = 400;
+
 /** The row of recall ratings under a card; disabled until the answer shows. */
 export function RatingButtons<K extends string>({
   ratings,
@@ -24,11 +26,22 @@ export function RatingButtons<K extends string>({
   /** Highlighted after a typed answer is checked; you still choose. */
   suggested?: K;
 }) {
-  // Focus the suggestion so Enter (or Space) accepts it.
   const suggestedRef = useRef<HTMLButtonElement>(null);
+  const enabledAt = useRef(0);
   useEffect(() => {
-    if (enabled && suggested) suggestedRef.current?.focus({ preventScroll: true });
+    if (!enabled) return;
+    enabledAt.current = performance.now();
+    // With a keyboard, focus the suggestion so Enter accepts it. Not on touch
+    // screens: there the on-screen keyboard's Go/Enter could press it at once.
+    const finePointer = window.matchMedia?.('(pointer: fine)').matches;
+    if (suggested && finePointer) suggestedRef.current?.focus({ preventScroll: true });
   }, [enabled, suggested]);
+
+  /** A rating in the instant the answer appears is a stray tap or key, not a choice. */
+  const rate = (key: K, at: number) => {
+    if (at - enabledAt.current < MIN_THINK_MS) return;
+    onRate(key);
+  };
 
   return (
     <div className="mt-4 grid grid-cols-4 gap-2" role="group" aria-label="Rate your recall">
@@ -38,7 +51,7 @@ export function RatingButtons<K extends string>({
           ref={suggested === r.key ? suggestedRef : undefined}
           type="button"
           disabled={!enabled}
-          onClick={() => onRate(r.key)}
+          onClick={(e) => rate(r.key, e.timeStamp)}
           title={r.description}
           aria-keyshortcuts={r.hint}
           whileHover={enabled ? { y: -1 } : undefined}

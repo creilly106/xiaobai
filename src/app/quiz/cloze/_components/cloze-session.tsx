@@ -22,7 +22,7 @@ export type AnswerMode = 'choose' | 'type';
 type Result = { grade: PinyinGrade; given: string };
 
 export function ClozeSession({
-  items,
+  items: initialItems,
   mode,
   dict,
 }: {
@@ -30,6 +30,8 @@ export function ClozeSession({
   mode: AnswerMode;
   dict: Dictionary;
 }) {
+  // Keep this session's own copy: a page refresh deals a new random set.
+  const [items] = useState(initialItems);
   const [index, setIndex] = useState(0);
   const [draft, setDraft] = useState<PinyinDraft>(EMPTY_DRAFT);
   const [result, setResult] = useState<Result | null>(null);

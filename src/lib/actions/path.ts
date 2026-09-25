@@ -40,7 +40,7 @@ async function scheduleWords(results: WordResult[], rating: (r: WordResult) => R
   const cardByWord = new Map(cards.map((c) => [c.wordId, c]));
   for (const result of results) {
     const card = cardByWord.get(idByHanzi.get(result.hanzi) ?? -1);
-    if (card?.state === 'new') await rateCard(card.id, rating(result));
+    if (card?.state === 'new') await rateCard(card.id, rating(result), 0, 'lesson');
   }
 }
 

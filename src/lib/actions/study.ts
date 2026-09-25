@@ -33,6 +33,8 @@ export async function rateCard(
   cardId: number,
   rating: ReviewRating,
   elapsedMs = 0,
+  /** 'lesson' when a Learn lesson introduces the card: it doesn't use the daily new-card limit. */
+  via?: 'lesson',
 ): Promise<RateResult> {
   assertCardId(cardId);
   if (![1, 2, 3, 4].includes(rating)) throw new Error('Invalid rating.');
@@ -58,6 +60,7 @@ export async function rateCard(
     learningSteps: row.learningSteps,
     reps: row.reps,
     lapses: row.lapses,
+    ...(via === 'lesson' ? { via } : {}),
   });
 
   const { next } = nextState(

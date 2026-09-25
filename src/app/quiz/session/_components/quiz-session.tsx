@@ -40,7 +40,9 @@ export function QuizSession({
   answerMode?: 'rate' | 'type';
 }) {
   const typing = answerMode === 'type';
-  const queue = initialQueue;
+  // The page deals a random queue each render; keep this session's own copy so a
+  // refresh (e.g. after saving a rating) can't swap the cards mid-quiz.
+  const [queue] = useState(initialQueue);
   const [index, setIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [startedAt, setStartedAt] = useState(() => Date.now());

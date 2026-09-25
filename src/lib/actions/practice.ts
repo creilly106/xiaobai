@@ -1,7 +1,6 @@
 'use server';
 
 import { and, eq, gt, inArray } from 'drizzle-orm';
-import { revalidatePath } from 'next/cache';
 import { db, schema } from '@/db/client';
 import type { PracticeKind } from '@/db/schema';
 import { addDays, startOfLocalDay } from '@/lib/dates';
@@ -79,7 +78,7 @@ export async function logPractice(entries: PracticeEntry[]): Promise<{ reviewSoo
       reviewSooner = updated.length;
     }
   }
-  revalidatePath('/stats');
-  if (reviewSooner > 0) revalidatePath('/');
+  // No revalidatePath: it would refresh the drill you're in (and reshuffle it).
+  // Stats and home are rendered fresh whenever they're opened.
   return { reviewSooner };
 }
