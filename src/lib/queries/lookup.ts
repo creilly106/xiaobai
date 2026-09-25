@@ -6,6 +6,7 @@ import type { WordSource } from '@/db/schema';
 import { pinyinQueryKeys } from '@/lib/cedict';
 import {
   englishScore,
+  ftsQueries,
   type PinyinKeys,
   rankEnglish,
   rankHanzi,
@@ -95,11 +96,38 @@ function pinyinCandidates(column: PinyinColumn, key: string): Promise<Row[]> {
 }
 
 /**
- * English candidates: definitions where a sense is (or starts with) the query,
- * then any definition containing it. Each set is ordered by commonness so
- * everyday words like 吃 survive the cut before rankEnglish sorts them.
+ * English candidates from the full-text index (migration 0011): entries
+ * containing every word, then entries where the last word is a prefix. Each
+ * set is ordered by commonness so everyday words like 吃 survive the cut
+ * before rankEnglish sorts them. Falls back to a scan if there's no index.
  */
 async function englishCandidates(query: string): Promise<Row[]> {
+  const fts = ftsQueries(query);
+  if (!fts) return [];
+  const common = eq(schema.dictionary.proper, false);
+  const matching = (match: string) =>
+    db
+      .select()
+      .from(schema.dictionary)
+      .where(
+        and(
+          sql`${schema.dictionary.id} IN (SELECT rowid FROM dictionary_fts WHERE dictionary_fts MATCH ${match})`,
+          common,
+        ),
+      )
+      .orderBy(byFrequency)
+      .limit(CANDIDATES);
+  try {
+    const [exact, prefix] = await Promise.all([matching(fts.exact), matching(fts.prefix)]);
+    const seen = new Set<number>();
+    return [...exact, ...prefix].filter((r) => !seen.has(r.id) && seen.add(r.id));
+  } catch {
+    return englishCandidatesByScan(query);
+  }
+}
+
+/** The slow path: scan every definition (used before the index exists). */
+async function englishCandidatesByScan(query: string): Promise<Row[]> {
   // SQLite's LIKE ignores ASCII case, so no lower() — it would double the scan time.
   const q = escapeLike(query);
   const like = (pattern: string) =>

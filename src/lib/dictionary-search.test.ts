@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   englishScore,
+  ftsQueries,
   pinyinMatch,
   rankEnglish,
   rankHanzi,
@@ -98,5 +99,30 @@ describe('shortMeaning', () => {
     expect(shortMeaning('table / desk / CL:張|张[zhang1] / extra / more')).toBe(
       'table; desk; extra',
     );
+  });
+});
+
+describe('ftsQueries', () => {
+  it('quotes each word and makes the last a prefix', () => {
+    expect(ftsQueries('Hotel')).toEqual({ exact: '"hotel"', prefix: '"hotel"*' });
+    expect(ftsQueries('have a meal')).toEqual({
+      exact: '"have" "a" "meal"',
+      prefix: '"have" "a" "meal"*',
+    });
+  });
+  it('drops punctuation that FTS would choke on', () => {
+    expect(ftsQueries('"rock" (music)')).toEqual({
+      exact: '"rock" "music"',
+      prefix: '"rock" "music"*',
+    });
+    expect(ftsQueries('!!')).toBeNull();
+  });
+});
+
+describe('englishScore word forms', () => {
+  it('treats eats / eating as eat, but not short words', () => {
+    expect(englishScore('eats', 'to eat / to consume')).toBe(0);
+    expect(englishScore('eating', 'to eat / to consume')).toBe(0);
+    expect(englishScore('us', 'to use')).not.toBe(0);
   });
 });

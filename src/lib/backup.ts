@@ -48,7 +48,10 @@ async function tableNames(): Promise<string[]> {
   const rs = await sqlite.execute(
     "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '__drizzle%'",
   );
-  const names = rs.rows.map((r) => String(r.name)).filter((n) => !NOT_BACKED_UP.has(n));
+  const names = rs.rows
+    .map((r) => String(r.name))
+    // The dictionary's search index (and its internal tables) is rebuilt, not backed up.
+    .filter((n) => !NOT_BACKED_UP.has(n) && !n.startsWith('dictionary_fts'));
   const known = TABLE_ORDER.filter((t) => names.includes(t));
   return [...known, ...names.filter((t) => !known.includes(t)).sort()];
 }

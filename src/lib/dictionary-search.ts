@@ -1,6 +1,8 @@
 // Ranking for dictionary search. Pure, so it can be tested; the database
 // query that feeds it lives in queries/lookup.ts.
 
+import { stem } from './meaning-grade';
+
 export type Rankable = {
   id: number;
   simplified: string;
@@ -37,6 +39,8 @@ export function englishScore(query: string, definitions: string): number | null 
   if (!q) return null;
   const escaped = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const word = new RegExp(`(^|[^a-z])${escaped}([^a-z]|$)`);
+  // "eats" / "eating" count as "eat". Short words are left alone: "us" isn't "use".
+  const qStem = /^[a-z]{4,}$/.test(q) ? stem(q) : null;
   let best: number | null = null;
   for (const sense of senses(definitions)) {
     // Drop cross-references like "variant of 就[jiu4]" so pinyin-looking
@@ -49,7 +53,7 @@ export function englishScore(query: string, definitions: string): number | null 
         .trim()
         .replace(/^(to|a|an|the) /, '');
       const score =
-        bare === q
+        bare === q || (qStem !== null && stem(bare) === qStem)
           ? 0
           : bare.startsWith(`${q} `)
             ? 1
@@ -139,4 +143,16 @@ export function rankPinyin<T extends Rankable & { pinyinTones: string }>(
         a.e.id - b.e.id,
     )
     .map((x) => x.e);
+}
+
+/**
+ * FTS5 queries for English search (every word must appear, stemmed: "eats"
+ * finds "to eat"). `exact` matches whole words; `prefix` also lets the last
+ * word be half-typed ("hote" → hotel). Null when there are no words.
+ */
+export function ftsQueries(query: string): { exact: string; prefix: string } | null {
+  const words = query.toLowerCase().match(/[a-z0-9]+/g);
+  if (!words) return null;
+  const quoted = words.map((w) => `"${w}"`);
+  return { exact: quoted.join(' '), prefix: `${quoted.join(' ')}*` };
 }
