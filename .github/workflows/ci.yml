@@ -1,0 +1,33 @@
+# Runs the same checks as `npm run check`, plus a production build, on every
+# push and pull request — so a broken change is caught before (or as) Vercel
+# deploys it.
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Format, lint, typecheck, unit tests
+        run: npm run check
+      - name: Production build
+        # No database is needed to build: pages connect on first request, and
+        # the deploy-time database setup skips when there is no remote DB.
+        run: npm run build
