@@ -4,3 +4,9 @@ Word recordings (public/audio/w)
   License: Creative Commons Attribution-ShareAlike 3.0
   https://creativecommons.org/licenses/by-sa/3.0/
   Files are unmodified apart from being renamed <word>.mp3.
+
+Sentence audio, and words without a native recording (public/audio/s, and
+some files in public/audio/w)
+  Generated with Microsoft Azure AI Speech neural voices
+  (zh-CN-XiaoxiaoNeural; zh-CN-YunxiNeural for the other speaker in dialogues)
+  by scripts/generate-audio.ts.

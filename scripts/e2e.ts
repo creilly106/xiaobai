@@ -157,6 +157,23 @@ const tests: Test[] = [
     },
   },
   {
+    name: 'audio: tapping play loads a recorded clip',
+    async run(page) {
+      await page.goto(`${base}/scenarios/relationships`);
+      await page.waitForLoadState('networkidle'); // the clip index loads in the background
+      const clip = page.waitForResponse((r) => /\/audio\/.+\.mp3$/.test(r.url()), {
+        timeout: 5000,
+      });
+      await page
+        .getByRole('button', { name: /^Play pronunciation/ })
+        .first()
+        .tap();
+      const res = await clip;
+      // Media is fetched in ranges, so 206 Partial Content is a success too.
+      assert([200, 206].includes(res.status()), `clip ${res.url()} returned ${res.status()}`);
+    },
+  },
+  {
     name: 'scenarios: time chips and "Your turn"',
     async run(page) {
       await page.goto(`${base}/scenarios/relationships`);

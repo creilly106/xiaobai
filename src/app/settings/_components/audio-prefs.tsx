@@ -88,7 +88,7 @@ export function AudioPrefs() {
         </Button>
         <span className="text-xs text-muted-foreground">
           {tts
-            ? 'Most words play a native speaker’s recording; everything else uses your device’s Chinese voice.'
+            ? 'Words play a native speaker’s recording and sentences a natural neural voice. Anything else, like words you add yourself, uses your device’s Chinese voice.'
             : 'This browser has no text-to-speech, so audio is unavailable.'}
         </span>
       </div>
@@ -102,7 +102,7 @@ export function AudioPrefs() {
         >
           audio-cmn
         </a>
-        , CC BY-SA 3.0.
+        , CC BY-SA 3.0. Sentences: Microsoft Azure neural voices.
       </p>
     </div>
   );

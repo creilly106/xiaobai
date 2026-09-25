@@ -28,7 +28,8 @@
     "db:deploy": "tsx scripts/deploy-db.ts",
     "data:word-audio": "tsx scripts/fetch-word-audio.ts",
     "smoke": "tsx scripts/smoke.ts",
-    "e2e": "tsx scripts/e2e.ts"
+    "e2e": "tsx scripts/e2e.ts",
+    "data:tts": "tsx scripts/generate-audio.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",
