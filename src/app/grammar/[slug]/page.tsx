@@ -33,6 +33,14 @@ export default async function GrammarDetail({ params }: PageProps<'/grammar/[slu
       </div>
       <h1 className="text-2xl font-semibold">{point.name}</h1>
       <p className="mt-1 text-sm text-muted-foreground">{point.englishTitle}</p>
+      {point.time && (
+        <Link
+          href="/grammar/time"
+          className="mt-2 inline-block text-xs text-primary underline-offset-4 hover:underline"
+        >
+          Part of: Talking about time →
+        </Link>
+      )}
 
       {point.formula && (
         <div className="mt-4 rounded-md border border-border/60 bg-muted/40 px-4 py-3">

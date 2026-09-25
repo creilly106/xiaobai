@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { ArrowRight } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { grammarPoints } from '@/lib/grammar-data';
 
@@ -20,7 +21,25 @@ export default function GrammarPage() {
         Core patterns for building Chinese sentences, sorted by rough HSK level.
       </p>
 
-      <div className="mt-6 space-y-8">
+      <Link href="/grammar/time" className="group mt-6 block">
+        <Card className="border-2 border-primary/40 bg-primary/5 transition-colors group-hover:border-primary/70">
+          <CardContent className="flex items-center gap-4 py-4">
+            <div lang="zh-Hans" className="text-3xl" aria-hidden>
+              了
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="font-semibold">Talking about time</div>
+              <p className="text-sm text-muted-foreground">
+                Past, present and future without tenses — one verb in every time frame, and the
+                patterns behind it.
+              </p>
+            </div>
+            <ArrowRight className="size-5 text-muted-foreground" />
+          </CardContent>
+        </Card>
+      </Link>
+
+      <div className="mt-8 space-y-8">
         {levels.map((lvl) => (
           <section key={lvl}>
             <h2 className="mb-3 text-sm font-medium uppercase tracking-wider text-muted-foreground">

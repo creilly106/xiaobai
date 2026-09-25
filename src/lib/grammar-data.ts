@@ -4,6 +4,9 @@ export type GrammarExample = {
   meaning: string;
 };
 
+/** Where a point fits in "Talking about time" (/grammar/time). */
+export type TimeFrame = 'past' | 'now' | 'future' | 'experience' | 'change' | 'basics';
+
 export type GrammarPoint = {
   slug: string;
   name: string;
@@ -13,6 +16,7 @@ export type GrammarPoint = {
   description: string;
   examples: GrammarExample[];
   notes?: string;
+  time?: TimeFrame;
 };
 
 export const grammarPoints: GrammarPoint[] = [
@@ -93,6 +97,7 @@ export const grammarPoints: GrammarPoint[] = [
   },
   {
     slug: 'shi-de',
+    time: 'past',
     name: '是...的 emphasis',
     englishTitle: 'Emphasize when / where / how of a past event',
     hskLevel: 3,
@@ -142,6 +147,7 @@ export const grammarPoints: GrammarPoint[] = [
   },
   {
     slug: 'time-when',
+    time: 'basics',
     name: 'Time-when placement',
     englishTitle: 'When to say when',
     hskLevel: 1,
@@ -197,6 +203,7 @@ export const grammarPoints: GrammarPoint[] = [
   },
   {
     slug: 'bu-vs-mei',
+    time: 'past',
     name: '不 vs 没',
     englishTitle: 'Two ways to negate',
     hskLevel: 1,
@@ -210,6 +217,7 @@ export const grammarPoints: GrammarPoint[] = [
   },
   {
     slug: 'le-completion',
+    time: 'past',
     name: '了 (verb-了) completion',
     englishTitle: 'Marking a completed action',
     hskLevel: 2,
@@ -229,6 +237,7 @@ export const grammarPoints: GrammarPoint[] = [
   },
   {
     slug: 'le-change-of-state',
+    time: 'change',
     name: '了 (sentence-了) change of state',
     englishTitle: 'Marking a new situation',
     hskLevel: 2,
@@ -243,6 +252,7 @@ export const grammarPoints: GrammarPoint[] = [
   },
   {
     slug: 'zhe-ongoing-state',
+    time: 'now',
     name: '着 ongoing state',
     englishTitle: 'Verb-着 for an ongoing state',
     hskLevel: 3,
@@ -257,6 +267,7 @@ export const grammarPoints: GrammarPoint[] = [
   },
   {
     slug: 'guo-experience',
+    time: 'experience',
     name: '过 experience',
     englishTitle: 'Have you ever...?',
     hskLevel: 2,
@@ -483,5 +494,140 @@ export const grammarPoints: GrammarPoint[] = [
       { hanzi: '请进来！', pinyin: 'qǐng jìn lái!', meaning: 'Please come in!' },
       { hanzi: '他跑出去了。', pinyin: 'tā pǎo chū qù le.', meaning: 'He ran out.' },
     ],
+  },
+  {
+    slug: 'le-questions',
+    time: 'past',
+    name: '…了吗？ / …了没有？',
+    englishTitle: 'Asking about the past: "Did you…?"',
+    hskLevel: 2,
+    formula: 'Verb (+ Object) + 了吗？  or  …了没有？',
+    description:
+      'To ask whether something has happened, add 了 and then 吗 — or 没有 for a blunter "…or not?". The same question without 了 asks about now, or in general.',
+    examples: [
+      { hanzi: '你想我了吗？', pinyin: 'nǐ xiǎng wǒ le ma?', meaning: 'Did you miss me?' },
+      { hanzi: '你想我吗？', pinyin: 'nǐ xiǎng wǒ ma?', meaning: 'Do you miss me?' },
+      { hanzi: '你吃饭了吗？', pinyin: 'nǐ chī fàn le ma?', meaning: 'Have you eaten?' },
+      { hanzi: '他来了没有？', pinyin: 'tā lái le méiyǒu?', meaning: 'Has he come yet?' },
+    ],
+    notes:
+      'To answer yes, repeat the verb with 了 (吃了). To answer no, use 没(有) + the verb and drop 了 (没吃).',
+  },
+  {
+    slug: 'past-negation',
+    time: 'past',
+    name: '没(有) + Verb',
+    englishTitle: "Saying something didn't happen",
+    hskLevel: 1,
+    formula: 'Subject + 没(有) + Verb',
+    description:
+      "To say something didn't happen (or hasn't yet), put 没 or 没有 before the verb and leave 了 out — 了 says it did happen, so the two don't go together.",
+    examples: [
+      { hanzi: '我没吃早饭。', pinyin: 'wǒ méi chī zǎofàn.', meaning: "I didn't have breakfast." },
+      {
+        hanzi: '他昨天没来。',
+        pinyin: 'tā zuótiān méi lái.',
+        meaning: "He didn't come yesterday.",
+      },
+      { hanzi: '我还没看。', pinyin: 'wǒ hái méi kàn.', meaning: "I haven't watched it yet." },
+    ],
+    notes:
+      '✗ 我没吃了。 ✓ 我没吃。 With 过 it works differently: 我没去过北京 means “I’ve never been to Beijing.”',
+  },
+  {
+    slug: 'zai-progressive',
+    time: 'now',
+    name: '在 / 正在 + Verb (+ 呢)',
+    englishTitle: 'Happening right now',
+    hskLevel: 2,
+    formula: 'Subject + (正)在 + Verb (+ 呢)',
+    description:
+      '在 (or 正在, "right in the middle of") before a verb says an action is in progress. 呢 at the end of the sentence gives the same feeling in speech.',
+    examples: [
+      { hanzi: '我在吃饭。', pinyin: 'wǒ zài chī fàn.', meaning: "I'm eating." },
+      {
+        hanzi: '她正在打电话。',
+        pinyin: 'tā zhèngzài dǎ diànhuà.',
+        meaning: "She's on the phone right now.",
+      },
+      { hanzi: '你在做什么呢？', pinyin: 'nǐ zài zuò shénme ne?', meaning: 'What are you doing?' },
+      {
+        hanzi: '昨天八点我在看电视。',
+        pinyin: 'zuótiān bā diǎn wǒ zài kàn diànshì.',
+        meaning: 'At eight yesterday I was watching TV.',
+      },
+    ],
+    notes:
+      '在 isn’t only for now — add a past time and it means “was doing”. Negate it with 没(在): 我没在看。',
+  },
+  {
+    slug: 'future-yao-hui',
+    time: 'future',
+    name: '要 / 会 / 打算',
+    englishTitle: 'Talking about the future',
+    hskLevel: 2,
+    formula: 'Subject + (Time) + 要 / 会 / 打算 + Verb',
+    description:
+      'Often no future marker is needed — a time word does the job (我明天去). To add one: 要 for plans and things about to happen, 会 for predictions ("will probably"), 打算 for intentions ("plan to").',
+    examples: [
+      {
+        hanzi: '我明天去北京。',
+        pinyin: 'wǒ míngtiān qù Běijīng.',
+        meaning: "I'm going to Beijing tomorrow.",
+      },
+      {
+        hanzi: '我下个月要去中国。',
+        pinyin: 'wǒ xià ge yuè yào qù Zhōngguó.',
+        meaning: "I'm going to China next month.",
+      },
+      { hanzi: '明天会下雨。', pinyin: 'míngtiān huì xià yǔ.', meaning: 'It will rain tomorrow.' },
+      {
+        hanzi: '你打算做什么？',
+        pinyin: 'nǐ dǎsuàn zuò shénme?',
+        meaning: 'What are you planning to do?',
+      },
+    ],
+    notes:
+      '会 also means "can, know how to": 我会说汉语 is about ability, not the future. The context tells you which.',
+  },
+  {
+    slug: 'kuai-le',
+    time: 'future',
+    name: '快(要)…了 / 要…了',
+    englishTitle: 'About to happen',
+    hskLevel: 2,
+    formula: '快 / 快要 / 要 + Verb + 了',
+    description:
+      "Wrap the verb in 快要…了 (or 快…了, 要…了) to say something is about to happen. Here 了 doesn't mean past — it marks the change that's coming.",
+    examples: [
+      { hanzi: '快下雨了。', pinyin: 'kuài xià yǔ le.', meaning: "It's about to rain." },
+      {
+        hanzi: '电影要开始了。',
+        pinyin: 'diànyǐng yào kāishǐ le.',
+        meaning: 'The film is about to start.',
+      },
+      { hanzi: '我快要到了。', pinyin: 'wǒ kuài yào dào le.', meaning: "I'm nearly there." },
+    ],
+    notes:
+      'With a specific time, use 就要…了 instead of 快要: 他明天就要走了 (He’s leaving tomorrow).',
+  },
+  {
+    slug: 'yijing-le',
+    time: 'past',
+    name: '已经…了',
+    englishTitle: 'Already',
+    hskLevel: 2,
+    formula: 'Subject + 已经 + Verb / Adjective + 了',
+    description: '已经 (already) nearly always comes with 了 at the end of the sentence.',
+    examples: [
+      { hanzi: '我已经吃了。', pinyin: 'wǒ yǐjīng chī le.', meaning: "I've already eaten." },
+      { hanzi: '他已经走了。', pinyin: 'tā yǐjīng zǒu le.', meaning: "He's already left." },
+      {
+        hanzi: '已经十点了。',
+        pinyin: 'yǐjīng shí diǎn le.',
+        meaning: "It's already ten o'clock.",
+      },
+    ],
+    notes: 'The opposite is 还没(有)…(呢): 我还没吃呢 (I haven’t eaten yet).',
   },
 ];
