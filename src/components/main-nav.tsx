@@ -14,18 +14,15 @@ type NavItem = { href: string; label: string; desc?: string; match?: string[] };
 export const NAV_GROUPS: { label: string; menu?: boolean; items: NavItem[] }[] = [
   {
     label: 'Learn',
-    items: [
-      { href: '/learn', label: 'Learn' },
-      { href: '/study', label: 'Review' },
-    ],
+    items: [{ href: '/learn', label: 'Learn' }],
   },
   {
     label: 'Practice',
     menu: true,
     items: [
+      { href: '/study', label: 'Review', desc: 'Your spaced-repetition reviews for today' },
       { href: '/quiz', label: 'Quiz', desc: 'Flashcards, typed meanings, fill in the blank' },
       { href: '/tones', label: 'Tones', desc: 'Hear it, pick the tones' },
-      { href: '/numbers', label: 'Numbers', desc: 'Counting, prices, dates and times' },
     ],
   },
   {
@@ -41,6 +38,7 @@ export const NAV_GROUPS: { label: string; menu?: boolean; items: NavItem[] }[] =
       },
       { href: '/grammar', label: 'Grammar', desc: 'Sentence patterns with examples' },
       { href: '/radicals', label: 'Radicals', desc: 'The building blocks of characters' },
+      { href: '/numbers', label: 'Numbers', desc: 'Counting, prices, dates and times' },
     ],
   },
   {
