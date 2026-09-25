@@ -11,7 +11,10 @@ export type WordSpan = {
  * Greedy longest-match split of `text` into vocabulary words from `words`.
  * Characters that aren't part of any known word are skipped.
  */
-export function segmentSpans(text: string, words: Set<string>, maxLen = 5): WordSpan[] {
+/** Anything that can say whether a string is a word (a Set, or a Map keyed by word). */
+export type WordLookup = { has(word: string): boolean };
+
+export function segmentSpans(text: string, words: WordLookup, maxLen = 5): WordSpan[] {
   const chars = Array.from(text);
   const out: WordSpan[] = [];
   let i = 0;
@@ -35,6 +38,6 @@ export function segmentSpans(text: string, words: Set<string>, maxLen = 5): Word
 }
 
 /** Just the matched words, in order (duplicates kept). */
-export function segmentWords(text: string, words: Set<string>, maxLen = 5): string[] {
+export function segmentWords(text: string, words: WordLookup, maxLen = 5): string[] {
   return segmentSpans(text, words, maxLen).map((s) => s.word);
 }

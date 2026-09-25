@@ -150,7 +150,7 @@ const HAN = /[㐀-鿿]/u;
  * outside `reached` — so practice only ever uses words you've been taught.
  */
 function tokenise(text: string, vocab: Vocab, reached: Set<string>) {
-  const spans = segmentSpans(text, new Set(vocab.keys()));
+  const spans = segmentSpans(text, vocab);
   const hanCount = Array.from(text).filter((c) => HAN.test(c)).length;
   const covered = spans.reduce((n, s) => n + s.end - s.start, 0);
   if (covered !== hanCount || spans.some((s) => !reached.has(s.word))) return null;

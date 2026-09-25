@@ -159,6 +159,7 @@ export function LessonPlayer({
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -32 }}
           transition={{ duration: 0.2 }}
+          data-step={entry?.step.kind}
           className="flex flex-1 flex-col justify-center"
         >
           {entry && <StepView entry={entry} answered={answer !== null} onAnswer={onAnswer} />}

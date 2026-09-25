@@ -1,0 +1,205 @@
+/**
+ * Browser tests on an emulated phone (touch, small screen), driving the
+ * installed Chrome through playwright-core. Point it at a running app whose
+ * database can be written to — ideally a copy:
+ *
+ *   cp data/app.db data/e2e.db
+ *   DATABASE_URL=file:./data/e2e.db npm run build && npx next start -p 3200
+ *   npm run e2e -- http://localhost:3200
+ *
+ * Needs the password gate off (no APP_PASSWORD).
+ */
+import { existsSync } from 'node:fs';
+import { chromium, type Page } from 'playwright-core';
+
+const base = (process.argv[2] ?? 'http://localhost:3200').replace(/\/$/, '');
+const CHROME = [
+  'C:/Program Files/Google/Chrome/Application/chrome.exe',
+  'C:/Program Files (x86)/Google/Chrome/Application/chrome.exe',
+];
+
+type Test = { name: string; run: (page: Page) => Promise<void> };
+
+function assert(ok: unknown, message: string): asserts ok {
+  if (!ok) throw new Error(message);
+}
+
+const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+const tests: Test[] = [
+  {
+    name: 'quiz: cards stay put after rating (no skipping)',
+    async run(page) {
+      await page.goto(`${base}/quiz/session?type=word&count=6`);
+      for (let i = 0; i < 4; i++) {
+        const card = page.getByTestId('card-hanzi');
+        await card.waitFor();
+        const before = await card.textContent();
+        await card.tap();
+        await wait(600);
+        await page.getByRole('button', { name: /^Got it/ }).tap();
+        // The card change is animated; wait for the new one rather than a fixed time.
+        let next = before;
+        for (let t = 0; t < 30 && next === before; t++) {
+          await wait(100);
+          next = await page.getByTestId('card-hanzi').textContent();
+        }
+        assert(next !== before, `card ${i + 1}: didn't advance (${before})`);
+        await wait(2000);
+        const later = await page.getByTestId('card-hanzi').textContent();
+        assert(later === next, `card ${i + 1}: swapped from ${next} to ${later} after rating`);
+      }
+    },
+  },
+  {
+    name: 'quiz: checking a typed meaning does not auto-advance',
+    async run(page) {
+      await page.goto(`${base}/quiz/session?type=word&count=3&answer=type`);
+      const card = page.getByTestId('card-hanzi');
+      const before = await card.textContent();
+      const input = page.getByLabel('Your English answer');
+      await input.tap();
+      await input.fill('something');
+      await input.press('Enter');
+      await wait(1500);
+      assert((await card.textContent()) === before, 'moved on without a rating');
+      assert(await page.getByText(/you wrote/).isVisible(), 'no verdict shown');
+    },
+  },
+  {
+    name: 'learn: the current lesson can be completed on a phone, and the path moves on',
+    async run(page) {
+      await page.goto(`${base}/learn`);
+      const start = page.getByRole('link', { name: /^(Start|Continue)/ }).first();
+      const href = await start.getAttribute('href');
+      assert(href && href.startsWith('/learn/'), 'no current lesson on the path');
+      const lessonId = href.split('/').pop()!;
+      await start.tap();
+      await page.waitForURL(`**/learn/${lessonId}`);
+      for (let i = 0; i < 200; i++) {
+        if (await page.getByText('Lesson complete').isVisible()) break;
+        const cont = page.getByRole('button', { name: 'Continue' });
+        if ((await cont.count()) > 0 && (await cont.isEnabled())) {
+          await cont.tap();
+          await wait(350);
+          continue;
+        }
+        const step = await page.locator('[data-step]').getAttribute('data-step');
+        await answer(page, step ?? '');
+        await wait(350);
+        assert(i < 199, 'never reached "Lesson complete"');
+      }
+      await page.goto(`${base}/learn`);
+      const next = await page
+        .getByRole('link', { name: /^(Start|Continue)/ })
+        .first()
+        .getAttribute('href');
+      assert(next && next !== href, `path did not move on from ${lessonId}`);
+    },
+  },
+  {
+    name: 'scenarios: time chips and "Your turn"',
+    async run(page) {
+      await page.goto(`${base}/scenarios/relationships`);
+      // Find the row by its English, which stays put while the chips change the Chinese.
+      const row = page.locator('div.px-4.py-3', { hasText: 'Do you miss me?' }).first();
+      await row.getByRole('tab', { name: 'Past' }).tap();
+      assert(
+        await page.getByText('Did you miss me?').first().isVisible(),
+        'Past chip did not swap in 你想我了吗？',
+      );
+      await page.getByRole('tab', { name: /Dialogues/ }).tap();
+      await page.getByRole('button', { name: 'Your turn' }).first().tap();
+      const hidden = page.getByRole('button', { name: /tap to check/ });
+      const count = await hidden.count();
+      assert(count > 0, 'no hidden lines in Your turn mode');
+      await hidden.first().tap();
+      assert((await hidden.count()) === count - 1, 'tapping did not reveal the line');
+    },
+  },
+];
+
+/** Give some answer to a lesson question (right or wrong — missed ones come back). */
+async function answer(page: Page, step: string) {
+  const area = page.locator('[data-step]');
+  switch (step) {
+    case 'choose':
+    case 'translate':
+    case 'fill':
+      await area.locator('button.min-h-16').first().tap();
+      return;
+    case 'type-meaning': {
+      const input = page.getByLabel('Your English answer');
+      await input.fill('hello');
+      await input.press('Enter');
+      return;
+    }
+    case 'type-pinyin':
+      await page.keyboard.type('ni3');
+      await page.keyboard.press('Enter');
+      return;
+    case 'arrange': {
+      const bank = area.locator('.justify-center button');
+      for (let n = await bank.count(); n > 0; n = await bank.count()) {
+        await bank.first().tap();
+        await wait(100);
+      }
+      await area.getByRole('button', { name: 'Check' }).tap();
+      return;
+    }
+    case 'match': {
+      const columns = area.locator('.grid-cols-2 > div');
+      const left = columns.nth(0).locator('button');
+      const right = columns.nth(1).locator('button');
+      for (let i = 0; i < (await left.count()); i++) {
+        if (await left.nth(i).isDisabled()) continue;
+        await left.nth(i).tap();
+        for (let j = 0; j < (await right.count()); j++) {
+          if (await right.nth(j).isDisabled()) continue;
+          await right.nth(j).tap();
+          await wait(450);
+          if (await left.nth(i).isDisabled()) break;
+        }
+      }
+      return;
+    }
+    default:
+      throw new Error(`don't know how to answer step "${step}"`);
+  }
+}
+
+async function main() {
+  const executablePath = CHROME.find((p) => existsSync(p));
+  const browser = await chromium.launch({ executablePath, headless: true });
+  const context = await browser.newContext({
+    viewport: { width: 390, height: 844 },
+    deviceScaleFactor: 3,
+    isMobile: true,
+    hasTouch: true,
+  });
+  let failed = 0;
+  for (const t of tests) {
+    const page = await context.newPage();
+    const errors: string[] = [];
+    page.on('pageerror', (e) => errors.push(e.message));
+    page.on('console', (m) => {
+      if (m.type() === 'error') errors.push(m.text());
+    });
+    const started = Date.now();
+    try {
+      await t.run(page);
+      if (errors.length) throw new Error(`console errors:\n    ${errors.join('\n    ')}`);
+      console.log(`✓ ${t.name} (${((Date.now() - started) / 1000).toFixed(1)}s)`);
+    } catch (err) {
+      failed++;
+      console.log(`✗ ${t.name}\n  ${(err as Error).message}`);
+      await page.screenshot({ path: `scripts/.cache/e2e-fail-${failed}.png` }).catch(() => {});
+    }
+    await page.close();
+  }
+  await browser.close();
+  console.log(failed ? `${failed} failed` : 'all passed');
+  process.exit(failed ? 1 : 0);
+}
+
+main();

@@ -137,6 +137,7 @@ export function Flashcard<K extends string>({
                 />
               ) : (
                 <div
+                  data-testid="card-hanzi"
                   lang="zh-Hans"
                   className={
                     isWord
