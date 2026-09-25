@@ -88,10 +88,22 @@ export function AudioPrefs() {
         </Button>
         <span className="text-xs text-muted-foreground">
           {tts
-            ? 'Audio uses your device’s Chinese voice. On a computer, Edge has the most natural ones.'
+            ? 'Most words play a native speaker’s recording; everything else uses your device’s Chinese voice.'
             : 'This browser has no text-to-speech, so audio is unavailable.'}
         </span>
       </div>
+      <p className="text-xs text-muted-foreground">
+        Word recordings: Yue Tan (Shtooka project), via{' '}
+        <a
+          href="https://github.com/hugolpz/audio-cmn"
+          className="underline hover:text-foreground"
+          target="_blank"
+          rel="noreferrer"
+        >
+          audio-cmn
+        </a>
+        , CC BY-SA 3.0.
+      </p>
     </div>
   );
 }

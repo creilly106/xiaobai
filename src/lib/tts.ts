@@ -1,5 +1,6 @@
 'use client';
 
+import { AUDIO_INDEX_PATH, clipKey, type AudioIndex } from '@/lib/audio-clips';
 import { VOICE_KEY } from '@/lib/prefs';
 
 export type ChineseVoice = {
@@ -68,7 +69,104 @@ function pickVoice(): SpeechSynthesisVoice | null {
   );
 }
 
-export function speak(text: string, rate = 0.85): void {
+/* ─── Recorded clips (public/audio) ─────────────────────────────────── */
+
+const NORMAL_RATE = 0.85;
+let clips: Record<string, string> | null = null;
+let loadingClips: Promise<void> | null = null;
+let player: HTMLAudioElement | null = null;
+
+function loadClips(): Promise<void> {
+  loadingClips ??= fetch(AUDIO_INDEX_PATH)
+    .then((r) => (r.ok ? (r.json() as Promise<AudioIndex>) : null))
+    .then((index) => {
+      clips = index?.clips ?? {};
+    })
+    .catch(() => {
+      clips = {};
+    });
+  return loadingClips;
+}
+
+/** A one-sample silent WAV, played on the first tap so iOS allows audio later. */
+function silentWav(): string {
+  const bytes = [...'RIFF'].map((c) => c.charCodeAt(0));
+  const u32 = (n: number) => [n & 255, (n >> 8) & 255, (n >> 16) & 255, (n >> 24) & 255];
+  const u16 = (n: number) => [n & 255, (n >> 8) & 255];
+  const ascii = (s: string) => [...s].map((c) => c.charCodeAt(0));
+  bytes.push(
+    ...u32(37),
+    ...ascii('WAVEfmt '),
+    ...u32(16),
+    ...u16(1),
+    ...u16(1),
+    ...u32(8000),
+    ...u32(8000),
+    ...u16(1),
+    ...u16(8),
+    ...ascii('data'),
+    ...u32(1),
+    128,
+  );
+  return `data:audio/wav;base64,${btoa(String.fromCharCode(...bytes))}`;
+}
+
+function getPlayer(): HTMLAudioElement {
+  player ??= new Audio();
+  return player;
+}
+
+if (typeof window !== 'undefined') {
+  void loadClips();
+  const unlock = () => {
+    const a = getPlayer();
+    a.src = silentWav();
+    a.play().catch(() => {});
+    for (const e of ['pointerdown', 'keydown'] as const) window.removeEventListener(e, unlock);
+  };
+  for (const e of ['pointerdown', 'keydown'] as const) {
+    window.addEventListener(e, unlock, { once: true, passive: true });
+  }
+}
+
+const clipUrl = (file: string) => `/audio/${file.split('/').map(encodeURIComponent).join('/')}`;
+
+/** Play a recording of `text` if there is one; false if not. */
+function playClip(text: string, rate: number, fallback: () => void): boolean {
+  const file = clips?.[clipKey(text)];
+  if (!file) return false;
+  const a = getPlayer();
+  let fellBack = false;
+  const fail = () => {
+    if (fellBack) return;
+    fellBack = true;
+    fallback();
+  };
+  a.onerror = fail;
+  a.src = clipUrl(file);
+  a.playbackRate = Math.min(2, Math.max(0.5, rate / NORMAL_RATE));
+  a.preservesPitch = true;
+  a.play().catch(fail);
+  return true;
+}
+
+function stopAll() {
+  if (player && !player.paused) player.pause();
+  if (isTtsSupported()) window.speechSynthesis.cancel();
+}
+
+/**
+ * Say `text` in Chinese: a native recording when one exists (see
+ * scripts/fetch-word-audio.ts), otherwise the device's best voice.
+ */
+export function speak(text: string, rate = NORMAL_RATE): void {
+  if (typeof window === 'undefined') return;
+  stopAll();
+  if (playClip(text, rate, () => speakWithVoice(text, rate))) return;
+  speakWithVoice(text, rate);
+}
+
+function speakWithVoice(text: string, rate: number): void {
   if (!isTtsSupported()) return;
   const synth = window.speechSynthesis;
   const utter = new SpeechSynthesisUtterance(text);
@@ -80,15 +178,15 @@ export function speak(text: string, rate = 0.85): void {
     utter.lang = voice.lang;
   }
   try {
-    synth.cancel();
     synth.speak(utter);
   } catch {
     // ignore — some browsers throw on rapid cancel/speak
   }
 }
 
-/** Ask the browser to load its voice list early (it arrives asynchronously). */
+/** Load the voice list and clip index early (both arrive asynchronously). */
 export function primeVoices(): void {
-  if (!isTtsSupported()) return;
-  window.speechSynthesis.getVoices();
+  if (typeof window === 'undefined') return;
+  void loadClips();
+  if (isTtsSupported()) window.speechSynthesis.getVoices();
 }

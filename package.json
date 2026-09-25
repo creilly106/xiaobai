@@ -25,7 +25,8 @@
     "prebuild": "node scripts/copy-strokes.mjs && tsx scripts/deploy-db.ts",
     "data:dictionary": "tsx scripts/import-cedict.ts",
     "db:setup": "npm run db:migrate && npm run db:seed && npm run db:seed-scenarios && npm run data:dictionary",
-    "db:deploy": "tsx scripts/deploy-db.ts"
+    "db:deploy": "tsx scripts/deploy-db.ts",
+    "data:word-audio": "tsx scripts/fetch-word-audio.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",

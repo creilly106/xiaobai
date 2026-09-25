@@ -1,0 +1,6 @@
+Word recordings (public/audio/w)
+  Speaker: Yue Tan, Shtooka project (http://shtooka.net)
+  Curated and compressed by Hugo Lopez: https://github.com/hugolpz/audio-cmn
+  License: Creative Commons Attribution-ShareAlike 3.0
+  https://creativecommons.org/licenses/by-sa/3.0/
+  Files are unmodified apart from being renamed <word>.mp3.
