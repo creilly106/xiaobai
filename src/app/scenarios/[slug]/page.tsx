@@ -115,7 +115,7 @@ export default async function ScenarioDetailPage({
       {view === 'phrases' || dialogues.length === 0 ? (
         <>
           <p className="mt-4 text-xs text-muted-foreground">
-            Hover any word for its meaning. Where a phrase has{' '}
+            Hover a word for its meaning, or tap it to open its page. Where a phrase has{' '}
             <span className="rounded-full border px-1.5">Past</span> or{' '}
             <span className="rounded-full border px-1.5">Future</span> chips, tap them to see how
             Chinese shows the time.{' '}

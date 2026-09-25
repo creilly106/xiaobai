@@ -33,8 +33,8 @@ export function AddScenarioButton({ slug, remaining }: { slug: string; remaining
       {pending
         ? 'Adding…'
         : remaining === 1
-          ? 'Add 1 new sentence'
-          : `Add ${remaining} sentences to my queue`}
+          ? 'Add the last phrase'
+          : `Add all ${remaining} phrases to study`}
     </Button>
   );
 }

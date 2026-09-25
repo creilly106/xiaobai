@@ -147,7 +147,7 @@ export function MobileNav() {
             <span lang="zh-Hans">小白</span> Xiaobai
           </SheetTitle>
         </SheetHeader>
-        <nav aria-label="Main" className="flex flex-col gap-5 px-4 pb-6">
+        <nav aria-label="Main" className="flex flex-col gap-3 px-4 pb-6">
           <Link
             href="/"
             onClick={() => setOpen(false)}
@@ -160,9 +160,12 @@ export function MobileNav() {
           </Link>
           {NAV_GROUPS.map((g) => (
             <div key={g.label}>
-              <div className="mb-1 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                {g.label}
-              </div>
+              {/* A heading over a single link (Learn, Stats) only adds noise. */}
+              {g.items.length > 1 && (
+                <div className="mb-1 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  {g.label}
+                </div>
+              )}
               <div className="flex flex-col">
                 {g.items.map((item) => {
                   const active = isActive(pathname, item);

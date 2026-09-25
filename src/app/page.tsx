@@ -133,11 +133,7 @@ export default async function Home() {
             {a.totalDue > 0 ? (
               <Link
                 href="/study"
-                className={buttonVariants({
-                  size: 'lg',
-                  variant: 'outline',
-                  className: 'self-start px-6',
-                })}
+                className={buttonVariants({ size: 'lg', className: 'self-start px-6' })}
               >
                 Start review
               </Link>

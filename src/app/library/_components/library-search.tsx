@@ -57,7 +57,8 @@ export function LibrarySearch({
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         aria-label="Search"
-        className="h-10 pl-9 pr-9"
+        // Our own clear button replaces the browser's built-in one.
+        className="h-10 pl-9 pr-9 [&::-webkit-search-cancel-button]:appearance-none"
         aria-busy={pending}
         autoFocus={autoFocus}
       />

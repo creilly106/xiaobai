@@ -77,7 +77,7 @@ export function DialogueCard({
             onClick={() => setEnglish(!english)}
             aria-pressed={english}
           >
-            {english ? <EyeOff /> : <Eye />} English
+            {english ? <EyeOff /> : <Eye />} {english ? 'Hide' : 'Show'} English
           </Button>
         </div>
       </CardHeader>
