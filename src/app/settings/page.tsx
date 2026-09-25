@@ -9,6 +9,9 @@ import { SuspendedList } from './_components/suspended-list';
 import { AudioPrefs } from './_components/audio-prefs';
 import { BackupPanel } from './_components/backup-panel';
 import { listBackupFiles } from '@/lib/backup';
+import { Button } from '@/components/ui/button';
+import { signOut } from '@/lib/actions/auth';
+import { gateEnabled } from '@/lib/auth';
 
 export const metadata: Metadata = { title: 'Settings' };
 
@@ -123,6 +126,14 @@ export default async function SettingsPage() {
             </div>
           </CardContent>
         </Card>
+
+        {gateEnabled() && (
+          <form action={signOut} className="flex justify-end">
+            <Button type="submit" variant="outline">
+              Sign out on this device
+            </Button>
+          </form>
+        )}
       </div>
     </div>
   );

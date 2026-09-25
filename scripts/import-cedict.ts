@@ -11,6 +11,7 @@ import path from 'node:path';
 import { gunzipSync } from 'node:zlib';
 import { createClient, type InStatement } from '@libsql/client';
 import { parseCedictLine } from '../src/lib/cedict';
+import { dbCredentials, isRemoteDb } from '../src/db/config';
 
 const URL = 'https://www.mdbg.net/chinese/export/cedict/cedict_1_0_ts_utf-8_mdbg.txt.gz';
 const CACHE = path.join('scripts', '.cache', 'cedict.txt.gz');
@@ -61,10 +62,7 @@ async function main() {
     .map(parseCedictLine)
     .filter((e) => e !== null);
 
-  const client = createClient({
-    url: process.env.DATABASE_URL ?? 'file:./data/app.db',
-    authToken: process.env.DATABASE_AUTH_TOKEN,
-  });
+  const client = createClient(dbCredentials());
   const hsk = new Set(
     (await client.execute('SELECT hanzi FROM words WHERE hsk_level IS NOT NULL')).rows.map((r) =>
       String(r.hanzi),
@@ -95,8 +93,21 @@ async function main() {
       ]),
     });
   }
-  // One transaction: the table is never left half-filled.
-  await client.batch(statements, 'write');
+  if (!isRemoteDb()) {
+    // One transaction: the table is never left half-filled.
+    await client.batch(statements, 'write');
+  } else {
+    // A remote database won't take ~20 MB in one request; send it in parts.
+    // (If this stops midway, just run it again — it starts by clearing the table.)
+    const PER_REQUEST = 20;
+    for (let i = 0; i < statements.length; i += PER_REQUEST) {
+      await client.batch(statements.slice(i, i + PER_REQUEST), 'write');
+      process.stdout.write(
+        `\r${Math.min(i + PER_REQUEST, statements.length)} / ${statements.length} batches`,
+      );
+    }
+    process.stdout.write('\n');
+  }
   const { rows } = await client.execute('SELECT count(*) AS n FROM dictionary');
   client.close();
   console.log(`Imported ${rows[0].n} CC-CEDICT entries.`);

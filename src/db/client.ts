@@ -2,9 +2,9 @@ import 'server-only';
 import { createClient } from '@libsql/client';
 import { drizzle } from 'drizzle-orm/libsql';
 import * as schema from './schema';
+import { dbCredentials } from './config';
 
-const url = process.env.DATABASE_URL ?? 'file:./data/app.db';
-const authToken = process.env.DATABASE_AUTH_TOKEN;
+const { url, authToken } = dbCredentials();
 
 const globalForDb = globalThis as unknown as {
   __libsql?: ReturnType<typeof createClient>;

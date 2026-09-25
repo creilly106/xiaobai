@@ -13,6 +13,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { gunzipSync } from 'node:zlib';
 import path from 'node:path';
 import { createClient } from '@libsql/client';
+import { dbCredentials } from '../src/db/config';
 import { drizzle } from 'drizzle-orm/libsql';
 import * as schema from '../src/db/schema';
 import { radicalChars, radicals } from '../src/lib/radicals-data';
@@ -108,7 +109,7 @@ async function main() {
     source.set(row.character, row);
   }
 
-  const client = createClient({ url: process.env.DATABASE_URL ?? 'file:./data/app.db' });
+  const client = createClient(dbCredentials());
   const db = drizzle(client, { schema });
   const words = await db.select({ hanzi: schema.words.hanzi }).from(schema.words);
   const sentences = await db.select({ hanzi: schema.sentences.hanzi }).from(schema.sentences);

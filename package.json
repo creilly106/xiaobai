@@ -23,7 +23,8 @@
     "data:strokes": "node scripts/copy-strokes.mjs",
     "predev": "node scripts/copy-strokes.mjs",
     "prebuild": "node scripts/copy-strokes.mjs",
-    "data:dictionary": "tsx scripts/import-cedict.ts"
+    "data:dictionary": "tsx scripts/import-cedict.ts",
+    "db:setup": "npm run db:migrate && npm run db:seed && npm run db:seed-scenarios && npm run data:dictionary"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",

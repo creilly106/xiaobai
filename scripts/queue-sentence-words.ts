@@ -6,13 +6,14 @@
  */
 import 'dotenv/config';
 import { createClient } from '@libsql/client';
+import { dbCredentials } from '../src/db/config';
 import { drizzle } from 'drizzle-orm/libsql';
 import { and, eq, isNotNull } from 'drizzle-orm';
 import * as schema from '../src/db/schema';
 import { segmentWords } from '../src/lib/segment';
 
 async function main() {
-  const client = createClient({ url: process.env.DATABASE_URL ?? 'file:./data/app.db' });
+  const client = createClient(dbCredentials());
   const db = drizzle(client, { schema });
 
   const vocab = await db

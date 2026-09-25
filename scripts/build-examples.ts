@@ -13,6 +13,7 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { createClient } from '@libsql/client';
+import { dbCredentials } from '../src/db/config';
 import { segmentWords } from '../src/lib/segment';
 
 const ZIP_URL = 'https://www.manythings.org/anki/cmn-eng.zip';
@@ -50,7 +51,7 @@ function ensureSource() {
 
 async function main() {
   ensureSource();
-  const client = createClient({ url: process.env.DATABASE_URL ?? 'file:./data/app.db' });
+  const client = createClient(dbCredentials());
   const words = (await client.execute('SELECT hanzi FROM words')).rows.map((r) => String(r.hanzi));
   client.close();
 

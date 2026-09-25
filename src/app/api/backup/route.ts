@@ -29,7 +29,9 @@ export async function POST(request: Request) {
     return Response.json({ ok: false, error: (err as Error).message }, { status: 400 });
   }
 
-  const safetyCopy = await writeBackupFile('pre-restore');
+  // Best effort: hosts with a read-only disk (Vercel) can't keep a file copy.
+  // The restore itself is one transaction, so a failure changes nothing.
+  const safetyCopy = await writeBackupFile('pre-restore').catch(() => null);
   try {
     const { rows } = await restoreBackup(data);
     revalidatePath('/', 'layout');
