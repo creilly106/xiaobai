@@ -98,6 +98,61 @@ const tests: Test[] = [
     },
   },
   {
+    name: 'review: cards can be rated on a phone and the session moves on',
+    async run(page) {
+      await page.goto(`${base}/study`);
+      if (await page.getByText("You're all caught up").isVisible()) return;
+      const counter = page.getByText(/^\d+ \/ \d+$/).first();
+      const done = async () => Number((await counter.textContent())?.split('/')[0].trim());
+      for (let i = 0; i < 4; i++) {
+        if (await page.getByText('Session complete').isVisible()) return;
+        const before = await done();
+        // A new card is taught first; it's rated when it comes back.
+        const teach = page.getByRole('button', { name: /^Got it/ });
+        if (await teach.isVisible()) {
+          await teach.tap();
+          await wait(800);
+          continue;
+        }
+        await page.getByTestId('card-hanzi').tap();
+        await wait(600);
+        await page.getByRole('button', { name: /^Good/ }).tap();
+        let after = before;
+        for (let t = 0; t < 30 && after === before; t++) {
+          await wait(100);
+          after = await done();
+        }
+        assert(after > before, `card ${i + 1}: rating didn't move the session on`);
+        // Let the old card animate out before touching the next one.
+        await wait(900);
+      }
+    },
+  },
+  {
+    name: 'learn: a unit checkpoint runs to a result',
+    async run(page) {
+      await page.goto(`${base}/learn/checkpoint/h1-u8`);
+      for (let i = 0; i < 120; i++) {
+        if (
+          (await page.getByText('Not quite there yet').isVisible()) ||
+          (await page.getByText(/You tested out of/).isVisible())
+        ) {
+          return;
+        }
+        const cont = page.getByRole('button', { name: 'Continue' });
+        if ((await cont.count()) > 0 && (await cont.isEnabled())) {
+          await cont.tap();
+          await wait(350);
+          continue;
+        }
+        const step = await page.locator('[data-step]').getAttribute('data-step');
+        await answer(page, step ?? '');
+        await wait(350);
+      }
+      throw new Error('checkpoint never showed a result');
+    },
+  },
+  {
     name: 'scenarios: time chips and "Your turn"',
     async run(page) {
       await page.goto(`${base}/scenarios/relationships`);
