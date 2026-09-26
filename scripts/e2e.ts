@@ -174,6 +174,38 @@ const tests: Test[] = [
     },
   },
   {
+    name: 'learn: leaving a started lesson asks first',
+    async run(page) {
+      await page.goto(`${base}/learn`);
+      const href = await page
+        .getByRole('link', { name: /^(Start|Continue)/ })
+        .first()
+        .getAttribute('href');
+      await page.goto(`${base}${href}`);
+      // Get past the first question so there's progress to lose.
+      for (let i = 0; i < 10; i++) {
+        const cont = page.getByRole('button', { name: 'Continue' });
+        if ((await cont.count()) > 0 && (await cont.isEnabled())) {
+          await cont.tap();
+          await wait(350);
+          continue;
+        }
+        const step = await page.locator('[data-step]').getAttribute('data-step');
+        await answer(page, step ?? '');
+        await wait(350);
+        break;
+      }
+      await page.getByRole('button', { name: 'Leave lesson' }).tap();
+      assert(await page.getByText(/Leave this lesson\?/).isVisible(), 'no confirmation shown');
+      await page.getByRole('button', { name: 'Keep going' }).tap();
+      assert(
+        !(await page.getByText(/Leave this lesson\?/).isVisible()),
+        'confirmation did not close',
+      );
+      assert(page.url().includes('/learn/'), 'left the lesson anyway');
+    },
+  },
+  {
     name: 'flags: a phrase can be flagged and shows up in Settings',
     async run(page) {
       await page.goto(`${base}/scenarios/ordering-food`);

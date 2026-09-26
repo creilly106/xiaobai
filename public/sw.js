@@ -27,13 +27,20 @@ self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   const url = (event.notification.data && event.notification.data.url) || '/';
   event.waitUntil(
-    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windows) => {
-      const open = windows.find((w) => 'focus' in w);
+    (async () => {
+      const windows = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+      const open = windows.find((w) => 'focus' in w && 'navigate' in w);
       if (open) {
-        open.navigate(url);
-        return open.focus();
+        try {
+          // navigate() only works on pages this worker controls; if it
+          // can't, fall through and open the page instead.
+          await open.navigate(url);
+          return open.focus();
+        } catch {
+          /* fall through */
+        }
       }
       return self.clients.openWindow(url);
-    }),
+    })(),
   );
 });

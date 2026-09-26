@@ -51,6 +51,7 @@ export function LessonPlayer({
   const mistakes = useRef(new Map<string, number>());
   const nextId = useRef(session.steps.length);
   const [finished, setFinished] = useState<{ score: number; passed: boolean } | null>(null);
+  const [confirmLeave, setConfirmLeave] = useState(false);
   const [saving, startSaving] = useTransition();
 
   useEffect(() => primeVoices(), []);
@@ -142,16 +143,44 @@ export function LessonPlayer({
   return (
     <div className="mx-auto flex min-h-[calc(100dvh-3.5rem)] w-full max-w-2xl flex-col px-4 pt-5 pb-40">
       <div className="mb-6 flex items-center gap-3">
-        <Link
-          href="/learn"
-          aria-label="Leave lesson"
-          className={buttonVariants({ variant: 'ghost', size: 'icon-sm' })}
-        >
-          <X />
-        </Link>
+        {firstTry.total === 0 ? (
+          <Link
+            href="/learn"
+            aria-label="Leave lesson"
+            className={buttonVariants({ variant: 'ghost', size: 'icon-sm' })}
+          >
+            <X />
+          </Link>
+        ) : (
+          // Once you've answered something, a stray tap shouldn't throw the lesson away.
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            aria-label="Leave lesson"
+            onClick={() => setConfirmLeave(true)}
+          >
+            <X />
+          </Button>
+        )}
         <Progress value={percent} className="flex-1" aria-label="Lesson progress" />
         <span className="hidden text-xs text-muted-foreground sm:inline">{session.title}</span>
       </div>
+      {confirmLeave && (
+        <div
+          role="alertdialog"
+          aria-label="Leave this lesson?"
+          className="mb-4 flex flex-wrap items-center gap-3 rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm"
+        >
+          <span className="flex-1">Leave this lesson? Your answers so far won’t be saved.</span>
+          <Button type="button" size="sm" onClick={() => setConfirmLeave(false)} autoFocus>
+            Keep going
+          </Button>
+          <Link href="/learn" className={buttonVariants({ variant: 'outline', size: 'sm' })}>
+            Leave
+          </Link>
+        </div>
+      )}
 
       <AnimatePresence mode="wait" initial={false}>
         <motion.div

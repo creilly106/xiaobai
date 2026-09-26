@@ -1,5 +1,13 @@
 import Link from 'next/link';
-import { ArrowRight, CircleCheck, CirclePlay, FastForward, Lock, BookCheck } from 'lucide-react';
+import {
+  ArrowRight,
+  ChevronDown,
+  CircleCheck,
+  CirclePlay,
+  FastForward,
+  Lock,
+  BookCheck,
+} from 'lucide-react';
 import { buttonVariants } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -91,7 +99,8 @@ function UnitCard({ unit, number }: { unit: PathUnitView; number: number }) {
   return (
     <li>
       <Card className={active ? 'border-primary/40' : ''}>
-        <details open={!complete} className="group">
+        {/* Only the unit you're in starts open, so the path stays short on a phone. */}
+        <details open={active} className="group">
           <summary className="flex cursor-pointer list-none items-center gap-3 px-5 py-4 [&::-webkit-details-marker]:hidden">
             <div className="min-w-0 flex-1">
               <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
@@ -108,6 +117,10 @@ function UnitCard({ unit, number }: { unit: PathUnitView; number: number }) {
                 {unit.finished} / {unit.lessons.length}
               </div>
             </div>
+            <ChevronDown
+              className="size-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-180"
+              aria-hidden
+            />
           </summary>
           <div className="border-t px-2 py-2">
             <ul>
