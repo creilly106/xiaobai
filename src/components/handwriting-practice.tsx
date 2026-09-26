@@ -60,7 +60,19 @@ export function HandwritingPractice({ hanzi }: { hanzi: string }) {
   );
 }
 
-function HandwritingQuiz({ hanzi, onDone }: { hanzi: string; onDone: () => void }) {
+/**
+ * Trace each character of `hanzi` in stroke order. `onDone` gets the total
+ * mistakes; with `summary` false it's called straight away (for lessons).
+ */
+export function HandwritingQuiz({
+  hanzi,
+  onDone,
+  summary = true,
+}: {
+  hanzi: string;
+  onDone: (totalMistakes: number) => void;
+  summary?: boolean;
+}) {
   const chars = Array.from(hanzi);
   const [charIndex, setCharIndex] = useState(0);
   const [mistakes, setMistakes] = useState(0);
@@ -111,6 +123,13 @@ function HandwritingQuiz({ hanzi, onDone }: { hanzi: string; onDone: () => void 
     };
   }, [charIndex, current, done]);
 
+  useEffect(() => {
+    if (done && !summary) onDone(totalMistakes);
+    // Report once, when the last character is finished.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [done]);
+
+  if (done && !summary) return null;
   if (done) {
     return (
       <div className="flex flex-col items-center gap-3 py-2">
@@ -118,7 +137,7 @@ function HandwritingQuiz({ hanzi, onDone }: { hanzi: string; onDone: () => void 
         <p className="text-sm text-muted-foreground">
           {totalMistakes} mistake{totalMistakes === 1 ? '' : 's'} total.
         </p>
-        <Button onClick={onDone}>Close</Button>
+        <Button onClick={() => onDone(totalMistakes)}>Close</Button>
       </div>
     );
   }

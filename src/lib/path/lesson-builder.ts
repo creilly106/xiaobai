@@ -44,7 +44,11 @@ export type LessonStep =
   | { kind: 'match'; words: LessonWord[]; order: number[] }
   | { kind: 'type-meaning'; word: LessonWord }
   | { kind: 'type-pinyin'; word: LessonWord }
+  /** Trace a new word's characters in stroke order. */
+  | { kind: 'write'; word: LessonWord }
   | { kind: 'arrange'; sentence: LessonSentence; tiles: Tile[]; targets: string[] }
+  /** Listening: hear the sentence (no English shown), rebuild it from tiles. */
+  | { kind: 'dictation'; sentence: LessonSentence; tiles: Tile[]; targets: string[] }
   | { kind: 'translate'; sentence: LessonSentence; options: string[]; targets: string[] }
   | {
       kind: 'fill';
@@ -78,6 +82,7 @@ export function stepTargets(step: LessonStep): string[] {
     case 'match':
       return step.words.map((w) => w.hanzi);
     case 'arrange':
+    case 'dictation':
     case 'translate':
       return step.targets;
     default:
@@ -155,7 +160,12 @@ function choose(
 
 const MAX_TILES = 9;
 
-function arrange(sentence: LessonSentence, lessonWords: LessonWord[], rand: () => number) {
+function arrange(
+  sentence: LessonSentence,
+  lessonWords: LessonWord[],
+  rand: () => number,
+  kind: 'arrange' | 'dictation' = 'arrange',
+) {
   const inSentence = new Set(sentence.tokens.map((t) => t.text));
   const extra = shuffle(
     lessonWords.filter((w) => !inSentence.has(w.hanzi)),
@@ -164,7 +174,7 @@ function arrange(sentence: LessonSentence, lessonWords: LessonWord[], rand: () =
     .slice(0, sentence.tokens.length >= 4 ? 2 : 1)
     .map((w) => ({ text: w.hanzi, pinyin: w.pinyin }));
   return {
-    kind: 'arrange' as const,
+    kind,
     sentence,
     tiles: shuffle([...sentence.tokens, ...extra], rand),
     targets: sentence.tokens
@@ -190,6 +200,10 @@ export function buildLesson(input: BuildInput): LessonStep[] {
     if (pair[1]) steps.push(choose('listen', pair[1], pool, rand));
   }
 
+  // Trace one new word (the shortest) to learn how it's written.
+  const toWrite = [...words].sort((a, b) => len(a.hanzi) - len(b.hanzi))[0];
+  if (toWrite && len(toWrite.hanzi) <= 2) steps.push({ kind: 'write', word: toWrite });
+
   // 2. The grammar point, once the words are in place.
   if (input.grammar) steps.push({ kind: 'grammar', point: input.grammar });
 
@@ -213,11 +227,11 @@ export function buildLesson(input: BuildInput): LessonStep[] {
   }
   steps.push(...shuffled);
 
-  // 4. Sentences last: build one, read one, complete one.
+  // 4. Sentences last: build one, read one, complete one, then write down one you hear.
   const usable = input.sentences.filter(
     (s) => s.tokens.length >= 2 && s.tokens.length <= MAX_TILES,
   );
-  const [first, second, third] = usable;
+  const [first, second, third, fourth] = usable;
   if (first) steps.push(arrange(first, words, rand));
   if (second) {
     const wrong = shuffle(
@@ -246,6 +260,7 @@ export function buildLesson(input: BuildInput): LessonStep[] {
       });
     }
   }
+  if (fourth) steps.push(arrange(fourth, words, rand, 'dictation'));
   return steps;
 }
 
@@ -266,7 +281,9 @@ export function buildCheckpoint(input: Omit<BuildInput, 'review' | 'grammar'>): 
   const usable = input.sentences.filter(
     (s) => s.tokens.length >= 2 && s.tokens.length <= MAX_TILES,
   );
-  for (const s of shuffle(usable, rand).slice(0, 2)) steps.push(arrange(s, input.words, rand));
+  const [a, b] = shuffle(usable, rand);
+  if (a) steps.push(arrange(a, input.words, rand));
+  if (b) steps.push(arrange(b, input.words, rand, 'dictation'));
   return shuffle(steps.slice(0, sample.length), rand).concat(steps.slice(sample.length));
 }
 

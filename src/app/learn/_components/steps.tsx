@@ -9,6 +9,7 @@ import { FlagButton } from '@/components/flag-button';
 import { Pinyin } from '@/components/pinyin';
 import { PinyinKeyboard } from '@/components/pinyin-keyboard';
 import { WordTools } from '@/components/card-parts/word-tools';
+import { HandwritingQuiz } from '@/components/handwriting-practice';
 import { audioFor } from '@/lib/audio-text';
 import { gradeWord } from '@/lib/meaning-grade';
 import { EMPTY_DRAFT, draftIsEmpty, gradeDraft, type PinyinDraft } from '@/lib/pinyin-draft';
@@ -17,7 +18,13 @@ import { isTypingLocked } from '@/lib/typing-lock';
 import { speak } from '@/lib/tts';
 
 /** How a question went. `note` explains a near miss; `missed` lists words to count as mistakes. */
-export type Answer = { correct: boolean; note?: string; missed?: string[] };
+export type Answer = {
+  correct: boolean;
+  note?: string;
+  missed?: string[];
+  /** Passed over (e.g. writing): not scored, not repeated. */
+  skipped?: boolean;
+};
 
 type StepProps<K extends LessonStep['kind']> = {
   step: Extract<LessonStep, { kind: K }>;
@@ -458,10 +465,16 @@ export function TypePinyinStep({ step, answered, onAnswer }: StepProps<'type-pin
 
 /* ─── Sentence building ────────────────────────────────────────────────── */
 
-export function ArrangeStep({ step, answered, onAnswer }: StepProps<'arrange'>) {
+/** Build a sentence from tiles: from its English, or (dictation) from hearing it. */
+export function ArrangeStep({ step, answered, onAnswer }: StepProps<'arrange' | 'dictation'>) {
   const { sentence, tiles } = step;
+  const listening = step.kind === 'dictation';
   const [chosen, setChosen] = useState<number[]>([]);
-  const [showPinyin, setShowPinyin] = useState(true);
+  // When listening, pinyin on the tiles would give the answer away; it's a hint.
+  const [showPinyin, setShowPinyin] = useState(!listening);
+  useEffect(() => {
+    if (listening) play(sentence.hanzi);
+  }, [listening, sentence.hanzi]);
   const bank = tiles.map((t, i) => ({ t, i })).filter(({ i }) => !chosen.includes(i));
 
   function check() {
@@ -484,8 +497,35 @@ export function ArrangeStep({ step, answered, onAnswer }: StepProps<'arrange'>) 
   return (
     <div className="flex flex-col gap-5">
       <div className="text-center">
-        <Prompt>Build this sentence in Chinese</Prompt>
-        <div className="mt-2 text-2xl font-medium">{sentence.meaning}</div>
+        {listening ? (
+          <>
+            <Prompt>Build the sentence you hear</Prompt>
+            <div className="mt-3 flex justify-center gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                className="size-16 rounded-full"
+                onClick={() => play(sentence.hanzi)}
+                aria-label="Play again"
+              >
+                <Volume2 className="size-7" />
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                className="h-16"
+                onClick={() => speak(sentence.hanzi, 0.55)}
+              >
+                Slower
+              </Button>
+            </div>
+          </>
+        ) : (
+          <>
+            <Prompt>Build this sentence in Chinese</Prompt>
+            <div className="mt-2 text-2xl font-medium">{sentence.meaning}</div>
+          </>
+        )}
       </div>
       <div className="flex min-h-20 flex-wrap items-center gap-2 border-b-2 border-dashed border-border pb-3">
         {chosen.map((i) => (
@@ -505,6 +545,7 @@ export function ArrangeStep({ step, answered, onAnswer }: StepProps<'arrange'>) 
           <button
             key={i}
             type="button"
+            data-tile
             disabled={answered}
             className={tileClass}
             onClick={() => {
@@ -522,12 +563,48 @@ export function ArrangeStep({ step, answered, onAnswer }: StepProps<'arrange'>) 
           className="text-xs text-muted-foreground underline-offset-4 hover:underline"
           onClick={() => setShowPinyin(!showPinyin)}
         >
-          {showPinyin ? 'Hide pinyin' : 'Show pinyin'}
+          {showPinyin ? 'Hide pinyin' : listening ? 'Hint: show pinyin' : 'Show pinyin'}
         </button>
         <Button type="button" onClick={check} disabled={answered || chosen.length === 0}>
           Check
         </Button>
       </div>
+    </div>
+  );
+}
+
+/* ─── Writing ──────────────────────────────────────────────────────────── */
+
+/** Trace a new word stroke by stroke; up to two slips per character still counts. */
+export function WriteStep({ step, answered, onAnswer }: StepProps<'write'>) {
+  const { word } = step;
+  const chars = Array.from(word.hanzi).length;
+  return (
+    <div className="flex flex-col items-center gap-3 text-center">
+      <Prompt>Write it — trace each stroke in order</Prompt>
+      <div>
+        <div className="flex items-center justify-center gap-1">
+          <Pinyin text={word.pinyin} className="text-xl text-muted-foreground" />
+          <AudioButton text={word.hanzi} reading={word.pinyin} />
+        </div>
+        <div className="text-muted-foreground">{word.meaning}</div>
+      </div>
+      {!answered && (
+        <>
+          <HandwritingQuiz
+            hanzi={word.hanzi}
+            summary={false}
+            onDone={(mistakes) => onAnswer({ correct: mistakes <= chars * 2 })}
+          />
+          <button
+            type="button"
+            onClick={() => onAnswer({ correct: false, skipped: true })}
+            className="text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+          >
+            Skip writing
+          </button>
+        </>
+      )}
     </div>
   );
 }
@@ -540,9 +617,11 @@ export function solutionOf(
     case 'choose':
     case 'type-meaning':
     case 'type-pinyin':
+    case 'write':
       return step.word;
     case 'fill':
     case 'arrange':
+    case 'dictation':
     case 'translate':
       return step.sentence;
     default:

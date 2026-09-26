@@ -258,12 +258,16 @@ async function answer(page: Page, step: string) {
       await input.press('Enter');
       return;
     }
+    case 'write':
+      await area.getByRole('button', { name: 'Skip writing' }).tap();
+      return;
     case 'type-pinyin':
       await page.keyboard.type('ni3');
       await page.keyboard.press('Enter');
       return;
-    case 'arrange': {
-      const bank = area.locator('.justify-center button');
+    case 'arrange':
+    case 'dictation': {
+      const bank = area.locator('button[data-tile]');
       for (let n = await bank.count(); n > 0; n = await bank.count()) {
         await bank.first().tap();
         await wait(100);

@@ -25,6 +25,7 @@ import {
   TranslateStep,
   TypeMeaningStep,
   TypePinyinStep,
+  WriteStep,
   play,
   solutionOf,
   type Answer,
@@ -63,6 +64,7 @@ export function LessonPlayer({
     (a: Answer) => {
       if (!entry || answer) return;
       setAnswer(a);
+      if (a.skipped) return; // not scored, not repeated
       if (entry.tries === 0) {
         setFirstTry((f) => ({ right: f.right + (a.correct ? 1 : 0), total: f.total + 1 }));
       }
@@ -71,7 +73,12 @@ export function LessonPlayer({
           mistakes.current.set(h, (mistakes.current.get(h) ?? 0) + 1);
         }
         // Missed questions come back at the end (a match only counts once).
-        if (entry.tries < MAX_RETRIES && entry.step.kind !== 'match') {
+        // A match or a writing drill only counts once; repeating them is a chore.
+        if (
+          entry.tries < MAX_RETRIES &&
+          entry.step.kind !== 'match' &&
+          entry.step.kind !== 'write'
+        ) {
           setQueue((q) => [
             ...q,
             { id: nextId.current++, step: entry.step, tries: entry.tries + 1 },
@@ -231,11 +238,14 @@ function StepView({
     case 'type-pinyin':
       return <TypePinyinStep key={entry.id} {...props} step={step} />;
     case 'arrange':
+    case 'dictation':
       return <ArrangeStep key={entry.id} {...props} step={step} />;
     case 'translate':
       return <TranslateStep key={entry.id} {...props} step={step} />;
     case 'fill':
       return <FillStep key={entry.id} {...props} step={step} />;
+    case 'write':
+      return <WriteStep key={entry.id} {...props} step={step} />;
   }
 }
 
@@ -251,11 +261,12 @@ function FeedbackBar({
   busy: boolean;
 }) {
   const solution = answer ? solutionOf(step) : null;
-  const tone = !answer
-    ? 'border-border bg-background'
-    : answer.correct
-      ? 'border-emerald-500/40 bg-emerald-50 dark:bg-emerald-950/60'
-      : 'border-red-500/40 bg-red-50 dark:bg-red-950/60';
+  const tone =
+    !answer || answer.skipped
+      ? 'border-border bg-background'
+      : answer.correct
+        ? 'border-emerald-500/40 bg-emerald-50 dark:bg-emerald-950/60'
+        : 'border-red-500/40 bg-red-50 dark:bg-red-950/60';
   return (
     <motion.div
       initial={{ y: 40, opacity: 0 }}
@@ -266,14 +277,16 @@ function FeedbackBar({
         {answer && (
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 font-semibold">
-              {answer.correct ? (
+              {answer.skipped ? (
+                <>Skipped</>
+              ) : answer.correct ? (
                 <>
                   <Check className="size-5 text-emerald-600" /> Correct!
                 </>
               ) : (
                 <>
                   <X className="size-5 text-red-600" /> Not quite
-                  {step.kind !== 'match' && (
+                  {step.kind !== 'match' && step.kind !== 'write' && (
                     <span className="text-xs font-normal text-muted-foreground">
                       — it&apos;ll come up again
                     </span>

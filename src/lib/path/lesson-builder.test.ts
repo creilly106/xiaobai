@@ -44,6 +44,7 @@ const sentences = [
   sentence('我喝茶。', 'I drink tea.', ['我', '喝', '茶']),
   sentence('你吃米饭吗？', 'Do you eat rice?', ['你', '吃', '米饭', '吗']),
   sentence('我不喝水。', "I don't drink water.", ['我', '不', '喝', '水']),
+  sentence('你吃菜吗？', 'Do you eat vegetables?', ['你', '吃', '菜', '吗']),
 ];
 
 function build(seed = 1): LessonStep[] {
@@ -87,6 +88,7 @@ describe('buildLesson', () => {
       'arrange',
       'translate',
       'fill',
+      'dictation',
     ]) {
       expect(kinds.has(k as LessonStep['kind']), k).toBe(true);
     }
@@ -101,7 +103,7 @@ describe('buildLesson', () => {
           expect(new Set(hanzi).size).toBe(hanzi.length);
         }
         if (step.kind === 'translate') expect(step.options).toContain(step.sentence.meaning);
-        if (step.kind === 'arrange') {
+        if (step.kind === 'arrange' || step.kind === 'dictation') {
           const tiles = step.tiles.map((t) => t.text);
           for (const t of step.sentence.tokens) expect(tiles).toContain(t.text);
         }
