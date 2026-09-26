@@ -294,7 +294,7 @@ export const dbSnapshots = sqliteTable('db_snapshots', {
   data: text('data').notNull(),
 });
 
-export type PracticeKind = 'tone' | 'number' | 'cloze' | 'quiz';
+export type PracticeKind = 'tone' | 'number' | 'cloze' | 'quiz' | 'listening';
 
 /** One answer in a practice drill (tone trainer, numbers, fill in the blank, quiz). */
 export const practiceLog = sqliteTable(

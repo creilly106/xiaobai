@@ -241,6 +241,33 @@ const tests: Test[] = [
       assert((await hidden.count()) === count - 1, 'tapping did not reveal the line');
     },
   },
+  {
+    name: 'scenarios: a dialogue plays through, then asks listening questions',
+    async run(page) {
+      await page.goto(`${base}/scenarios/relationships?view=dialogues`);
+      const started = Date.now();
+      await page.getByRole('button', { name: 'Listen' }).first().tap();
+      const quiz = page.getByRole('button', { name: 'Check what you understood' });
+      await quiz.waitFor({ timeout: 90_000 });
+      const lines = await page.locator('[data-line]').count();
+      assert(lines > 2, `only ${lines} lines appeared`);
+      console.log(`    (played ${lines} lines in ${((Date.now() - started) / 1000).toFixed(1)}s)`);
+      await quiz.tap();
+      for (let i = 0; i < 6; i++) {
+        const question = page.locator('[data-listening-question] button.min-h-16');
+        if (!(await question.first().isVisible())) break;
+        await question.first().tap();
+        await page.getByRole('button', { name: /^(Next|See results)$/ }).tap();
+        await wait(200);
+      }
+      assert(await page.getByText(/^\d \/ \d$/).isVisible(), 'no score shown');
+      await page.getByRole('button', { name: 'Done' }).tap();
+      assert(
+        (await page.locator('[data-line]').count()) === 0,
+        'Done did not go back to the dialogue',
+      );
+    },
+  },
 ];
 
 /** Give some answer to a lesson question (right or wrong — missed ones come back). */

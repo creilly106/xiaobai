@@ -14,7 +14,7 @@ export type PracticeEntry = {
   detail?: Record<string, unknown> & { word?: string };
 };
 
-const KINDS: PracticeKind[] = ['tone', 'number', 'cloze', 'quiz'];
+const KINDS: PracticeKind[] = ['tone', 'number', 'cloze', 'quiz', 'listening'];
 const MAX_ENTRIES = 50;
 
 /**

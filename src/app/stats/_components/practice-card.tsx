@@ -9,6 +9,7 @@ const KIND_LABEL = {
   quiz: { label: 'Quiz flashcards', href: '/quiz' },
   tone: { label: 'Tone trainer', href: '/tones' },
   number: { label: 'Numbers drill', href: '/numbers' },
+  listening: { label: 'Dialogue listening', href: '/scenarios' },
 } as const;
 
 function pct(right: number, total: number) {
@@ -30,8 +31,8 @@ export function PracticeCard({ summary }: { summary: PracticeSummary }) {
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">
-            Nothing yet. Results from fill in the blank, quizzes, the tone trainer and the numbers
-            drill show up here.
+            Nothing yet. Results from fill in the blank, quizzes, the tone trainer, the numbers
+            drill and dialogue listening show up here.
           </p>
         </CardContent>
       </Card>

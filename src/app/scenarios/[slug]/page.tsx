@@ -144,6 +144,10 @@ export default async function ScenarioDetailPage({
               index={i}
               title={d.title}
               lines={d.lines}
+              pool={[
+                ...dialogues.filter((o) => o !== d).flatMap((o) => o.lines),
+                ...(content?.sentences ?? []),
+              ].map(({ hanzi, pinyin, meaning }) => ({ hanzi, pinyin, meaning }))}
               inQueue={d.lines.every((l) => saved.get(l.hanzi)?.inQueue)}
               dict={dict}
             />

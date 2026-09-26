@@ -114,7 +114,7 @@ function useNumberKeys(count: number, enabled: boolean, pick: (i: number) => voi
   }, [count, enabled, pick]);
 }
 
-function OptionButton({
+export function OptionButton({
   index,
   state,
   onClick,

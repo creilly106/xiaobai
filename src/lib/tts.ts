@@ -143,6 +143,7 @@ function playClip(text: string, rate: number, fallback: () => void): boolean {
     fallback();
   };
   a.onerror = fail;
+  a.onended = null;
   a.src = clipUrl(file);
   a.playbackRate = Math.min(2, Math.max(0.5, rate / NORMAL_RATE));
   a.preservesPitch = true;
@@ -150,9 +151,41 @@ function playClip(text: string, rate: number, fallback: () => void): boolean {
   return true;
 }
 
+/** Resolves whatever speakAndWait() is waiting on (playback ended or was cut off). */
+let finishCurrent: (() => void) | null = null;
+
 function stopAll() {
+  finishCurrent?.();
   if (player && !player.paused) player.pause();
   if (isTtsSupported()) window.speechSynthesis.cancel();
+}
+
+/** Stop whatever is playing. */
+export function stopSpeaking(): void {
+  if (typeof window !== 'undefined') stopAll();
+}
+
+/**
+ * Like speak(), but resolves once the line has finished playing — or has been
+ * interrupted by other audio. Used to play a dialogue line by line.
+ */
+export async function speakAndWait(text: string, rate = NORMAL_RATE): Promise<void> {
+  if (typeof window === 'undefined') return;
+  await loadClips();
+  stopAll();
+  return new Promise<void>((resolve) => {
+    // Some browsers (iOS especially) occasionally never fire an end event.
+    const guard = setTimeout(done, 4000 + [...text].length * 500);
+    function done() {
+      clearTimeout(guard);
+      if (finishCurrent === done) finishCurrent = null;
+      resolve();
+    }
+    finishCurrent = done;
+    const voice = () => speakWithVoice(text, rate, done);
+    if (playClip(text, rate, voice)) getPlayer().onended = done;
+    else voice();
+  });
 }
 
 /**
@@ -166,12 +199,13 @@ export function speak(text: string, rate = NORMAL_RATE): void {
   speakWithVoice(text, rate);
 }
 
-function speakWithVoice(text: string, rate: number): void {
-  if (!isTtsSupported()) return;
+function speakWithVoice(text: string, rate: number, onEnd?: () => void): void {
+  if (!isTtsSupported()) return onEnd?.();
   const synth = window.speechSynthesis;
   const utter = new SpeechSynthesisUtterance(text);
   utter.lang = 'zh-CN';
   utter.rate = rate;
+  if (onEnd) utter.onend = utter.onerror = () => onEnd();
   const voice = pickVoice();
   if (voice) {
     utter.voice = voice;
