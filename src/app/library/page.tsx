@@ -27,7 +27,15 @@ export default async function LibraryPage({ searchParams }: PageProps<'/library'
 
   return (
     <div className="mx-auto w-full max-w-4xl px-4 py-10">
-      <h1 className="text-2xl font-semibold">Library</h1>
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <h1 className="text-2xl font-semibold">Library</h1>
+        <Link
+          href="/find"
+          className="text-sm text-muted-foreground underline-offset-4 hover:underline"
+        >
+          Can&apos;t type it? Draw a character
+        </Link>
+      </div>
 
       <nav aria-label="Library sections" className="mt-4 flex gap-1 border-b border-border/60">
         {TABS.map((t) => {

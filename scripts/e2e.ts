@@ -10,7 +10,8 @@
  *
  * Needs the password gate off (no APP_PASSWORD).
  */
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
+import path from 'node:path';
 import { chromium, type Page } from 'playwright-core';
 
 const args = process.argv.slice(2);
@@ -288,6 +289,44 @@ const tests: Test[] = [
       await page.goto(`${base}/read`);
       const card = page.locator('a[href="/read/my-family"]');
       assert((await card.textContent())?.includes('Read'), 'story not marked as read');
+    },
+  },
+  {
+    name: 'find: drawing 好 offers it, and picking 氵 + 可 finds 河',
+    async run(page) {
+      await page.goto(`${base}/find`);
+      await page.getByText('Ready').waitFor({ timeout: 15_000 });
+      const pad = page.getByLabel('Drawing pad');
+      const box = (await pad.boundingBox())!;
+      // Trace 好's strokes (hanzi-writer's 1024 box, y up) across the pad.
+      const { medians } = JSON.parse(
+        readFileSync(path.join('node_modules', 'hanzi-writer-data', '好.json'), 'utf8'),
+      ) as { medians: [number, number][][] };
+      const at = ([x, y]: [number, number]) => ({
+        x: box.x + (x / 1024) * box.width,
+        y: box.y + ((900 - y) / 1024) * box.height,
+      });
+      for (const stroke of medians) {
+        const start = at(stroke[0]);
+        await page.mouse.move(start.x, start.y);
+        await page.mouse.down();
+        for (const p of stroke.slice(1)) {
+          const { x, y } = at(p);
+          await page.mouse.move(x, y, { steps: 4 });
+        }
+        await page.mouse.up();
+      }
+      const first = page.locator('[data-results] button').first();
+      await first.waitFor({ timeout: 5000 });
+      assert((await first.getAttribute('data-char')) === '好', 'drawing 好 did not put it first');
+      await first.tap();
+      await page.getByRole('dialog').getByText(/good/).waitFor({ timeout: 5000 });
+      await page.getByRole('dialog').getByRole('button', { name: 'Close' }).tap();
+
+      await page.getByRole('tab', { name: 'Pick its parts' }).tap();
+      await page.getByRole('button', { name: '氵', exact: true }).first().tap();
+      await page.getByRole('button', { name: '可', exact: true }).first().tap();
+      await page.locator('[data-results] button[data-char="河"]').waitFor({ timeout: 5000 });
     },
   },
 ];

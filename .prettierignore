@@ -9,3 +9,4 @@ next-env.d.ts
 public/strokes
 public/audio/
 src/lib/scenario-data.ts
+/public/find-data/

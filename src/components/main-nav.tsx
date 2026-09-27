@@ -37,6 +37,11 @@ export const NAV_GROUPS: { label: string; menu?: boolean; items: NavItem[] }[] =
         desc: 'Your words and the full dictionary',
         match: ['/characters'],
       },
+      {
+        href: '/find',
+        label: 'Find a character',
+        desc: 'Draw it, or pick the parts you can see',
+      },
       { href: '/grammar', label: 'Grammar', desc: 'Sentence patterns with examples' },
       { href: '/radicals', label: 'Radicals', desc: 'The building blocks of characters' },
       { href: '/numbers', label: 'Numbers', desc: 'Counting, prices, dates and times' },

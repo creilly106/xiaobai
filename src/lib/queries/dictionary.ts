@@ -121,3 +121,15 @@ export async function lookupEntry(hanzi: string): Promise<DictEntry | null> {
   if (full[hanzi]) return full[hanzi];
   return (await cedictEntries([hanzi]))[hanzi] ?? null;
 }
+
+/** Entries for several words at once, looking past the HSK set to CC-CEDICT. */
+export async function lookupEntries(words: string[]): Promise<Dictionary> {
+  const full = await loadDictionary();
+  const out: Dictionary = {};
+  const missing: string[] = [];
+  for (const w of words) {
+    if (full[w]) out[w] = full[w];
+    else missing.push(w);
+  }
+  return missing.length ? { ...out, ...(await cedictEntries(missing)) } : out;
+}
