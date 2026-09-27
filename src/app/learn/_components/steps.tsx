@@ -315,25 +315,39 @@ export function FillStep({ step, answered, onAnswer }: StepProps<'fill'>) {
 export function MatchStep({ step, answered, onAnswer }: StepProps<'match'>) {
   const { words, order } = step;
   const [left, setLeft] = useState<number | null>(null);
+  const [right, setRight] = useState<number | null>(null);
   const [matched, setMatched] = useState<Set<number>>(new Set());
   const [missed, setMissed] = useState<Set<string>>(new Set());
-  const [flash, setFlash] = useState<number | null>(null);
+  const [flash, setFlash] = useState<{ side: 'left' | 'right'; index: number } | null>(null);
 
-  function pickRight(wordIndex: number) {
-    if (left === null || answered) return;
-    if (left === wordIndex) {
-      const next = new Set(matched).add(wordIndex);
+  // Either column can be tapped first; the second tap makes the guess.
+  function tryPair(l: number, r: number, second: 'left' | 'right') {
+    setLeft(null);
+    setRight(null);
+    if (l === r) {
+      const next = new Set(matched).add(l);
       setMatched(next);
-      setLeft(null);
-      play(words[wordIndex].hanzi, words[wordIndex].pinyin);
       if (next.size === words.length) {
         onAnswer({ correct: missed.size === 0, missed: [...missed] });
       }
     } else {
-      setMissed(new Set(missed).add(words[left].hanzi));
-      setFlash(wordIndex);
+      setMissed(new Set(missed).add(words[l].hanzi));
+      setFlash({ side: second, index: second === 'left' ? l : r });
       setTimeout(() => setFlash(null), 400);
     }
+  }
+
+  function pickLeft(i: number) {
+    if (answered) return;
+    play(words[i].hanzi, words[i].pinyin);
+    if (right !== null) tryPair(i, right, 'left');
+    else setLeft(i);
+  }
+
+  function pickRight(wordIndex: number) {
+    if (answered) return;
+    if (left !== null) tryPair(left, wordIndex, 'right');
+    else setRight(wordIndex);
   }
 
   const cell = (active: boolean, done: boolean, wrong: boolean) =>
@@ -360,11 +374,8 @@ export function MatchStep({ step, answered, onAnswer }: StepProps<'match'>) {
               type="button"
               lang="zh-Hans"
               disabled={matched.has(i) || answered}
-              onClick={() => {
-                setLeft(i);
-                play(w.hanzi, w.pinyin);
-              }}
-              className={`${cell(left === i, matched.has(i), false)} text-2xl`}
+              onClick={() => pickLeft(i)}
+              className={`${cell(left === i, matched.has(i), flash?.side === 'left' && flash.index === i)} text-2xl`}
             >
               {w.hanzi}
             </button>
@@ -377,7 +388,7 @@ export function MatchStep({ step, answered, onAnswer }: StepProps<'match'>) {
               type="button"
               disabled={matched.has(wi) || answered}
               onClick={() => pickRight(wi)}
-              className={`${cell(false, matched.has(wi), flash === wi)} text-sm`}
+              className={`${cell(right === wi, matched.has(wi), flash?.side === 'right' && flash.index === wi)} text-sm`}
             >
               {words[wi].meaning}
             </button>

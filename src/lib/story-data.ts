@@ -284,14 +284,16 @@ export const stories: Story[] = [
           'wǒ dǎ diànhuà: "wèi, Wáng Péng, nǐ zài nǎr?"',
           'I made a call: "Hello, Wang Peng, where are you?"',
         ),
-        s('“我在家。你怎么了？”', '"wǒ zài jiā. nǐ zěnme le?"', '"I\'m at home. What\'s up?"'),
+      ],
+      [s('“我在家。你怎么了？”', '"wǒ zài jiā. nǐ zěnme le?"', '"I\'m at home. What\'s up?"')],
+      [
         s(
           '“下雨了，你能来学校吗？”',
           '"xià yǔ le, nǐ néng lái xuéxiào ma?"',
           '"It\'s raining. Could you come to the school?"',
         ),
-        s('“好！我坐出租车来。”', '"hǎo! wǒ zuò chūzūchē lái."', '"OK! I\'ll come by taxi."'),
       ],
+      [s('“好！我坐出租车来。”', '"hǎo! wǒ zuò chūzūchē lái."', '"OK! I\'ll come by taxi."')],
       [
         s(
           '四点二十，王朋坐出租车来了。',
@@ -380,8 +382,8 @@ export const stories: Story[] = [
           'dìdi zài děng tā: "jiějie, nǐ yǒu shíjiān ma?"',
           'My brother was waiting for her: "Sis, do you have time?"',
         ),
-        s('“没有，我太累了。”', '"méiyǒu, wǒ tài lèi le."', '"No, I\'m too tired."'),
       ],
+      [s('“没有，我太累了。”', '"méiyǒu, wǒ tài lèi le."', '"No, I\'m too tired."')],
     ],
     questions: [
       {

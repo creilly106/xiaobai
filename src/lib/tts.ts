@@ -131,18 +131,25 @@ if (typeof window !== 'undefined') {
 
 const clipUrl = (file: string) => `/audio/${file.split('/').map(encodeURIComponent).join('/')}`;
 
+/** Bumped by every new request and every stop, so stale clips can't fall back. */
+let clipRequest = 0;
+
 /** Play a recording of `text` if there is one; false if not. */
 function playClip(text: string, rate: number, fallback: () => void): boolean {
   const file = clips?.[clipKey(text)];
   if (!file) return false;
   const a = getPlayer();
+  const request = ++clipRequest;
   let fellBack = false;
-  const fail = () => {
-    if (fellBack) return;
+  const fail = (err?: unknown) => {
+    // A clip cut off by newer audio or a stop "fails" with AbortError. That's
+    // not a missing recording, so don't read the old text in the device voice.
+    if (fellBack || request !== clipRequest) return;
+    if (err instanceof DOMException && err.name === 'AbortError') return;
     fellBack = true;
     fallback();
   };
-  a.onerror = fail;
+  a.onerror = () => fail();
   a.onended = null;
   a.src = clipUrl(file);
   a.playbackRate = Math.min(2, Math.max(0.5, rate / NORMAL_RATE));
@@ -155,6 +162,7 @@ function playClip(text: string, rate: number, fallback: () => void): boolean {
 let finishCurrent: (() => void) | null = null;
 
 function stopAll() {
+  clipRequest++;
   finishCurrent?.();
   if (player && !player.paused) player.pause();
   if (isTtsSupported()) window.speechSynthesis.cancel();

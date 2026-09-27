@@ -13,7 +13,7 @@ import { celebrate } from '@/lib/celebrate';
 import { completeCheckpoint, completeLesson, type WordResult } from '@/lib/actions/path';
 import { isQuestion, MAX_RETRIES, stepTargets, type LessonStep } from '@/lib/path/lesson-builder';
 import type { LessonSession } from '@/lib/queries/path';
-import { primeVoices } from '@/lib/tts';
+import { primeVoices, stopSpeaking } from '@/lib/tts';
 import { isTypingLocked } from '@/lib/typing-lock';
 import {
   ArrangeStep,
@@ -113,6 +113,8 @@ export function LessonPlayer({
 
   const advance = useCallback(() => {
     if (question && !answer) return;
+    // Don't let the last answer's audio run on into the next question.
+    stopSpeaking();
     setAnswer(null);
     if (pos + 1 >= queue.length) finish();
     else setPos(pos + 1);
