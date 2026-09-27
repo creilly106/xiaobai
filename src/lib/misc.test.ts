@@ -79,6 +79,22 @@ describe('pinyin keyboard draft', () => {
       { letters: 'hao', tone: 3 },
     ]);
   });
+  it('puts a tone on the last syllable only when several were typed', () => {
+    let d = EMPTY_DRAFT;
+    for (const ch of 'xiexie') d = typeLetter(d, ch);
+    d = typeTone(d, 4);
+    expect(draftSyllables(d)).toEqual([
+      { letters: 'xie', tone: 5 },
+      { letters: 'xie', tone: 4 },
+    ]);
+    d = EMPTY_DRAFT;
+    for (const ch of 'zhongguo') d = typeLetter(d, ch);
+    expect(draftSyllables(d)).toEqual([
+      { letters: 'zhong', tone: 5 },
+      { letters: 'guo', tone: 5 },
+    ]);
+  });
+
   it('re-tones the last syllable when nothing is being typed', () => {
     const d = typeTone(typeTone(typeLetter(EMPTY_DRAFT, 'a'), 1), 4);
     expect(draftSyllables(d)).toEqual([{ letters: 'a', tone: 4 }]);
