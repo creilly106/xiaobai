@@ -790,4 +790,250 @@ export const grammarPoints: GrammarPoint[] = [
       },
     ],
   },
+  {
+    slug: 'bujin-erqie',
+    name: '不仅…而且…',
+    englishTitle: 'Not only … but also …',
+    hskLevel: 4,
+    formula: 'Subject + 不仅 + A，而且 / 也 / 还 + B',
+    description:
+      '不仅 is a slightly more formal 不但: the first part is true, and the second adds something more. 而且, 也 or 还 bring in the second part.',
+    examples: [
+      {
+        hanzi: '他不仅会说汉语，而且说得很好。',
+        pinyin: 'tā bùjǐn huì shuō Hànyǔ, érqiě shuō de hěn hǎo.',
+        meaning: 'Not only can he speak Chinese, he speaks it well.',
+      },
+      {
+        hanzi: '这家餐厅不仅便宜，而且很好吃。',
+        pinyin: 'zhè jiā cāntīng bùjǐn piányi, érqiě hěn hǎochī.',
+        meaning: "This restaurant isn't just cheap, the food's good too.",
+      },
+      {
+        hanzi: '她不仅是我的老师，也是我的朋友。',
+        pinyin: 'tā bùjǐn shì wǒ de lǎoshī, yě shì wǒ de péngyou.',
+        meaning: "She's not only my teacher but also my friend.",
+      },
+    ],
+    notes: 'With two different subjects, put 不仅 before the first subject: 不仅我去，他也去。',
+  },
+  {
+    slug: 'jinguan-que',
+    name: '尽管…却…',
+    englishTitle: 'Although … (yet) …',
+    hskLevel: 4,
+    formula: '尽管 + fact，Subject + 却 / 但是 / 还是 + surprising result',
+    description:
+      '尽管 admits something is true; 却 (after the subject, before the verb) says the result goes against what you would expect.',
+    examples: [
+      {
+        hanzi: '尽管很累，他却很开心。',
+        pinyin: 'jǐnguǎn hěn lèi, tā què hěn kāixīn.',
+        meaning: "Although he's tired, he's happy.",
+      },
+      {
+        hanzi: '尽管下雨，比赛还是开始了。',
+        pinyin: 'jǐnguǎn xià yǔ, bǐsài háishi kāishǐ le.',
+        meaning: 'Although it was raining, the match still started.',
+      },
+      {
+        hanzi: '他学了很多年，说得却不好。',
+        pinyin: 'tā xué le hěn duō nián, shuō de què bù hǎo.',
+        meaning: "He studied for years, yet he doesn't speak it well.",
+      },
+    ],
+    notes:
+      '却 is an adverb, so it goes after the subject: 他却…, never 却他…. 但是 and 可是 go before the subject.',
+  },
+  {
+    slug: 'jishi-ye',
+    name: '即使…也…',
+    englishTitle: 'Even if …',
+    hskLevel: 4,
+    formula: '即使 + condition，Subject + 也 + result',
+    description:
+      'The result holds even if the condition comes true. 也 goes after the subject of the second part.',
+    examples: [
+      {
+        hanzi: '即使下雨，我也要去。',
+        pinyin: 'jíshǐ xià yǔ, wǒ yě yào qù.',
+        meaning: "Even if it rains, I'm going.",
+      },
+      {
+        hanzi: '即使很贵，他也要买。',
+        pinyin: 'jíshǐ hěn guì, tā yě yào mǎi.',
+        meaning: "Even if it's expensive, he'll buy it.",
+      },
+      {
+        hanzi: '即使你不说，我也知道。',
+        pinyin: 'jíshǐ nǐ bù shuō, wǒ yě zhīdào.',
+        meaning: "Even if you don't tell me, I know.",
+      },
+    ],
+    notes:
+      '即使 is for "even if" (it may not be true); for "even though" (it is true), use 虽然…但是 or 尽管.',
+  },
+  {
+    slug: 'youyu-yinci',
+    name: '由于…因此…',
+    englishTitle: 'Due to … therefore …',
+    hskLevel: 4,
+    formula: '由于 + cause，(因此 / 所以) + result',
+    description:
+      'A more formal 因为…所以…, common in writing and announcements. 于是 ("so then") links an event to what happened next.',
+    examples: [
+      {
+        hanzi: '由于下雨，比赛推迟了。',
+        pinyin: 'yóuyú xià yǔ, bǐsài tuīchí le.',
+        meaning: 'Due to rain, the match was postponed.',
+      },
+      {
+        hanzi: '由于天气不好，因此航班取消了。',
+        pinyin: 'yóuyú tiānqì bù hǎo, yīncǐ hángbān qǔxiāo le.',
+        meaning: 'Because of bad weather, the flight was cancelled.',
+      },
+      {
+        hanzi: '他很饿，于是去买了包子。',
+        pinyin: 'tā hěn è, yúshì qù mǎi le bāozi.',
+        meaning: 'He was hungry, so he went and bought some buns.',
+      },
+    ],
+    notes: 'In everyday speech, 因为…所以… is more natural; 由于 sounds like a news report.',
+  },
+  {
+    slug: 'jiran-jiu',
+    name: '既然…就…',
+    englishTitle: 'Since … (then) …',
+    hskLevel: 4,
+    formula: '既然 + known fact，(Subject) + 就 + conclusion',
+    description:
+      '既然 starts from something both speakers already accept, and 就 draws the obvious conclusion from it.',
+    examples: [
+      {
+        hanzi: '既然你累了，就早点休息吧。',
+        pinyin: 'jìrán nǐ lèi le, jiù zǎo diǎn xiūxi ba.',
+        meaning: "Since you're tired, get an early night.",
+      },
+      {
+        hanzi: '既然来了，就多玩几天。',
+        pinyin: 'jìrán lái le, jiù duō wán jǐ tiān.',
+        meaning: "Since you're here, stay a few more days.",
+      },
+      {
+        hanzi: '既然他不想去，我们就别问了。',
+        pinyin: 'jìrán tā bù xiǎng qù, wǒmen jiù bié wèn le.',
+        meaning: "Since he doesn't want to go, let's not ask him.",
+      },
+    ],
+    notes:
+      'Unlike 因为, 既然 only works when the fact is already known — usually to suggest what to do about it.',
+  },
+  {
+    slug: 'nandao',
+    name: '难道…吗？',
+    englishTitle: "Don't tell me …? (rhetorical questions)",
+    hskLevel: 4,
+    formula: '难道 + statement + 吗？',
+    description:
+      '难道 turns a question into disbelief: the speaker thinks the answer is obviously the opposite. 难道你不知道吗？ means "Surely you know!"',
+    examples: [
+      {
+        hanzi: '难道你不知道吗？',
+        pinyin: 'nándào nǐ bù zhīdào ma?',
+        meaning: "Don't tell me you didn't know?",
+      },
+      {
+        hanzi: '难道他忘了？',
+        pinyin: 'nándào tā wàng le?',
+        meaning: "Surely he hasn't forgotten?",
+      },
+      {
+        hanzi: '这么简单的题，难道你不会做吗？',
+        pinyin: 'zhème jiǎndān de tí, nándào nǐ bú huì zuò ma?',
+        meaning: "Such an easy question — can't you do it?",
+      },
+    ],
+    notes: '到底 and 究竟 push a question the other way: 你到底去不去？ "So are you going or not?"',
+  },
+  {
+    slug: 'buguan-dou',
+    name: '不管 / 无论…都…',
+    englishTitle: 'No matter …',
+    hskLevel: 4,
+    formula: '不管 / 无论 + question word or A 还是 B，Subject + 都 + result',
+    description:
+      'The result is the same whatever the answer. The first part needs a question word (多, 什么, 谁…) or an either-or with 还是.',
+    examples: [
+      {
+        hanzi: '不管多忙，他都会给妈妈打电话。',
+        pinyin: 'bùguǎn duō máng, tā dōu huì gěi māma dǎ diànhuà.',
+        meaning: 'However busy he is, he always calls his mum.',
+      },
+      {
+        hanzi: '无论你去哪儿，我都跟你去。',
+        pinyin: 'wúlùn nǐ qù nǎr, wǒ dōu gēn nǐ qù.',
+        meaning: "Wherever you go, I'll go with you.",
+      },
+      {
+        hanzi: '不管下雨还是下雪，他都去跑步。',
+        pinyin: 'bùguǎn xià yǔ háishi xià xuě, tā dōu qù pǎobù.',
+        meaning: 'Rain or snow, he goes running.',
+      },
+    ],
+    notes: "无论 is a little more formal than 不管. Either way, don't forget 都.",
+  },
+  {
+    slug: 'lian-dou',
+    name: '连…都 / 也…',
+    englishTitle: 'Even …',
+    hskLevel: 4,
+    formula: '(Subject) + 连 + the surprising thing + 都 / 也 + Verb',
+    description:
+      '连 picks out an extreme example — even this — and 都 or 也 must follow. It is often negative: "can\'t even…".',
+    examples: [
+      {
+        hanzi: '他连一个汉字都不认识。',
+        pinyin: 'tā lián yí gè Hànzì dōu bú rènshi.',
+        meaning: "He can't read a single character.",
+      },
+      {
+        hanzi: '我忙得连饭都没吃。',
+        pinyin: 'wǒ máng de lián fàn dōu méi chī.',
+        meaning: "I was so busy I didn't even eat.",
+      },
+      {
+        hanzi: '连孩子都知道这个。',
+        pinyin: 'lián háizi dōu zhīdào zhège.',
+        meaning: 'Even children know this.',
+      },
+    ],
+    notes: '甚至 ("even") works between clauses without 都: 他很忙，甚至没有时间睡觉。',
+  },
+  {
+    slug: 'fouze',
+    name: '…，否则…',
+    englishTitle: 'Otherwise …',
+    hskLevel: 4,
+    formula: "What you should do，否则 + what happens if you don't",
+    description:
+      '否则 means "or else": the first part is advice or a condition, and 否则 brings in the consequence of ignoring it.',
+    examples: [
+      {
+        hanzi: '快点，否则我们要迟到了。',
+        pinyin: 'kuài diǎn, fǒuzé wǒmen yào chídào le.',
+        meaning: "Hurry up, or we'll be late.",
+      },
+      {
+        hanzi: '你要多穿点，否则会感冒。',
+        pinyin: 'nǐ yào duō chuān diǎn, fǒuzé huì gǎnmào.',
+        meaning: "Wear something warmer, or you'll catch a cold.",
+      },
+      {
+        hanzi: '我们得提前出发，否则会堵车。',
+        pinyin: 'wǒmen děi tíqián chūfā, fǒuzé huì dǔchē.',
+        meaning: "We need to leave early, or we'll hit traffic.",
+      },
+    ],
+    notes: '要不然 means the same and is more casual in speech.',
+  },
 ];

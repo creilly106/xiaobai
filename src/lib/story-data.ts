@@ -975,6 +975,387 @@ export const stories: Story[] = [
       },
     ],
   },
+
+  // ——— HSK 4 ———
+  {
+    id: 'moving-house',
+    title: s('搬家', 'bān jiā', 'Moving house'),
+    hskLevel: 4,
+    after: 'h4-u3-l5',
+    extras: [WANG_PENG],
+    paragraphs: [
+      [
+        s('上个月我搬家了。', 'shàng gè yuè wǒ bān jiā le.', 'Last month I moved house.'),
+        s(
+          '我在郊区租了一个房间，房东是一个很热情的阿姨。',
+          'wǒ zài jiāoqū zū le yí gè fángjiān, fángdōng shì yí gè hěn rèqíng de āyí.',
+          'I rented a room in the suburbs. The landlady is a very warm older woman.',
+        ),
+        s(
+          '她的性格很活泼，也很幽默。',
+          'tā de xìnggé hěn huópō, yě hěn yōumò.',
+          'She is lively and funny.',
+        ),
+        s(
+          '房间不大，但是很干净。',
+          'fángjiān bú dà, dànshì hěn gānjìng.',
+          "The room isn't big, but it's clean.",
+        ),
+        s(
+          '客厅里有一个沙发，厨房的窗户很大。',
+          'kètīng lǐ yǒu yí gè shāfā, chúfáng de chuānghu hěn dà.',
+          "There's a sofa in the living room, and the kitchen has a big window.",
+        ),
+      ],
+      [
+        s(
+          '搬家的时候，我的朋友王朋来帮忙。',
+          'bān jiā de shíhou, wǒ de péngyou Wáng Péng lái bāngmáng.',
+          'My friend Wang Peng came to help with the move.',
+        ),
+        s(
+          '我们一起抬桌子，推椅子，非常累。',
+          'wǒmen yìqǐ tái zhuōzi, tuī yǐzi, fēicháng lèi.',
+          'We carried tables and pushed chairs together. It was exhausting.',
+        ),
+        s(
+          '我找不到钥匙了，心情很不好。',
+          'wǒ zhǎo bú dào yàoshi le, xīnqíng hěn bù hǎo.',
+          "I couldn't find my keys and got into a bad mood.",
+        ),
+        s(
+          '王朋笑着说：“你看，钥匙在盒子里！”',
+          'Wáng Péng xiào zhe shuō: "nǐ kàn, yàoshi zài hézi lǐ!"',
+          'Wang Peng laughed: "Look, the keys are in the box!"',
+        ),
+      ],
+      [
+        s(
+          '晚上，我们收拾好了房间。',
+          'wǎnshang, wǒmen shōushi hǎo le fángjiān.',
+          'In the evening we finished tidying the room.',
+        ),
+        s(
+          '我们都很累，躺在沙发上休息。',
+          'wǒmen dōu hěn lèi, tǎng zài shāfā shàng xiūxi.',
+          'We were both tired and lay on the sofa to rest.',
+        ),
+        s(
+          '周围很安静，我觉得很幸福。',
+          'zhōuwéi hěn ānjìng, wǒ juéde hěn xìngfú.',
+          'It was quiet all around, and I felt very happy.',
+        ),
+      ],
+    ],
+    questions: [
+      {
+        question: 'Where did the writer rent a room?',
+        options: ['In the suburbs', 'In the city centre', 'Next to the school'],
+        answer: 'In the suburbs',
+      },
+      {
+        question: 'What is the landlady like?',
+        options: ['Lively and funny', 'Strict and serious', 'Shy and quiet'],
+        answer: 'Lively and funny',
+      },
+      {
+        question: 'Where were the keys?',
+        options: ['In a box', 'In the kitchen', 'On the sofa'],
+        answer: 'In a box',
+      },
+      {
+        question: 'How did the writer feel at the end?',
+        options: ['Happy', 'Lonely', 'Annoyed'],
+        answer: 'Happy',
+      },
+    ],
+  },
+  {
+    id: 'lost-at-the-wall',
+    title: s('迷路', 'mílù', 'Lost'),
+    hskLevel: 4,
+    after: 'h4-u6-l6',
+    extras: [],
+    paragraphs: [
+      [
+        s(
+          '上个星期，我和朋友去长城旅行。',
+          'shàng gè xīngqī, wǒ hé péngyou qù Chángchéng lǚxíng.',
+          'Last week my friend and I took a trip to the Great Wall.',
+        ),
+        s(
+          '我们早上七点出发，路上一直堵车。',
+          'wǒmen zǎoshang qī diǎn chūfā, lù shàng yìzhí dǔchē.',
+          'We set off at seven in the morning and were stuck in traffic the whole way.',
+        ),
+        s(
+          '到了长城，导游带我们参观。',
+          'dào le Chángchéng, dǎoyóu dài wǒmen cānguān.',
+          'At the Wall, a guide showed us around.',
+        ),
+        s(
+          '长城非常著名，人也非常多。',
+          'Chángchéng fēicháng zhùmíng, rén yě fēicháng duō.',
+          'The Great Wall is very famous, and it was very crowded.',
+        ),
+      ],
+      [
+        s(
+          '下午，我去买水，顺便上厕所。',
+          'xiàwǔ, wǒ qù mǎi shuǐ, shùnbiàn shàng cèsuǒ.',
+          'In the afternoon I went to buy water and use the toilet.',
+        ),
+        s(
+          '回来的时候，我找不到朋友和导游了。',
+          'huí lái de shíhou, wǒ zhǎo bú dào péngyou hé dǎoyóu le.',
+          "When I came back, I couldn't find my friend or the guide.",
+        ),
+        s(
+          '我迷路了，也不知道方向。',
+          'wǒ mílù le, yě bù zhīdào fāngxiàng.',
+          "I was lost and didn't know which way to go.",
+        ),
+        s(
+          '我很紧张，给朋友打电话，但是他没有接。',
+          'wǒ hěn jǐnzhāng, gěi péngyou dǎ diànhuà, dànshì tā méiyǒu jiē.',
+          "I was nervous and called my friend, but he didn't answer.",
+        ),
+      ],
+      [
+        s(
+          '这时候，一个小伙子问我：“你迷路了吗？”',
+          'zhè shíhou, yí gè xiǎohuǒzi wèn wǒ: "nǐ mílù le ma?"',
+          'Just then, a young man asked me, "Are you lost?"',
+        ),
+        s(
+          '他很友好，带我走到了入口。',
+          'tā hěn yǒuhǎo, dài wǒ zǒu dào le rùkǒu.',
+          'He was friendly and walked me to the entrance.',
+        ),
+        s(
+          '我的朋友正在入口等我。',
+          'wǒ de péngyou zhèngzài rùkǒu děng wǒ.',
+          'My friend was waiting for me at the entrance.',
+        ),
+        s(
+          '我非常感动，说了很多次“谢谢”。',
+          'wǒ fēicháng gǎndòng, shuō le hěn duō cì "xièxie".',
+          'I was really touched and said "thank you" many times.',
+        ),
+      ],
+    ],
+    questions: [
+      {
+        question: 'Where did they go?',
+        options: ['The Great Wall', 'The Yangtze River', 'The embassy'],
+        answer: 'The Great Wall',
+      },
+      {
+        question: 'Why did the writer leave the group?',
+        options: ['To buy water and use the toilet', 'To take photos', 'To find a taxi'],
+        answer: 'To buy water and use the toilet',
+      },
+      {
+        question: 'Who helped the writer?',
+        options: ['A young man', 'The tour guide', 'A police officer'],
+        answer: 'A young man',
+      },
+      {
+        question: 'Where was the friend waiting?',
+        options: ['At the entrance', 'In the car park', 'At the hotel'],
+        answer: 'At the entrance',
+      },
+    ],
+  },
+  {
+    id: 'the-misunderstanding',
+    title: s('误会', 'wùhuì', 'A misunderstanding'),
+    hskLevel: 4,
+    after: 'h4-u12-l6',
+    extras: [WANG_PENG],
+    paragraphs: [
+      [
+        s(
+          '上个礼拜天是我的生日。',
+          'shàng gè lǐbàitiān shì wǒ de shēngrì.',
+          'Last Sunday was my birthday.',
+        ),
+        s(
+          '早上我收到了很多短信，但是王朋一直没有联系我。',
+          'zǎoshang wǒ shōu dào le hěn duō duǎnxìn, dànshì Wáng Péng yìzhí méiyǒu liánxì wǒ.',
+          "I got lots of messages in the morning, but Wang Peng didn't get in touch.",
+        ),
+        s(
+          '我给他打电话，他的手机一直占线。',
+          'wǒ gěi tā dǎ diànhuà, tā de shǒujī yìzhí zhànxiàn.',
+          'I called him, but his phone was engaged the whole time.',
+        ),
+        s(
+          '我很失望，觉得他忘记了我的生日。',
+          'wǒ hěn shīwàng, juéde tā wàngjì le wǒ de shēngrì.',
+          'I was disappointed. I thought he had forgotten my birthday.',
+        ),
+      ],
+      [
+        s(
+          '晚上七点，有人敲门。',
+          'wǎnshang qī diǎn, yǒu rén qiāo mén.',
+          'At seven that evening, someone knocked at the door.',
+        ),
+        s(
+          '我开门一看，是王朋！',
+          'wǒ kāi mén yí kàn, shì Wáng Péng!',
+          'I opened the door, and it was Wang Peng!',
+        ),
+        s(
+          '他后面还有很多朋友，大家都在笑。',
+          'tā hòumiàn hái yǒu hěn duō péngyou, dàjiā dōu zài xiào.',
+          'Behind him were lots of friends, all laughing.',
+        ),
+        s(
+          '王朋解释说：“对不起，我们一直在准备你的生日聚会。”',
+          'Wáng Péng jiěshì shuō: "duìbuqǐ, wǒmen yìzhí zài zhǔnbèi nǐ de shēngrì jùhuì."',
+          'Wang Peng explained: "Sorry, we\'ve been getting your birthday party ready."',
+        ),
+        s(
+          '“我的手机占线，是因为我在跟大家商量。”',
+          '"wǒ de shǒujī zhànxiàn, shì yīnwèi wǒ zài gēn dàjiā shāngliang."',
+          '"My phone was engaged because I was planning it with everyone."',
+        ),
+      ],
+      [
+        s(
+          '我这才知道是我误会了。',
+          'wǒ zhè cái zhīdào shì wǒ wùhuì le.',
+          'Only then did I realise I had misunderstood.',
+        ),
+        s(
+          '我向他道歉，他笑着说：“没关系！”',
+          'wǒ xiàng tā dàoqiàn, tā xiào zhe shuō: "méi guānxi!"',
+          'I apologised, and he laughed: "Don\'t worry about it!"',
+        ),
+        s(
+          '那个晚上，我们玩得非常开心。',
+          'nàge wǎnshang, wǒmen wán de fēicháng kāixīn.',
+          'We had a brilliant time that evening.',
+        ),
+      ],
+    ],
+    questions: [
+      {
+        question: 'What day was it?',
+        options: ["The writer's birthday", "Wang Peng's birthday", 'A public holiday'],
+        answer: "The writer's birthday",
+      },
+      {
+        question: "Why was Wang Peng's phone engaged?",
+        options: ['He was planning a party with friends', 'He was at work', 'His phone was broken'],
+        answer: 'He was planning a party with friends',
+      },
+      {
+        question: 'How did the writer feel before the party?',
+        options: ['Disappointed', 'Excited', 'Nervous'],
+        answer: 'Disappointed',
+      },
+      {
+        question: 'What did the writer do after finding out?',
+        options: ['Apologised', 'Went to bed', 'Called Wang Peng back'],
+        answer: 'Apologised',
+      },
+    ],
+  },
+  {
+    id: 'my-dream',
+    title: s('我的理想', 'wǒ de lǐxiǎng', 'My dream'),
+    hskLevel: 4,
+    after: 'h4-u18-l4',
+    extras: [],
+    paragraphs: [
+      [
+        s(
+          '我小的时候，理想是当一个演员。',
+          'wǒ xiǎo de shíhou, lǐxiǎng shì dāng yí gè yǎnyuán.',
+          'When I was little, my dream was to be an actor.',
+        ),
+        s(
+          '我不仅喜欢表演，也喜欢唱歌跳舞。',
+          'wǒ bùjǐn xǐhuan biǎoyǎn, yě xǐhuan chàng gē tiàowǔ.',
+          'I loved acting, and singing and dancing too.',
+        ),
+        s(
+          '可是我很害羞，一到台上就紧张。',
+          'kěshì wǒ hěn hàixiū, yí dào tái shàng jiù jǐnzhāng.',
+          'But I was shy, and got nervous as soon as I was on stage.',
+        ),
+      ],
+      [
+        s(
+          '十八岁的时候，我开始学习汉语。',
+          'shíbā suì de shíhou, wǒ kāishǐ xuéxí Hànyǔ.',
+          'At eighteen, I started learning Chinese.',
+        ),
+        s(
+          '刚开始的时候，汉语对我来说非常难。',
+          'gāng kāishǐ de shíhou, Hànyǔ duì wǒ lái shuō fēicháng nán.',
+          'At first, Chinese was really hard for me.',
+        ),
+        s(
+          '但是我一直坚持，从来没有放弃。',
+          'dànshì wǒ yìzhí jiānchí, cónglái méiyǒu fàngqì.',
+          'But I kept at it and never gave up.',
+        ),
+        s(
+          '我经常看中国电影，积累了很多词语。',
+          'wǒ jīngcháng kàn Zhōngguó diànyǐng, jīlěi le hěn duō cíyǔ.',
+          'I often watched Chinese films and built up lots of vocabulary.',
+        ),
+      ],
+      [
+        s(
+          '现在我的普通话说得挺流利的。',
+          'xiànzài wǒ de pǔtōnghuà shuō de tǐng liúlì de.',
+          'Now my Mandarin is pretty fluent.',
+        ),
+        s(
+          '我的新理想是成为一个翻译。',
+          'wǒ de xīn lǐxiǎng shì chéngwéi yí gè fānyì.',
+          'My new dream is to become a translator.',
+        ),
+        s(
+          '我觉得语言可以帮助各个国家的人互相理解。',
+          'wǒ juéde yǔyán kěyǐ bāngzhù gè gè guójiā de rén hùxiāng lǐjiě.',
+          'I think language can help people from every country understand each other.',
+        ),
+        s(
+          '这个理想值得我努力。',
+          'zhège lǐxiǎng zhíde wǒ nǔlì.',
+          'This dream is worth working for.',
+        ),
+      ],
+    ],
+    questions: [
+      {
+        question: 'What did the writer want to be as a child?',
+        options: ['An actor', 'A doctor', 'A teacher'],
+        answer: 'An actor',
+      },
+      {
+        question: 'What held the writer back?',
+        options: ['Being shy and nervous on stage', 'Not being able to sing', 'Having no time'],
+        answer: 'Being shy and nervous on stage',
+      },
+      {
+        question: 'How did the writer build up vocabulary?',
+        options: ['By watching Chinese films', 'By reading novels', 'By working in China'],
+        answer: 'By watching Chinese films',
+      },
+      {
+        question: "What is the writer's new dream?",
+        options: ['To become a translator', 'To become a tour guide', 'To become an actor again'],
+        answer: 'To become a translator',
+      },
+    ],
+  },
 ];
 
 export const storyById = (id: string) => stories.find((s) => s.id === id);

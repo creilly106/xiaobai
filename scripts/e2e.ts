@@ -134,6 +134,35 @@ const tests: Test[] = [
     },
   },
   {
+    name: 'learn: HSK 4 lessons stay locked until reached, and an HSK 4 checkpoint runs',
+    async run(page) {
+      await page.goto(`${base}/learn/h4-u15-l3`);
+      assert(await page.getByText('Not unlocked yet').isVisible(), 'a far-off lesson was open');
+      await page.goto(`${base}/learn/checkpoint/h4-u15`);
+      const kinds = new Set<string>();
+      for (let i = 0; i < 150; i++) {
+        if (
+          (await page.getByText('Not quite there yet').isVisible()) ||
+          (await page.getByText(/You tested out of/).isVisible())
+        ) {
+          assert(kinds.size >= 3, `only ${[...kinds].join(', ')} steps`);
+          return;
+        }
+        const cont = page.getByRole('button', { name: 'Continue' });
+        if ((await cont.count()) > 0 && (await cont.isEnabled())) {
+          await cont.tap();
+          await wait(350);
+          continue;
+        }
+        const step = (await page.locator('[data-step]').getAttribute('data-step')) ?? '';
+        kinds.add(step);
+        await answer(page, step);
+        await wait(350);
+      }
+      throw new Error('the HSK 4 checkpoint never showed a result');
+    },
+  },
+  {
     name: 'learn: a unit checkpoint runs to a result',
     async run(page) {
       await page.goto(`${base}/learn/checkpoint/h1-u8`);
