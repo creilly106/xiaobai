@@ -8,6 +8,7 @@ import { userTimeZone } from '@/lib/timezone';
 import { getDictionaryFor } from '@/lib/queries/dictionary';
 import { NextDue } from '@/components/next-due';
 import { Session } from './_components/session';
+import { OfflineWarmup } from '@/components/offline-warmup';
 
 export const metadata: Metadata = { title: 'Review' };
 
@@ -89,11 +90,16 @@ export default async function StudyPage({ searchParams }: PageProps<'/study'>) {
   // Keyed so "learn more" (a new ?extra=) starts a fresh session.
   const progress = await getGoalProgress(new Date(), await userTimeZone());
   return (
-    <Session
-      key={extraNew}
-      initialQueue={queue}
-      dict={dict}
-      goal={{ target: progress.goal, doneBefore: progress.today.points }}
-    />
+    <>
+      <Session
+        key={extraNew}
+        initialQueue={queue}
+        dict={dict}
+        goal={{ target: progress.goal, doneBefore: progress.today.points }}
+      />
+      <OfflineWarmup
+        texts={queue.flatMap((c) => (c.example ? [c.hanzi, c.example.zh] : [c.hanzi]))}
+      />
+    </>
   );
 }

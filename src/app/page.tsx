@@ -17,6 +17,8 @@ import { getPath } from '@/lib/queries/path';
 import { userTimeZone } from '@/lib/timezone';
 import { StatTile, QueueTile } from './_components/stat-tiles';
 import { TodayGoal } from './_components/today-goal';
+import { OfflineWarmup } from '@/components/offline-warmup';
+import { LESSONS } from '@/lib/curriculum';
 import { getGoalProgress } from '@/lib/queries/goal';
 
 const EXPLORE = [
@@ -60,6 +62,8 @@ export default async function Home() {
   const hasCards = stats.totalCards > 0;
   const weekday = new Date().toLocaleDateString('en', { weekday: 'long', timeZone });
   const newUsedToday = stats.dailyNewLimit - a.newRemainingToday;
+  // Keep the next two lessons (and their audio) on the phone for offline use.
+  const upcoming = path.current ? LESSONS.slice(path.current.index, path.current.index + 2) : [];
 
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-10">
@@ -78,6 +82,10 @@ export default async function Home() {
       </div>
 
       {goal.goal > 0 && <TodayGoal progress={goal} />}
+      <OfflineWarmup
+        pages={['/', '/learn', '/study', ...upcoming.map((l) => `/learn/${l.id}`)]}
+        texts={upcoming.flatMap((l) => [...l.words, ...(l.sentences ?? []).map((x) => x.hanzi)])}
+      />
 
       <div className="mb-6 grid gap-4 md:grid-cols-2">
         <Card className="border-2 border-primary/40 bg-primary/5">

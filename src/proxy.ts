@@ -8,7 +8,7 @@ import { AUTH_COOKIE, gateEnabled, isValidSession } from '@/lib/auth';
 export function proxy(request: NextRequest) {
   const path = request.nextUrl.pathname;
   // The daily cron job authenticates with CRON_SECRET instead of the password.
-  if (!gateEnabled() || path === '/login' || path.startsWith('/api/cron/')) {
+  if (!gateEnabled() || path === '/login' || path === '/offline' || path.startsWith('/api/cron/')) {
     return NextResponse.next();
   }
   if (isValidSession(request.cookies.get(AUTH_COOKIE)?.value)) return NextResponse.next();

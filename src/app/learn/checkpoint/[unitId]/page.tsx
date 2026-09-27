@@ -1,6 +1,8 @@
 import { notFound } from 'next/navigation';
 import { LESSONS, unitById } from '@/lib/curriculum';
 import { getCheckpointSession } from '@/lib/queries/path';
+import { OfflineWarmup } from '@/components/offline-warmup';
+import { collectHanzi } from '@/lib/collect-hanzi';
 import { LessonPlayer } from '../../_components/lesson-player';
 
 export async function generateMetadata({ params }: PageProps<'/learn/checkpoint/[unitId]'>) {
@@ -16,10 +18,13 @@ export default async function CheckpointPage({ params }: PageProps<'/learn/check
   const last = LESSONS.filter((l) => l.unit.id === unitId).at(-1);
   const next = last ? LESSONS[last.index + 1] : undefined;
   return (
-    <LessonPlayer
-      session={session}
-      nextHref={next ? `/learn/${next.id}` : '/learn'}
-      nextTitle={next?.title ?? null}
-    />
+    <>
+      <LessonPlayer
+        session={session}
+        nextHref={next ? `/learn/${next.id}` : '/learn'}
+        nextTitle={next?.title ?? null}
+      />
+      <OfflineWarmup texts={collectHanzi(session)} />
+    </>
   );
 }

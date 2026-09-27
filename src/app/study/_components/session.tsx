@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
 import { toast } from 'sonner';
-import { reloadIfOutdated } from '@/components/app-updates';
+import { connectionState, notifyPending } from '@/components/app-updates';
+import { addPendingRating, readPendingRatings } from '@/lib/pending-progress';
 import { Flashcard } from '@/components/flashcard';
 import { STATE_LABEL, STUDY_RATINGS, type StudyRating } from '@/components/rating-styles';
 import { primeVoices } from '@/lib/tts';
@@ -36,6 +37,16 @@ type Phase = 'teach' | 'test';
 type QueueEntry = { card: StudyCard; seq: number; phase: Phase };
 
 const RATING_VALUE: Record<StudyRating, ReviewRating> = { again: 1, hard: 2, good: 3, easy: 4 };
+
+/**
+ * Offline, the real schedule is worked out when the rating is sent. Until
+ * then: a card you missed comes back this session; the rest are done.
+ */
+function offlineResult(rating: StudyRating): { state: 'relearning' | 'review'; nextDue: number } {
+  return rating === 'again'
+    ? { state: 'relearning', nextDue: Date.now() + 60_000 }
+    : { state: 'review', nextDue: Date.now() + 86_400_000 };
+}
 const VALUE_TO_RATING: StudyRating[] = ['again', 'hard', 'good', 'easy'];
 
 /** Cards due again within this window come back later in the same session. */
@@ -115,33 +126,56 @@ export function Session({ initialQueue, dict, goal }: Props) {
       const elapsedMs = Date.now() - startedAt;
       const entry = current;
       startTransition(async () => {
-        try {
-          const result = await rateCard(entry.card.id, RATING_VALUE[rating], elapsedMs);
-          const comesBack =
-            (result.state === 'learning' || result.state === 'relearning') &&
-            result.nextDue - Date.now() <= REQUEUE_WINDOW_MS;
-          const updated: StudyCard = {
-            ...entry.card,
-            state: result.state,
-            due: result.nextDue,
-            fails: entry.card.fails + (rating === 'again' ? 1 : 0),
-          };
-          setQueue((q) => {
-            const rest = q.slice(1);
-            // Come back after a few other cards, not immediately.
-            return comesBack
-              ? insertAt(rest, TEST_GAP, { card: updated, seq: nextSeq(), phase: 'test' })
-              : rest;
-          });
-          setTally((t) => ({ ...t, [rating]: t[rating] + 1 }));
-          setDone((d) => d + 1);
-          const nextRated = rated + 1;
-          setRated(nextRated);
-          if (nextRated % 10 === 0) celebrate('small');
-          advance();
-        } catch {
-          if (!(await reloadIfOutdated())) toast.error("Couldn't save that rating. Try again.");
+        const value = RATING_VALUE[rating];
+        let result: Awaited<ReturnType<typeof rateCard>>;
+        // Offline (or with offline ratings still to send, which must go first):
+        // keep it on the phone and carry on.
+        const queueIt = () => {
+          addPendingRating({ cardId: entry.card.id, rating: value, elapsedMs, at: Date.now() });
+          notifyPending();
+          return offlineResult(rating);
+        };
+        if (!navigator.onLine || readPendingRatings().length > 0) {
+          result = queueIt();
+        } else {
+          try {
+            result = await rateCard(entry.card.id, value, elapsedMs);
+          } catch {
+            const state = await connectionState();
+            if (state === 'outdated') {
+              toast('Xiaobai was updated — reloading…');
+              window.location.reload();
+              return;
+            }
+            if (state === 'ok') {
+              toast.error("Couldn't save that rating. Try again.");
+              return;
+            }
+            result = queueIt();
+          }
         }
+        const comesBack =
+          (result.state === 'learning' || result.state === 'relearning') &&
+          result.nextDue - Date.now() <= REQUEUE_WINDOW_MS;
+        const updated: StudyCard = {
+          ...entry.card,
+          state: result.state,
+          due: result.nextDue,
+          fails: entry.card.fails + (rating === 'again' ? 1 : 0),
+        };
+        setQueue((q) => {
+          const rest = q.slice(1);
+          // Come back after a few other cards, not immediately.
+          return comesBack
+            ? insertAt(rest, TEST_GAP, { card: updated, seq: nextSeq(), phase: 'test' })
+            : rest;
+        });
+        setTally((t) => ({ ...t, [rating]: t[rating] + 1 }));
+        setDone((d) => d + 1);
+        const nextRated = rated + 1;
+        setRated(nextRated);
+        if (nextRated % 10 === 0) celebrate('small');
+        advance();
       });
     },
     [current, pending, flipped, startedAt, rated],
@@ -157,6 +191,10 @@ export function Session({ initialQueue, dict, goal }: Props) {
 
   const doUndo = useCallback(() => {
     if (pending || rated === 0) return;
+    if (readPendingRatings().length > 0) {
+      toast("Undo isn't available until your offline answers have been sent.");
+      return;
+    }
     startTransition(async () => {
       const result = await undoLastReview();
       if (!result.undone) {

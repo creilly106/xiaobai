@@ -44,3 +44,46 @@ export function addPending(item: PendingCompletion) {
 export function removePending(kind: PendingCompletion['kind'], id: string) {
   write(readPending().filter((i) => !(i.kind === kind && i.id === id)));
 }
+
+/** A review rating made offline, sent later with the time it was made. */
+export type PendingRating = {
+  cardId: number;
+  /** 1 Again … 4 Easy. */
+  rating: 1 | 2 | 3 | 4;
+  elapsedMs: number;
+  at: number;
+};
+
+const RATINGS_KEY = 'xiaobai:pending-ratings';
+
+export function readPendingRatings(): PendingRating[] {
+  try {
+    const items = JSON.parse(localStorage.getItem(RATINGS_KEY) ?? '[]') as PendingRating[];
+    return Array.isArray(items) ? items : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeRatings(items: PendingRating[]) {
+  try {
+    if (items.length) localStorage.setItem(RATINGS_KEY, JSON.stringify(items));
+    else localStorage.removeItem(RATINGS_KEY);
+  } catch {
+    // Storage unavailable: nothing more we can do offline.
+  }
+}
+
+export function addPendingRating(item: PendingRating) {
+  writeRatings([...readPendingRatings(), item]);
+}
+
+/** Drop the oldest rating once it's been saved (they're sent in order). */
+export function shiftPendingRating() {
+  writeRatings(readPendingRatings().slice(1));
+}
+
+/** Everything still waiting to be saved. */
+export function pendingCount(): number {
+  return readPending().length + readPendingRatings().length;
+}

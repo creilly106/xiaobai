@@ -23,7 +23,14 @@ const CHROME = [
   'C:/Program Files (x86)/Google/Chrome/Application/chrome.exe',
 ];
 
-type Test = { name: string; run: (page: Page) => Promise<void> };
+type Test = {
+  name: string;
+  run: (page: Page) => Promise<void>;
+  /** Going offline on purpose makes failed requests expected, not errors. */
+  offline?: boolean;
+};
+
+const NETWORK_ERROR = /ERR_INTERNET_DISCONNECTED|status of 504|HTTP 504|Failed to fetch/;
 
 function assert(ok: unknown, message: string): asserts ok {
   if (!ok) throw new Error(message);
@@ -160,6 +167,74 @@ const tests: Test[] = [
         await wait(350);
       }
       throw new Error('the HSK 4 checkpoint never showed a result');
+    },
+  },
+  {
+    name: 'offline: reviews and the next lesson work offline, and sync when back online',
+    offline: true,
+    async run(page) {
+      const context = page.context();
+      // Online first: the home page saves Learn, Review and the next lesson.
+      await page.goto(`${base}/`);
+      await page.evaluate(() => navigator.serviceWorker.ready);
+      await page.goto(`${base}/`); // now controlled by the service worker
+      const href = (await page
+        .getByRole('link', { name: /^(Start learning|Continue)/ })
+        .first()
+        .getAttribute('href'))!;
+      await wait(9000); // warm-up starts after 3s, then fetches pages and audio
+      await context.setOffline(true);
+      try {
+        await page.goto(`${base}/study`);
+        const counter = page.getByText(/^\d+ \/ \d+$/).first();
+        let rated = 0;
+        for (let i = 0; i < 6 && rated < 2; i++) {
+          if (await page.getByText('Session complete').isVisible()) break;
+          const teach = page.getByRole('button', { name: /^Got it/ });
+          if (await teach.isVisible()) {
+            await teach.tap();
+            await wait(800);
+            continue;
+          }
+          await counter.waitFor();
+          await page.getByTestId('card-hanzi').tap();
+          await wait(600);
+          await page.getByRole('button', { name: /^Good/ }).tap();
+          rated++;
+          await wait(900);
+        }
+        assert(rated > 0, 'could not rate any cards offline');
+        await page
+          .getByRole('status')
+          .getByText(/Offline — \d+ answer/)
+          .waitFor({ timeout: 5000 });
+
+        // The next lesson was saved ahead, so it opens and finishes offline.
+        await page.goto(`${base}${href}`);
+        for (let i = 0; i < 200; i++) {
+          if (await page.getByText('Lesson complete').isVisible()) break;
+          const cont = page.getByRole('button', { name: 'Continue' });
+          if ((await cont.count()) > 0 && (await cont.isEnabled())) {
+            await cont.tap();
+            await wait(350);
+            continue;
+          }
+          const step = await page.locator('[data-step]').getAttribute('data-step');
+          await answer(page, step ?? '');
+          await wait(350);
+          assert(i < 199, 'never reached "Lesson complete" offline');
+        }
+      } finally {
+        await context.setOffline(false);
+      }
+      // Back online: everything saved on the device is sent.
+      await page.getByText(/^Saved .* from this device\.$/).waitFor({ timeout: 15000 });
+      await page.goto(`${base}/learn`);
+      const next = await page
+        .getByRole('link', { name: /^(Start|Continue)/ })
+        .first()
+        .getAttribute('href');
+      assert(next !== href, `the offline lesson (${href}) didn't sync`);
     },
   },
   {
@@ -437,7 +512,8 @@ async function main() {
     const started = Date.now();
     try {
       await t.run(page);
-      if (errors.length) throw new Error(`console errors:\n    ${errors.join('\n    ')}`);
+      const real = t.offline ? errors.filter((e) => !NETWORK_ERROR.test(e)) : errors;
+      if (real.length) throw new Error(`console errors:\n    ${real.join('\n    ')}`);
       console.log(`✓ ${t.name} (${((Date.now() - started) / 1000).toFixed(1)}s)`);
     } catch (err) {
       failed++;

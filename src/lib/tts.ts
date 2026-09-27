@@ -247,3 +247,14 @@ export function primeVoices(): void {
   void loadClips();
   if (isTtsSupported()) window.speechSynthesis.getVoices();
 }
+
+/** URLs of the recordings for these texts (those that have one), for fetching ahead. */
+export async function clipUrlsFor(texts: string[]): Promise<string[]> {
+  await loadClips();
+  const urls = new Set<string>();
+  for (const text of texts) {
+    const file = clips?.[clipKey(text)];
+    if (file) urls.add(clipUrl(file));
+  }
+  return [...urls];
+}

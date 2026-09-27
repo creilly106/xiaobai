@@ -30,25 +30,42 @@ function revalidateStudy() {
   revalidatePath('/settings');
 }
 
+/** Rating replays older than this are treated as happening now. */
+const MAX_REPLAY_AGE_MS = 14 * 86_400_000;
+
+/**
+ * When a review happened: now, or the time it was made offline — never in
+ * the future, never before the card's last review (the scheduler needs time
+ * to move forwards), and not absurdly old.
+ */
+function reviewTime(at: number | undefined, lastReview: Date | null): Date {
+  const now = Date.now();
+  if (at == null || !Number.isFinite(at) || at > now || at < now - MAX_REPLAY_AGE_MS) {
+    return new Date(now);
+  }
+  return new Date(Math.max(at, (lastReview?.getTime() ?? 0) + 1));
+}
+
 export async function rateCard(
   cardId: number,
   rating: ReviewRating,
   elapsedMs = 0,
   /** 'lesson' when a Learn lesson introduces the card: it doesn't use the daily new-card limit. */
   via?: 'lesson',
+  /** When the rating was made, if earlier (answered offline, sent later). Epoch ms. */
+  at?: number,
 ): Promise<RateResult> {
   assertCardId(cardId);
   if (![1, 2, 3, 4].includes(rating)) throw new Error('Invalid rating.');
   const duration = Number.isFinite(elapsedMs)
     ? Math.min(Math.max(0, Math.round(elapsedMs)), 60 * 60 * 1000)
     : 0;
-  const now = new Date();
-
   const [[row], [settings]] = await Promise.all([
     db.select().from(schema.cards).where(eq(schema.cards.id, cardId)).limit(1),
     db.select().from(schema.settings).limit(1),
   ]);
   if (!row) throw new Error(`Card ${cardId} not found`);
+  const now = reviewTime(at, row.lastReview);
 
   const prevSnapshot = JSON.stringify({
     state: row.state,
@@ -105,7 +122,9 @@ export async function rateCard(
   }
 
   const todayKey = localDateKey(now, await userTimeZone());
-  if (settings && settings.lastStudyDate !== todayKey) {
+  // Keys are YYYY-MM-DD, so they compare as dates; a rating sent late from
+  // an earlier day mustn't wind the streak back.
+  if (settings && (settings.lastStudyDate == null || todayKey > settings.lastStudyDate)) {
     // First review of the day: keep a local backup (last 7 days are kept).
     try {
       await writeBackupFile('auto');

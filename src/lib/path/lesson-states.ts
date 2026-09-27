@@ -1,5 +1,8 @@
 import type { LessonStatus } from '@/db/schema';
 
+/** A checkpoint needs this share of first-try answers right to pass. */
+export const CHECKPOINT_PASS_MARK = 80;
+
 /**
  * Where each lesson stands on the path:
  *  - done / tested: saved progress;

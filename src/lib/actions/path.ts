@@ -4,12 +4,10 @@ import { revalidatePath } from 'next/cache';
 import { and, eq, inArray, sql } from 'drizzle-orm';
 import { db, schema } from '@/db/client';
 import { lessonById, unitById } from '@/lib/curriculum';
+import { CHECKPOINT_PASS_MARK } from '@/lib/path/lesson-states';
 import { rateCard, type ReviewRating } from './study';
 
 export type WordResult = { hanzi: string; mistakes: number };
-
-/** A checkpoint needs this share of first-try answers right to pass. */
-const PASS_MARK = 80;
 
 /**
  * Put the words into spaced repetition. Words met for the first time get a
@@ -92,7 +90,7 @@ export async function completeCheckpoint(
   const unit = unitById(unitId);
   if (!unit) throw new Error('Unknown unit.');
   const best = clampScore(score);
-  if (best < PASS_MARK) return { passed: false };
+  if (best < CHECKPOINT_PASS_MARK) return { passed: false };
 
   const unitWords = new Set(unit.lessons.flatMap((l) => l.words));
   const tested = new Map(results.filter((r) => unitWords.has(r.hanzi)).map((r) => [r.hanzi, r]));

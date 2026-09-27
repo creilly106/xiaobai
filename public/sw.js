@@ -1,9 +1,231 @@
-// Xiaobai's service worker. Deliberately small: it shows reminder
-// notifications and opens the app when one is tapped. It doesn't cache pages,
-// so you never see stale study data.
+// Xiaobai's service worker: reminder notifications, and offline use.
+//
+// Offline: the app's code, audio and data files are kept after first use;
+// pages are always fetched fresh when online, with the latest copy kept for
+// when there's no connection. Pages can ask for things to be fetched ahead
+// ({ type: 'warm', urls }), e.g. the next lesson and its audio. Answers given
+// offline are kept by the page itself and sent later (lib/pending-progress).
 
-self.addEventListener('install', () => self.skipWaiting());
-self.addEventListener('activate', (event) => event.waitUntil(self.clients.claim()));
+const VERSION = 'v1';
+const STATIC = `xb-static-${VERSION}`;
+const MEDIA = `xb-media-${VERSION}`;
+const PAGES = `xb-pages-${VERSION}`;
+const OFFLINE_PAGE = '/offline';
+
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches
+      .open(PAGES)
+      .then((c) => c.add(OFFLINE_PAGE))
+      .catch(() => {})
+      .then(() => self.skipWaiting()),
+  );
+});
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    (async () => {
+      const keep = [STATIC, MEDIA, PAGES];
+      for (const key of await caches.keys()) {
+        if (key.startsWith('xb-') && !keep.includes(key)) await caches.delete(key);
+      }
+      await self.clients.claim();
+    })(),
+  );
+});
+
+const isStatic = (url) => url.pathname.startsWith('/_next/static/');
+const isMedia = (url) =>
+  /^\/(audio|strokes|find-data)\//.test(url.pathname) ||
+  /^\/(icon|apple-icon)/.test(url.pathname) ||
+  url.pathname === '/manifest.webmanifest';
+// Never cache: the API, sign-in, and Next's data requests for client navigation.
+const isUncached = (url, request) =>
+  url.pathname.startsWith('/api/') ||
+  url.pathname === '/login' ||
+  request.headers.get('RSC') === '1' ||
+  url.searchParams.has('_rsc');
+
+self.addEventListener('fetch', (event) => {
+  const { request } = event;
+  if (request.method !== 'GET') return;
+  const url = new URL(request.url);
+  if (url.origin !== self.location.origin || isUncached(url, request)) return;
+
+  if (isStatic(url)) event.respondWith(cacheFirst(STATIC, request));
+  else if (url.pathname === '/audio/index.json') event.respondWith(networkFirst(MEDIA, request));
+  else if (url.pathname.startsWith('/find-data/')) event.respondWith(staleWhileRevalidate(request));
+  else if (isMedia(url)) event.respondWith(media(request));
+  else if (request.mode === 'navigate') event.respondWith(page(request));
+});
+
+/** Build output is content-hashed, so a cached copy is always right. */
+async function cacheFirst(cacheName, request) {
+  const cache = await caches.open(cacheName);
+  const hit = await cache.match(request);
+  if (hit) return hit;
+  const res = await fetch(request);
+  if (res.ok) {
+    await cache.put(request, res.clone());
+    trim(cache, 500);
+  }
+  return res;
+}
+
+/** Old builds' files pile up; drop the oldest beyond `max`. */
+async function trim(cache, max) {
+  const keys = await cache.keys();
+  for (const key of keys.slice(0, Math.max(0, keys.length - max))) await cache.delete(key);
+}
+
+/** Small files that change between versions (the audio index). */
+async function networkFirst(cacheName, request) {
+  const cache = await caches.open(cacheName);
+  try {
+    const res = await fetch(request);
+    if (res.ok) cache.put(request, res.clone());
+    return res;
+  } catch {
+    return (await cache.match(request)) || new Response('', { status: 504 });
+  }
+}
+
+/** Big data files that rarely change: answer from the copy, refresh behind. */
+async function staleWhileRevalidate(request) {
+  const cache = await caches.open(MEDIA);
+  const hit = await cache.match(request);
+  const fresh = fetch(request)
+    .then((res) => {
+      if (res.ok) cache.put(request, res.clone());
+      return res;
+    })
+    .catch(() => null);
+  return hit || (await fresh) || new Response('', { status: 504 });
+}
+
+/**
+ * Audio and data: keep the whole file, and answer range requests (which audio
+ * elements make, and which can't be stored as-is) by slicing the stored copy.
+ */
+async function media(request) {
+  const cache = await caches.open(MEDIA);
+  const key = request.url;
+  let full = await cache.match(key);
+  if (!full) {
+    try {
+      const res = await fetch(key);
+      if (!res.ok) return res;
+      await cache.put(key, res.clone());
+      full = res;
+    } catch {
+      return new Response('', { status: 504, statusText: 'Offline' });
+    }
+  }
+  const range = request.headers.get('Range');
+  if (!range) return full;
+  const buf = await full.clone().arrayBuffer();
+  const [, startText, endText] = /bytes=(\d*)-(\d*)/.exec(range) || [];
+  const start = startText ? Number(startText) : 0;
+  const end = endText ? Math.min(Number(endText), buf.byteLength - 1) : buf.byteLength - 1;
+  return new Response(buf.slice(start, end + 1), {
+    status: 206,
+    headers: {
+      'Content-Type': full.headers.get('Content-Type') || 'application/octet-stream',
+      'Content-Range': `bytes ${start}-${end}/${buf.byteLength}`,
+      'Content-Length': String(end - start + 1),
+      'Accept-Ranges': 'bytes',
+    },
+  });
+}
+
+/** Pages: the network when there is one (so data is fresh), else the last copy. */
+async function page(request) {
+  const cache = await caches.open(PAGES);
+  try {
+    const res = await fetch(request);
+    if (res.ok && !res.redirected && res.headers.get('Content-Type')?.includes('text/html')) {
+      cache.put(pageKey(request.url), res.clone());
+    }
+    return res;
+  } catch {
+    return (
+      (await cache.match(pageKey(request.url))) ||
+      (await cache.match(OFFLINE_PAGE)) ||
+      new Response('Offline', { status: 503, headers: { 'Content-Type': 'text/plain' } })
+    );
+  }
+}
+
+/** One copy per page, whatever the query string (?view=…, ?extra=…). */
+const pageKey = (href) => {
+  const url = new URL(href);
+  return `${url.origin}${url.pathname}`;
+};
+
+/** Fetch ahead: pages go in the page cache, everything else in media. */
+async function warm(urls) {
+  for (const href of urls) {
+    const url = new URL(href, self.location.origin);
+    if (url.origin !== self.location.origin) continue;
+    try {
+      if (isMedia(url)) {
+        const cache = await caches.open(MEDIA);
+        if (await cache.match(url.href)) continue;
+        const res = await fetch(url.href);
+        if (res.ok) await cache.put(url.href, res);
+      } else {
+        const res = await fetch(url.href, { credentials: 'same-origin' });
+        if (res.ok && !res.redirected && res.headers.get('Content-Type')?.includes('text/html')) {
+          await (await caches.open(PAGES)).put(pageKey(url.href), res.clone());
+          // A saved lesson is one particular shuffle; fetch the audio it uses.
+          if (url.pathname.startsWith('/learn/')) await warmAudioIn(await res.text());
+        }
+      }
+    } catch {
+      // Offline or failed: try again next time.
+    }
+  }
+}
+
+/** Same rule as clipKey() in lib/audio-clips.ts: no spaces or punctuation. */
+const clipKey = (text) => text.normalize('NFC').replace(/[\s\p{P}\p{S}]/gu, '');
+const CJK = /[㐀-鿿]/;
+
+/** Fetch the recordings for every Chinese text in a saved lesson page. */
+async function warmAudioIn(html) {
+  // The page carries its lesson as data: "hanzi":"…" and tiles' "text":"…".
+  const texts = new Set();
+  // (Inside the page's script data the quotes are escaped: \"hanzi\":\"…\".)
+  for (const m of html.matchAll(/\\?"(?:hanzi|text)\\?":\\?"([^"\\]+)/g)) {
+    if (CJK.test(m[1])) texts.add(m[1]);
+  }
+  if (texts.size === 0) return;
+  const indexRes = await networkFirst(MEDIA, new Request('/audio/index.json'));
+  if (!indexRes.ok) return;
+  const { clips } = await indexRes.json();
+  const cache = await caches.open(MEDIA);
+  for (const text of texts) {
+    const file = clips[clipKey(text)];
+    if (!file) continue;
+    const href = new URL(
+      `/audio/${file.split('/').map(encodeURIComponent).join('/')}`,
+      self.location.origin,
+    ).href;
+    if (await cache.match(href)) continue;
+    try {
+      const res = await fetch(href);
+      if (res.ok) await cache.put(href, res);
+    } catch {
+      return;
+    }
+  }
+}
+
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'warm' && Array.isArray(event.data.urls)) {
+    event.waitUntil(warm(event.data.urls.slice(0, 400)));
+  }
+});
 
 self.addEventListener('push', (event) => {
   let data = {};

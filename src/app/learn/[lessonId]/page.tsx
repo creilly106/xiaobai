@@ -3,6 +3,8 @@ import { notFound } from 'next/navigation';
 import { buttonVariants } from '@/components/ui/button';
 import { LESSONS, lessonById } from '@/lib/curriculum';
 import { getLessonSession, getPath } from '@/lib/queries/path';
+import { OfflineWarmup } from '@/components/offline-warmup';
+import { collectHanzi } from '@/lib/collect-hanzi';
 import { LessonPlayer } from '../_components/lesson-player';
 
 export async function generateMetadata({ params }: PageProps<'/learn/[lessonId]'>) {
@@ -56,10 +58,13 @@ export default async function LessonPage({ params }: PageProps<'/learn/[lessonId
   }
   const next = LESSONS[lesson.index + 1];
   return (
-    <LessonPlayer
-      session={session}
-      nextHref={next ? `/learn/${next.id}` : '/learn'}
-      nextTitle={next?.title ?? null}
-    />
+    <>
+      <LessonPlayer
+        session={session}
+        nextHref={next ? `/learn/${next.id}` : '/learn'}
+        nextTitle={next?.title ?? null}
+      />
+      <OfflineWarmup texts={collectHanzi(session)} pages={next ? [`/learn/${next.id}`] : []} />
+    </>
   );
 }

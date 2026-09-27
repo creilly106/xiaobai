@@ -15,7 +15,8 @@ import { isQuestion, MAX_RETRIES, stepTargets, type LessonStep } from '@/lib/pat
 import type { LessonSession } from '@/lib/queries/path';
 import { primeVoices, stopSpeaking } from '@/lib/tts';
 import { addPending, removePending } from '@/lib/pending-progress';
-import { isAppOutdated } from '@/components/app-updates';
+import { connectionState, notifyPending } from '@/components/app-updates';
+import { CHECKPOINT_PASS_MARK } from '@/lib/path/lesson-states';
 import { isTypingLocked } from '@/lib/typing-lock';
 import {
   ArrangeStep,
@@ -112,13 +113,24 @@ export function LessonPlayer({
         setFinished({ score, passed });
         celebrate(passed ? (score >= 90 ? 'big' : 'medium') : 'small');
       } catch {
-        if (await isAppOutdated()) {
+        const state = await connectionState();
+        if (state === 'outdated') {
           // The app was updated while this page was open. The path page (a
           // fresh load) sends the saved result.
           toast('Xiaobai was updated — saving your lesson…');
           // A full load on purpose: client navigation would stay on the old build.
           // eslint-disable-next-line @next/next/no-location-assign-relative-destination
           window.location.assign('/learn');
+        } else if (state === 'offline') {
+          // It's kept on the phone and sent when you're back online; show the
+          // result now (the server would work out a checkpoint pass the same way).
+          notifyPending();
+          const passed = session.kind === 'lesson' || score >= CHECKPOINT_PASS_MARK;
+          setFinished({ score, passed });
+          celebrate(passed ? (score >= 90 ? 'big' : 'medium') : 'small');
+          toast(
+            "You're offline — this is saved on your phone and will sync when you're back online.",
+          );
         } else {
           toast.error("Couldn't save yet — it's kept on this device and will be saved next time.");
         }
