@@ -5,8 +5,7 @@ import { useMemo } from 'react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import type { DictEntry, Dictionary } from '@/lib/queries/dictionary';
 import { tokenize, tokenizePerChar } from '@/lib/tokenize';
-import { audioFor } from '@/lib/audio-text';
-import { speak } from '@/lib/tts';
+import { speakWord } from '@/lib/tts';
 
 type Props = {
   hanzi: string;
@@ -52,12 +51,12 @@ export function TokenizedHanzi({
               className={`${TOKEN_CLASS} cursor-pointer`}
               onClick={(e) => {
                 e.stopPropagation();
-                speak(audioFor(t.text, t.entry?.pinyin).text);
+                speakWord(t.text, t.entry?.pinyin);
               }}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   e.stopPropagation();
-                  speak(audioFor(t.text, t.entry?.pinyin).text);
+                  speakWord(t.text, t.entry?.pinyin);
                 }
               }}
             />
@@ -75,7 +74,7 @@ export function TokenizedHanzi({
                 className={`${TOKEN_CLASS} cursor-pointer`}
                 onClick={(e) => {
                   e.stopPropagation();
-                  speak(audioFor(t.text, t.entry?.pinyin).text);
+                  speakWord(t.text, t.entry?.pinyin);
                 }}
               >
                 {t.text}

@@ -9,7 +9,7 @@ import { AudioButton } from '@/components/audio-button';
 import { FlagButton } from '@/components/flag-button';
 import { Pinyin } from '@/components/pinyin';
 import { TokenizedHanzi } from '@/components/tokenized-hanzi';
-import { ListenNotes, ListenPrompt, ReadingNote } from '@/components/card-parts/listen-notes';
+import { ListenNotes, ListenPrompt } from '@/components/card-parts/listen-notes';
 import { RatingButtons, type FlashcardRating } from '@/components/card-parts/rating-buttons';
 import { useCardAudio } from '@/components/card-parts/use-card-audio';
 import { WordTools } from '@/components/card-parts/word-tools';
@@ -195,14 +195,12 @@ export function Flashcard<K extends string>({
                     <div className="max-w-md text-lg">{item.meaning}</div>
                     {typedAnswer && <TypedResult answer={typedAnswer} pinyin={item.pinyin} />}
                     {meaningAnswer && <MeaningResult answer={meaningAnswer} />}
-                    {item.listening ? (
+                    {item.listening && (
                       <ListenNotes
                         hanzi={item.hanzi}
                         pinyin={item.pinyin}
                         listening={item.listening}
                       />
-                    ) : (
-                      <ReadingNote hanzi={item.hanzi} pinyin={item.pinyin} />
                     )}
                     {item.note && (
                       <p className="max-w-md rounded-md bg-primary/5 px-3 py-1.5 text-sm">

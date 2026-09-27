@@ -1,6 +1,7 @@
 'use client';
 
-import { AUDIO_INDEX_PATH, clipKey, type AudioIndex } from '@/lib/audio-clips';
+import { AUDIO_INDEX_PATH, clipKey, readingKey, type AudioIndex } from '@/lib/audio-clips';
+import { audioFor } from '@/lib/audio-text';
 import { VOICE_KEY } from '@/lib/prefs';
 
 export type ChineseVoice = {
@@ -134,9 +135,9 @@ const clipUrl = (file: string) => `/audio/${file.split('/').map(encodeURICompone
 /** Bumped by every new request and every stop, so stale clips can't fall back. */
 let clipRequest = 0;
 
-/** Play a recording of `text` if there is one; false if not. */
-function playClip(text: string, rate: number, fallback: () => void): boolean {
-  const file = clips?.[clipKey(text)];
+/** Play the recording stored under `key` if there is one; false if not. */
+function playClip(key: string, rate: number, fallback: () => void): boolean {
+  const file = clips?.[key];
   if (!file) return false;
   const a = getPlayer();
   const request = ++clipRequest;
@@ -191,7 +192,7 @@ export async function speakAndWait(text: string, rate = NORMAL_RATE): Promise<vo
     }
     finishCurrent = done;
     const voice = () => speakWithVoice(text, rate, done);
-    if (playClip(text, rate, voice)) getPlayer().onended = done;
+    if (playClip(clipKey(text), rate, voice)) getPlayer().onended = done;
     else voice();
   });
 }
@@ -203,8 +204,22 @@ export async function speakAndWait(text: string, rate = NORMAL_RATE): Promise<vo
 export function speak(text: string, rate = NORMAL_RATE): void {
   if (typeof window === 'undefined') return;
   stopAll();
-  if (playClip(text, rate, () => speakWithVoice(text, rate))) return;
+  if (playClip(clipKey(text), rate, () => speakWithVoice(text, rate))) return;
   speakWithVoice(text, rate);
+}
+
+/**
+ * Say a word shown with its pinyin. A character with several readings plays
+ * its recording in that reading (吗 → "ma", not 好吗); without one, a short
+ * word that forces the reading.
+ */
+export function speakWord(hanzi: string, pinyin?: string | null, rate = NORMAL_RATE): void {
+  if (typeof window === 'undefined') return;
+  const { via } = audioFor(hanzi, pinyin);
+  if (!via || !pinyin) return speak(hanzi, rate);
+  stopAll();
+  if (playClip(readingKey(hanzi, pinyin), rate, () => speak(via, rate))) return;
+  speak(via, rate);
 }
 
 function speakWithVoice(text: string, rate: number, onEnd?: () => void): void {

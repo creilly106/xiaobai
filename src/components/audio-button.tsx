@@ -2,8 +2,7 @@
 
 import { Volume2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { audioFor } from '@/lib/audio-text';
-import { speak } from '@/lib/tts';
+import { speakWord } from '@/lib/tts';
 import { useTtsSupported } from '@/lib/use-client';
 
 /**
@@ -24,7 +23,6 @@ export function AudioButton({
 }) {
   const supported = useTtsSupported();
   if (!supported) return <span className="inline-block size-7" aria-hidden />;
-  const audio = audioFor(text, reading);
   return (
     <Button
       type="button"
@@ -32,10 +30,10 @@ export function AudioButton({
       size="icon-sm"
       className={className}
       aria-label={label ?? `Play pronunciation of ${text}`}
-      title={audio.via ? `Plays ${audio.via} so you hear this reading` : 'Play pronunciation'}
+      title="Play pronunciation"
       onClick={(e) => {
         e.stopPropagation();
-        speak(audio.text);
+        speakWord(text, reading);
       }}
     >
       <Volume2 />

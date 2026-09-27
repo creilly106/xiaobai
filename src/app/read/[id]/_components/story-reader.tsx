@@ -7,13 +7,12 @@ import { OptionButton } from '@/app/learn/_components/steps';
 import { Pinyin } from '@/components/pinyin';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { logPractice } from '@/lib/actions/practice';
-import { audioFor } from '@/lib/audio-text';
 import type { PathSentence } from '@/lib/curriculum';
 import { alignPinyin } from '@/lib/pinyin-split';
 import type { DictEntry, Dictionary } from '@/lib/queries/dictionary';
 import type { Story } from '@/lib/story-data';
 import { tokenize } from '@/lib/tokenize';
-import { speak, speakAndWait, stopSpeaking } from '@/lib/tts';
+import { speak, speakAndWait, speakWord, stopSpeaking } from '@/lib/tts';
 import { useStoredPref } from '@/lib/use-client';
 
 const PINYIN_PREF = 'xiaobai:read-pinyin';
@@ -221,7 +220,7 @@ export function StoryReader({
                     variant="ghost"
                     size="icon-sm"
                     aria-label={`Play ${word.text}`}
-                    onClick={() => speak(audioFor(word.text, word.entry?.pinyin).text)}
+                    onClick={() => speakWord(word.text, word.pinyin ?? word.entry?.pinyin)}
                   >
                     <Volume2 />
                   </Button>

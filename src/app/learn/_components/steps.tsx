@@ -10,12 +10,11 @@ import { Pinyin } from '@/components/pinyin';
 import { PinyinKeyboard } from '@/components/pinyin-keyboard';
 import { WordTools } from '@/components/card-parts/word-tools';
 import { HandwritingQuiz } from '@/components/handwriting-practice';
-import { audioFor } from '@/lib/audio-text';
 import { gradeWord } from '@/lib/meaning-grade';
 import { EMPTY_DRAFT, draftIsEmpty, gradeDraft, type PinyinDraft } from '@/lib/pinyin-draft';
 import type { LessonStep, LessonWord, Tile } from '@/lib/path/lesson-builder';
 import { isTypingLocked } from '@/lib/typing-lock';
-import { speak } from '@/lib/tts';
+import { speak, speakWord } from '@/lib/tts';
 
 /** How a question went. `note` explains a near miss; `missed` lists words to count as mistakes. */
 export type Answer = {
@@ -32,7 +31,7 @@ type StepProps<K extends LessonStep['kind']> = {
   onAnswer: (answer: Answer) => void;
 };
 
-export const play = (hanzi: string, pinyin?: string) => speak(audioFor(hanzi, pinyin).text);
+export const play = (hanzi: string, pinyin?: string) => speakWord(hanzi, pinyin);
 
 function Prompt({ children }: { children: React.ReactNode }) {
   return <p className="text-sm font-medium text-muted-foreground">{children}</p>;

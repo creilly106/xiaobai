@@ -2,7 +2,6 @@
 
 import { Volume2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { audioFor } from '@/lib/audio-text';
 import { speak } from '@/lib/tts';
 import type { ListeningInfo } from '@/lib/queries/study';
 
@@ -91,20 +90,5 @@ export function ListenNotes({
         </p>
       )}
     </div>
-  );
-}
-
-/** Explains why a single character's audio is a longer word (干 → 干什么). */
-export function ReadingNote({ hanzi, pinyin }: { hanzi: string; pinyin: string }) {
-  const { via } = audioFor(hanzi, pinyin);
-  if (!via) return null;
-  return (
-    <p className="max-w-sm text-xs text-muted-foreground">
-      {hanzi} has more than one reading, so the audio plays{' '}
-      <span lang="zh-Hans" className="text-sm text-foreground">
-        {via}
-      </span>{' '}
-      to make sure you hear <span className="text-foreground">{pinyin}</span>.
-    </p>
   );
 }

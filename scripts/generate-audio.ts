@@ -17,10 +17,11 @@ import path from 'node:path';
 import { config } from 'dotenv';
 import { createClient } from '@libsql/client';
 import { dbCredentials } from '../src/db/config';
-import { clipHash, clipKey } from '../src/lib/audio-clips';
+import { clipHash, clipKey, readingKey } from '../src/lib/audio-clips';
+import { contextReadings } from '../src/lib/audio-text';
 import { LESSONS } from '../src/lib/curriculum';
 import { grammarPoints } from '../src/lib/grammar-data';
-import { toneless } from '../src/lib/pinyin';
+import { syllableTone, toneless } from '../src/lib/pinyin';
 import { splitPinyinText } from '../src/lib/pinyin-split';
 import { scenarios } from '../src/lib/scenario-data';
 import { stories, storySentences } from '../src/lib/story-data';
@@ -41,7 +42,17 @@ const MONTHLY_FREE_CHARS = 500_000;
 const PARALLEL = 3;
 const AUDIO_DIR = path.join('public', 'audio');
 
-type Item = { text: string; voice: string; pinyin?: string; kind: string };
+type Item = {
+  text: string;
+  voice: string;
+  pinyin?: string;
+  kind: string;
+  /** Index key and file, when not the defaults (clipKey, w/ or s/ by kind). */
+  key?: string;
+  file?: string;
+};
+
+const itemKey = (i: Item) => i.key ?? clipKey(i.text);
 
 const escapeXml = (s: string) =>
   s.replace(
@@ -83,7 +94,9 @@ async function synthesise(item: Item): Promise<Buffer> {
     if (res.ok) return Buffer.from(await res.arrayBuffer());
     // Azure rejects some forced readings (erhua like "nǎr"); those words aren't
     // ambiguous, so let the voice read the characters as it would anyway.
-    if (res.status === 400 && item.pinyin) return synthesise({ ...item, pinyin: undefined });
+    // A character recorded for one particular reading must keep it, though.
+    if (res.status === 400 && item.pinyin && item.kind !== 'reading')
+      return synthesise({ ...item, pinyin: undefined });
     // Throttled (the free tier allows only a few requests at once): wait and retry.
     if ((res.status === 429 || res.status >= 500) && attempt < 8) {
       const wait = Number(res.headers.get('retry-after') ?? 0) * 1000 || 2000 * (attempt + 1);
@@ -104,12 +117,24 @@ async function collect(): Promise<Item[]> {
   client.close();
   for (const w of words)
     items.push({ text: w.hanzi, pinyin: w.pinyin, voice: VOICE, kind: 'word' });
-  // 2. Lesson sentences and grammar examples.
+  // 2. Characters with several readings, one clip per reading (吗 "ma",
+  // 长 "cháng" and "zhǎng"), so a lone character is never read wrongly.
+  for (const { hanzi, pinyin } of contextReadings()) {
+    items.push({
+      text: hanzi,
+      pinyin,
+      voice: VOICE,
+      kind: 'reading',
+      key: readingKey(hanzi, pinyin),
+      file: `r/${hanzi}-${toneless(pinyin)}${syllableTone(pinyin)}.mp3`,
+    });
+  }
+  // 3. Lesson sentences and grammar examples.
   for (const l of LESSONS)
     for (const s of l.sentences ?? []) items.push({ text: s.hanzi, voice: VOICE, kind: 'lesson' });
   for (const g of grammarPoints)
     for (const ex of g.examples) items.push({ text: ex.hanzi, voice: VOICE, kind: 'grammar' });
-  // 3. Scenarios: phrases, time variants, then dialogues (two voices).
+  // 4. Scenarios: phrases, time variants, then dialogues (two voices).
   for (const sc of scenarios) {
     for (const p of sc.sentences) {
       items.push({ text: p.hanzi, voice: VOICE, kind: 'scenario' });
@@ -126,11 +151,11 @@ async function collect(): Promise<Item[]> {
       }
     }
   }
-  // 4. Graded reading stories.
+  // 5. Graded reading stories.
   for (const story of stories)
     for (const s of storySentences(story))
       items.push({ text: s.hanzi, voice: VOICE, kind: 'story' });
-  // 5. Tatoeba example sentences (shown on character pages and used in lessons).
+  // 6. Tatoeba example sentences (shown on character pages and used in lessons).
   const examples = JSON.parse(readFileSync('src/lib/generated/examples.json', 'utf8')) as {
     sentences: { zh: string }[];
   };
@@ -139,7 +164,7 @@ async function collect(): Promise<Item[]> {
   // Each text once (the first mention wins, so a phrase keeps the main voice).
   const seen = new Set<string>();
   return items.filter((i) => {
-    const key = clipKey(i.text);
+    const key = itemKey(i);
     if (!key || seen.has(key)) return false;
     seen.add(key);
     return true;
@@ -152,7 +177,7 @@ async function main() {
     throw new Error('Set AZURE_SPEECH_KEY and AZURE_SPEECH_REGION in .env.audio first.');
   }
   const index = readIndex();
-  const todo = (await collect()).filter((i) => !index.clips[clipKey(i.text)]);
+  const todo = (await collect()).filter((i) => !index.clips[itemKey(i)]);
   const chars = todo.reduce((n, i) => n + Array.from(i.text).length, 0);
   const byKind = todo.reduce<Record<string, number>>(
     (m, i) => ((m[i.kind] = (m[i.kind] ?? 0) + 1), m),
@@ -163,15 +188,16 @@ async function main() {
     throw new Error('That would use most of the free monthly allowance — stopping.');
   if (dryRun || todo.length === 0) return;
 
-  mkdirSync(path.join(AUDIO_DIR, 's'), { recursive: true });
+  for (const dir of ['s', 'r']) mkdirSync(path.join(AUDIO_DIR, dir), { recursive: true });
   let done = 0;
   let failed = 0;
   const queue = [...todo];
   async function worker() {
     for (let item = queue.shift(); item; item = queue.shift()) {
-      const key = clipKey(item.text);
+      const key = itemKey(item);
       // Words keep the readable name used by the native recordings.
-      const file = item.kind === 'word' ? `w/${item.text}.mp3` : `s/${clipHash(key)}.mp3`;
+      const file =
+        item.file ?? (item.kind === 'word' ? `w/${item.text}.mp3` : `s/${clipHash(key)}.mp3`);
       try {
         const audio = await synthesise(item);
         writeFileSync(path.join(AUDIO_DIR, file), audio);

@@ -23,3 +23,12 @@ export function clipHash(key: string): string {
   }
   return `${h.toString(36)}${Array.from(key).length.toString(36)}`;
 }
+
+/**
+ * Key for a recording of one character in one reading ("吗|ma", "长|zhǎng"),
+ * for characters that sound different depending on the word. Kept apart from
+ * clipKey(), which would strip the "|".
+ */
+export function readingKey(hanzi: string, pinyin: string): string {
+  return `${hanzi}|${pinyin.normalize('NFC').toLowerCase().trim()}`;
+}

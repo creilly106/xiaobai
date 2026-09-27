@@ -8,11 +8,9 @@ import { Button } from '@/components/ui/button';
 import { AudioButton } from '@/components/audio-button';
 import { Pinyin } from '@/components/pinyin';
 import { TokenizedHanzi } from '@/components/tokenized-hanzi';
-import { ReadingNote } from '@/components/card-parts/listen-notes';
 import { WordTools } from '@/components/card-parts/word-tools';
 import { ExampleLine } from '@/components/card-parts/example-line';
-import { audioFor } from '@/lib/audio-text';
-import { speak } from '@/lib/tts';
+import { speakWord } from '@/lib/tts';
 import { tokenize } from '@/lib/tokenize';
 import type { Dictionary } from '@/lib/queries/dictionary';
 import type { StudyCard } from '@/lib/queries/study';
@@ -35,7 +33,7 @@ export function TeachCard({ card, dict, onContinue, disabled, cardsBeforeTest }:
   const isWord = card.itemType === 'word';
 
   useEffect(() => {
-    speak(audioFor(card.hanzi, card.pinyin).text);
+    speakWord(card.hanzi, card.pinyin);
   }, [card.hanzi, card.pinyin]);
 
   const parts =
@@ -79,7 +77,6 @@ export function TeachCard({ card, dict, onContinue, disabled, cardsBeforeTest }:
             <AudioButton text={card.hanzi} reading={card.pinyin} />
           </div>
           <div className="max-w-md text-lg">{card.meaning}</div>
-          <ReadingNote hanzi={card.hanzi} pinyin={card.pinyin} />
           {card.note && (
             <p className="max-w-md rounded-md bg-primary/5 px-3 py-1.5 text-sm">
               <span className="text-xs font-medium text-muted-foreground">Your note · </span>

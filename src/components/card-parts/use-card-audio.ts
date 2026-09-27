@@ -1,9 +1,8 @@
 'use client';
 
 import { useEffect } from 'react';
-import { audioFor } from '@/lib/audio-text';
 import { AUTOPLAY_AUDIO_KEY } from '@/lib/prefs';
-import { speak } from '@/lib/tts';
+import { speak, speakWord } from '@/lib/tts';
 import { isTypingLocked } from '@/lib/typing-lock';
 import { useStoredPref } from '@/lib/use-client';
 
@@ -29,7 +28,7 @@ export function useCardAudio({
   const [autoplay] = useStoredPref(AUTOPLAY_AUDIO_KEY, '1');
 
   useEffect(() => {
-    if (flipped && autoplay === '1') speak(audioFor(hanzi, pinyin).text);
+    if (flipped && autoplay === '1') speakWord(hanzi, pinyin);
   }, [flipped, autoplay, hanzi, pinyin, cardKey]);
 
   useEffect(() => {
@@ -42,7 +41,8 @@ export function useCardAudio({
       if (e.ctrlKey || e.metaKey || e.altKey || e.repeat) return;
       if (e.target instanceof HTMLElement && e.target.closest('input, textarea')) return;
       if (e.key.toLowerCase() !== 'p' || isTypingLocked()) return;
-      speak(flipped ? audioFor(hanzi, pinyin).text : listenAudio!);
+      if (flipped) speakWord(hanzi, pinyin);
+      else speak(listenAudio!);
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);

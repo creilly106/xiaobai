@@ -2,8 +2,10 @@
 //
 // Speech engines read a lone character with its most common reading, so a
 // character with several readings can come out wrong on its own: 了 as liǎo
-// instead of le, 干 as gān instead of gàn. For those we play a short word that
-// forces the intended reading (干 gàn → 干什么) and tell the learner why.
+// instead of le, 干 as gān instead of gàn. Each reading below has its own
+// recording (scripts/generate-audio.ts, keyed by readingKey()); the short word
+// is the fallback when there's no recording (干 gàn → 干什么), and what
+// listening cards play so the sound can be recognised.
 
 /** "char|reading" → a short word or phrase that pins that reading down. */
 const CONTEXT: Record<string, string> = {
@@ -70,6 +72,14 @@ const CONTEXT: Record<string, string> = {
   '量|liáng': '量一量',
   '背|bēi': '背包',
 };
+
+/** Every character-and-reading pair that needs its own recording. */
+export function contextReadings(): { hanzi: string; pinyin: string }[] {
+  return Object.keys(CONTEXT).map((key) => {
+    const [hanzi, pinyin] = key.split('|');
+    return { hanzi, pinyin };
+  });
+}
 
 export type AudioText = {
   /** What to speak. */
