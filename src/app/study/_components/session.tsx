@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
 import { toast } from 'sonner';
+import { reloadIfOutdated } from '@/components/app-updates';
 import { Flashcard } from '@/components/flashcard';
 import { STATE_LABEL, STUDY_RATINGS, type StudyRating } from '@/components/rating-styles';
 import { primeVoices } from '@/lib/tts';
@@ -139,7 +140,7 @@ export function Session({ initialQueue, dict, goal }: Props) {
           if (nextRated % 10 === 0) celebrate('small');
           advance();
         } catch {
-          toast.error("Couldn't save that rating. Check the dev server and try again.");
+          if (!(await reloadIfOutdated())) toast.error("Couldn't save that rating. Try again.");
         }
       });
     },

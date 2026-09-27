@@ -2,7 +2,6 @@ import 'server-only';
 import { connection } from 'next/server';
 import { and, eq, ne } from 'drizzle-orm';
 import { db, schema } from '@/db/client';
-import type { LessonStatus } from '@/db/schema';
 import {
   LESSONS,
   UNITS,
@@ -26,11 +25,12 @@ import {
   type LessonWord,
 } from '@/lib/path/lesson-builder';
 import { segmentSpans } from '@/lib/segment';
+import { lessonStates, type LessonState } from '@/lib/path/lesson-states';
 import { acceptedMeanings } from './accepted';
 import { getDictionary } from './dictionary';
 import { wordSyllables } from './tones';
 
-export type LessonState = LessonStatus | 'known' | 'current' | 'locked';
+export type { LessonState };
 
 export type PathLessonView = {
   id: string;
@@ -57,6 +57,8 @@ export type PathView = {
   current: { id: string; title: string; unitTitle: string; index: number } | null;
   finished: number;
   total: number;
+  /** Lessons added to the path behind where you've got to. */
+  added: number;
 };
 
 const FINISHED: LessonState[] = ['done', 'tested', 'known'];
@@ -81,27 +83,12 @@ export async function getPath(): Promise<PathView> {
   ]);
   const byLesson = new Map(progress.map((p) => [p.lessonId, p]));
 
-  let current: PathView['current'] = null;
-  const states = new Map<string, LessonState>();
-  for (const lesson of LESSONS) {
-    const row = byLesson.get(lesson.id);
-    const state: LessonState = row
-      ? row.status
-      : lesson.words.every((w) => started.has(w))
-        ? 'known'
-        : current
-          ? 'locked'
-          : 'current';
-    if (state === 'current') {
-      current = {
-        id: lesson.id,
-        title: lesson.title,
-        unitTitle: lesson.unit.title,
-        index: lesson.index,
-      };
-    }
-    states.set(lesson.id, state);
-  }
+  const list = lessonStates(LESSONS, new Map(progress.map((p) => [p.lessonId, p.status])), started);
+  const states = new Map(LESSONS.map((l, i) => [l.id, list[i]]));
+  const next = LESSONS.find((l) => states.get(l.id) === 'current');
+  const current: PathView['current'] = next
+    ? { id: next.id, title: next.title, unitTitle: next.unit.title, index: next.index }
+    : null;
 
   const units = UNITS.map((unit) => {
     const lessons = unit.lessons.map((l) => ({
@@ -127,6 +114,7 @@ export async function getPath(): Promise<PathView> {
     current,
     finished: units.reduce((n, u) => n + u.finished, 0),
     total: LESSONS.length,
+    added: list.filter((st) => st === 'new').length,
   };
 }
 

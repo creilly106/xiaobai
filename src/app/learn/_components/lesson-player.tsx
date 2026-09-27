@@ -14,6 +14,8 @@ import { completeCheckpoint, completeLesson, type WordResult } from '@/lib/actio
 import { isQuestion, MAX_RETRIES, stepTargets, type LessonStep } from '@/lib/path/lesson-builder';
 import type { LessonSession } from '@/lib/queries/path';
 import { primeVoices, stopSpeaking } from '@/lib/tts';
+import { addPending, removePending } from '@/lib/pending-progress';
+import { isAppOutdated } from '@/components/app-updates';
 import { isTypingLocked } from '@/lib/typing-lock';
 import {
   ArrangeStep,
@@ -97,16 +99,29 @@ export function LessonPlayer({
       hanzi,
       mistakes: mistakes.current.get(hanzi) ?? 0,
     }));
+    // Kept on the device until the server confirms, so it can't be lost.
+    const pending = { kind: session.kind, id: session.id, results, score, at: Date.now() };
+    addPending(pending);
     startSaving(async () => {
       try {
         const passed =
           session.kind === 'lesson'
             ? (await completeLesson(session.id, results, score), true)
             : (await completeCheckpoint(session.id, results, score)).passed;
+        removePending(pending.kind, pending.id);
         setFinished({ score, passed });
         celebrate(passed ? (score >= 90 ? 'big' : 'medium') : 'small');
       } catch {
-        toast.error("Couldn't save your progress. Try again.");
+        if (await isAppOutdated()) {
+          // The app was updated while this page was open. The path page (a
+          // fresh load) sends the saved result.
+          toast('Xiaobai was updated — saving your lesson…');
+          // A full load on purpose: client navigation would stay on the old build.
+          // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+          window.location.assign('/learn');
+        } else {
+          toast.error("Couldn't save yet — it's kept on this device and will be saved next time.");
+        }
       }
     });
   }, [firstTry, session]);

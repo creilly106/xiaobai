@@ -6,6 +6,7 @@ import { SiteHeader } from '@/components/site-header';
 import { ThemeProvider } from '@/components/theme-provider';
 import { TimeZoneCookie } from '@/components/time-zone-cookie';
 import { ServiceWorker } from '@/components/service-worker';
+import { AppUpdates } from '@/components/app-updates';
 import { ACCENT_INIT_SCRIPT } from '@/lib/accent';
 import './globals.css';
 
@@ -61,6 +62,7 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
           <Toaster />
           <TimeZoneCookie />
           <ServiceWorker />
+          <AppUpdates />
         </ThemeProvider>
       </body>
     </html>

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { AnimatePresence, motion } from 'framer-motion';
 import { toast } from 'sonner';
+import { reloadIfOutdated } from '@/components/app-updates';
 import { Progress } from '@/components/ui/progress';
 import { buttonVariants } from '@/components/ui/button';
 import { Flashcard } from '@/components/flashcard';
@@ -96,7 +97,7 @@ export function QuizSession({
           setSrsWrites((n) => n + 1);
           advance();
         } catch {
-          toast.error("Couldn't save that rating to your queue.");
+          if (!(await reloadIfOutdated())) toast.error("Couldn't save that rating to your queue.");
         }
       });
     },

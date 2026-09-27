@@ -7,6 +7,7 @@ import {
   CirclePlay,
   FastForward,
   Lock,
+  Sparkles,
   BookCheck,
 } from 'lucide-react';
 import { buttonVariants } from '@/components/ui/button';
@@ -23,6 +24,7 @@ const STATE: Record<LessonState, { icon: typeof Lock; label: string; className: 
   tested: { icon: FastForward, label: 'Tested out', className: 'text-sky-600 dark:text-sky-400' },
   known: { icon: BookCheck, label: 'Already known', className: 'text-sky-600 dark:text-sky-400' },
   current: { icon: CirclePlay, label: 'Up next', className: 'text-primary' },
+  new: { icon: Sparkles, label: 'New', className: 'text-amber-600 dark:text-amber-400' },
   locked: { icon: Lock, label: 'Locked', className: 'text-muted-foreground/60' },
 };
 
@@ -51,6 +53,16 @@ export default async function LearnPage() {
           {path.finished} / {path.total} lessons
         </span>
       </div>
+      {path.added > 0 && (
+        <p className="mt-3 flex items-start gap-2 rounded-lg bg-amber-500/10 px-3 py-2 text-sm">
+          <Sparkles className="mt-0.5 size-4 shrink-0 text-amber-600 dark:text-amber-400" />
+          <span>
+            {path.added === 1 ? 'One earlier lesson isn’t' : `${path.added} earlier lessons aren’t`}{' '}
+            done yet — usually because they were added after you&apos;d passed that point.
+            They&apos;re marked New: do them whenever you like; they won&apos;t hold you back.
+          </span>
+        </p>
+      )}
 
       {currentLesson && currentUnit ? (
         <Card className="mt-6 border-2 border-primary/40 bg-primary/5">
