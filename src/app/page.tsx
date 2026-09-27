@@ -16,6 +16,8 @@ import { NextDue } from '@/components/next-due';
 import { getPath } from '@/lib/queries/path';
 import { userTimeZone } from '@/lib/timezone';
 import { StatTile, QueueTile } from './_components/stat-tiles';
+import { TodayGoal } from './_components/today-goal';
+import { getGoalProgress } from '@/lib/queries/goal';
 
 const EXPLORE = [
   {
@@ -48,13 +50,15 @@ const EXPLORE = [
 ] as const;
 
 export default async function Home() {
-  const [stats, path] = await Promise.all([getDashboardStats(), getPath()]);
+  const timeZone = await userTimeZone();
+  const [stats, path, goal] = await Promise.all([
+    getDashboardStats(),
+    getPath(),
+    getGoalProgress(new Date(), timeZone),
+  ]);
   const a = stats.availability;
   const hasCards = stats.totalCards > 0;
-  const weekday = new Date().toLocaleDateString('en', {
-    weekday: 'long',
-    timeZone: await userTimeZone(),
-  });
+  const weekday = new Date().toLocaleDateString('en', { weekday: 'long', timeZone });
   const newUsedToday = stats.dailyNewLimit - a.newRemainingToday;
 
   return (
@@ -72,6 +76,8 @@ export default async function Home() {
               : 'Reviews are done for now. Time for a lesson?'}
         </p>
       </div>
+
+      {goal.goal > 0 && <TodayGoal progress={goal} />}
 
       <div className="mb-6 grid gap-4 md:grid-cols-2">
         <Card className="border-2 border-primary/40 bg-primary/5">
@@ -125,9 +131,6 @@ export default async function Home() {
                 <p className="mt-2 text-sm text-muted-foreground">
                   Words from your lessons come back here to review.
                 </p>
-              )}
-              {stats.dailyGoal > 0 && hasCards && (
-                <GoalBar done={stats.reviewsToday} goal={stats.dailyGoal} />
               )}
             </div>
             {a.totalDue > 0 ? (
@@ -194,34 +197,6 @@ export default async function Home() {
             </Card>
           </Link>
         ))}
-      </div>
-    </div>
-  );
-}
-
-/** Progress toward today's review goal (set in Settings). */
-function GoalBar({ done, goal }: { done: number; goal: number }) {
-  const pct = Math.min(100, Math.round((done / goal) * 100));
-  const met = done >= goal;
-  return (
-    <div className="mt-4 max-w-sm">
-      <div className="flex justify-between text-xs text-muted-foreground">
-        <span>{met ? "Today's goal met" : "Today's goal"}</span>
-        <span className="tabular-nums">
-          {done} / {goal} reviews
-        </span>
-      </div>
-      <div
-        className="mt-1 h-2 w-full overflow-hidden rounded bg-muted"
-        role="progressbar"
-        aria-valuenow={done}
-        aria-valuemax={goal}
-        aria-label="Daily goal"
-      >
-        <div
-          className={`h-full rounded transition-all ${met ? 'bg-emerald-500' : 'bg-primary'}`}
-          style={{ width: `${pct}%` }}
-        />
       </div>
     </div>
   );

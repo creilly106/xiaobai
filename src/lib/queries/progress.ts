@@ -1,6 +1,6 @@
 import 'server-only';
 import { connection } from 'next/server';
-import { and, eq, gte, inArray, isNotNull, lte, sql } from 'drizzle-orm';
+import { and, eq, inArray, isNotNull, lte, sql } from 'drizzle-orm';
 import { db, schema } from '@/db/client';
 import type { CardState } from '@/db/schema';
 import { followUpsFrom, modeFilter } from '@/lib/card-modes';
@@ -69,14 +69,4 @@ export async function getWordsKnown(): Promise<WordsKnown> {
     mature: Number(counts?.mature ?? 0),
     library: Number(library?.n ?? 0),
   };
-}
-
-/** Reviews done today, for the daily goal. */
-export async function getReviewsToday(): Promise<number> {
-  await connection();
-  const [row] = await db
-    .select({ n: sql<number>`count(*)` })
-    .from(schema.reviews)
-    .where(gte(schema.reviews.reviewedAt, startOfLocalDay(new Date(), await userTimeZone())));
-  return Number(row?.n ?? 0);
 }

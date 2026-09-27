@@ -94,8 +94,9 @@ export function RemindersPanel() {
   return (
     <div className="space-y-3 text-sm">
       <p className="text-muted-foreground">
-        A notification each evening (around 7 pm China time) if you haven’t studied yet that day,
-        saying how many cards are waiting and what your next lesson is.
+        A notification each evening (around 7 pm China time) if you haven’t reached your daily goal,
+        saying how many points you have left, how many cards are waiting and what your next lesson
+        is.
       </p>
       {state === 'loading' && <p className="text-muted-foreground">Checking this device…</p>}
       {state === 'unsupported' && <p>This browser can’t show notifications from websites.</p>}

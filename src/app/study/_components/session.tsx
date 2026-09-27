@@ -27,7 +27,7 @@ import { LeechBanner, QueueCounts, SessionToolbar } from './session-toolbar';
 type Props = {
   initialQueue: StudyCard[];
   dict?: Dictionary;
-  /** Daily review goal and reviews already done today before this session. */
+  /** Daily goal (points) and points already earned today before this session. */
   goal?: { target: number; doneBefore: number };
 };
 

@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { toast } from 'sonner';
+import { GOAL_PRESETS } from '@/lib/goal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ToggleSwitch } from '@/components/ui/chip';
@@ -59,17 +60,23 @@ export function StudyPrefForm({ initial }: Props) {
       <PrefRow
         id="pref-goal"
         label="Daily goal"
-        desc="How many cards you aim to review each day (0 turns the goal off). Shown on the home page."
+        desc="Points to aim for each day: 1 per review or practice answer, 10 per lesson. Shown on the home page and in your evening reminder."
       >
-        <Input
-          type="number"
-          min={0}
-          max={500}
+        <select
           id="pref-goal"
           value={goal}
-          onChange={(e) => setGoal(Number(e.target.value) || 0)}
-          className="w-24"
-        />
+          onChange={(e) => setGoal(Number(e.target.value))}
+          className="h-9 rounded-md border border-input bg-background px-2 text-sm"
+        >
+          {GOAL_PRESETS.map((p) => (
+            <option key={p.value} value={p.value}>
+              {p.value ? `${p.label} · ${p.value} points (${p.hint.toLowerCase()})` : p.label}
+            </option>
+          ))}
+          {!GOAL_PRESETS.some((p) => p.value === goal) && (
+            <option value={goal}>Custom · {goal} points</option>
+          )}
+        </select>
       </PrefRow>
       <PrefRow
         id="pref-new"

@@ -40,11 +40,11 @@ export function SessionComplete({
         <p className="mt-1 text-sm">
           {goal.done >= goal.target ? (
             <span className="text-emerald-600 dark:text-emerald-400">
-              Daily goal met — {goal.done} of {goal.target} reviews today.
+              Daily goal met — {goal.done} of {goal.target} points today.
             </span>
           ) : (
             <span className="text-muted-foreground">
-              {goal.target - goal.done} more review{goal.target - goal.done === 1 ? '' : 's'} to
+              {goal.target - goal.done} more point{goal.target - goal.done === 1 ? '' : 's'} to
               reach today&apos;s goal of {goal.target}.
             </span>
           )}

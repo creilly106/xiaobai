@@ -2,8 +2,9 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { buttonVariants } from '@/components/ui/button';
 import { getStudyQueue } from '@/lib/queries/study';
-import { getAvailability, getSettings } from '@/lib/queries/settings';
-import { getReviewsToday } from '@/lib/queries/progress';
+import { getAvailability } from '@/lib/queries/settings';
+import { getGoalProgress } from '@/lib/queries/goal';
+import { userTimeZone } from '@/lib/timezone';
 import { getDictionaryFor } from '@/lib/queries/dictionary';
 import { NextDue } from '@/components/next-due';
 import { Session } from './_components/session';
@@ -86,13 +87,13 @@ export default async function StudyPage({ searchParams }: PageProps<'/study'>) {
     queue.flatMap((c) => (c.example ? [c.hanzi, c.example.zh] : [c.hanzi])),
   );
   // Keyed so "learn more" (a new ?extra=) starts a fresh session.
-  const [settings, reviewsToday] = await Promise.all([getSettings(), getReviewsToday()]);
+  const progress = await getGoalProgress(new Date(), await userTimeZone());
   return (
     <Session
       key={extraNew}
       initialQueue={queue}
       dict={dict}
-      goal={{ target: settings.dailyGoal, doneBefore: reviewsToday }}
+      goal={{ target: progress.goal, doneBefore: progress.today.points }}
     />
   );
 }

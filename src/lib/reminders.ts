@@ -1,12 +1,13 @@
 import 'server-only';
-import { desc, eq, gte, sql } from 'drizzle-orm';
+import { desc, eq, sql } from 'drizzle-orm';
 import webpush from 'web-push';
 import { db, schema } from '@/db/client';
 import { createBackup } from '@/lib/backup';
-import { startOfLocalDay } from '@/lib/dates';
 import { VAPID_PUBLIC_KEY } from '@/lib/push-config';
 import { getPath } from '@/lib/queries/path';
 import { getAvailability } from '@/lib/queries/settings';
+import { getGoalProgress, type GoalProgress } from '@/lib/queries/goal';
+import { pointsToGo } from '@/lib/goal';
 
 /** Contact for the push services, as the Web Push spec asks. */
 const VAPID_SUBJECT = 'https://github.com/creilly106/xiaobai';
@@ -22,10 +23,17 @@ export function pushConfigured(): boolean {
 
 type Message = { title: string; body: string; url: string };
 
-/** "12 cards to review · Next lesson: Seven to ten", or null if there's nothing to do. */
-async function reminderMessage(): Promise<Message | null> {
+/**
+ * "18 points to today's goal · 12 cards to review · Next lesson: Seven to
+ * ten", or null if there's nothing to do.
+ */
+async function reminderMessage(goal: GoalProgress): Promise<Message | null> {
   const [availability, path] = await Promise.all([getAvailability(), getPath()]);
   const parts: string[] = [];
+  const left = pointsToGo(goal.goal, goal.today.points);
+  if (goal.goal > 0 && left > 0) {
+    parts.push(`${left} point${left === 1 ? '' : 's'} to today's goal`);
+  }
   if (availability.totalDue > 0) {
     parts.push(`${availability.totalDue} card${availability.totalDue === 1 ? '' : 's'} to review`);
   }
@@ -38,33 +46,30 @@ async function reminderMessage(): Promise<Message | null> {
   };
 }
 
-async function studiedToday(timeZone: string | null): Promise<boolean> {
-  const since = startOfLocalDay(new Date(), timeZone ?? undefined);
-  const [row] = await db
-    .select({ n: sql<number>`count(*)` })
-    .from(schema.reviews)
-    .where(gte(schema.reviews.reviewedAt, since));
-  return Number(row?.n ?? 0) > 0;
+/** Nothing to nag about: the goal is met, or (with no goal) you've studied today. */
+function doneForToday(goal: GoalProgress): boolean {
+  return goal.goal > 0 ? goal.today.points >= goal.goal : goal.today.points > 0;
 }
 
 /**
  * Send today's reminder to every subscribed device — skipping anyone who has
- * already studied today (unless `force`, for "send a test"). Devices that have
- * unsubscribed are removed.
+ * met today's goal (or, with no goal, studied at all), unless `force` ("send a
+ * test"). Devices that have unsubscribed are removed.
  */
 export async function sendReminders({ force = false } = {}) {
   if (!pushConfigured())
     return { sent: 0, skipped: 0, removed: 0, error: 'VAPID_PRIVATE_KEY is not set' };
   const subs = await db.select().from(schema.pushSubscriptions);
-  const message = await reminderMessage();
   let sent = 0;
   let skipped = 0;
   let removed = 0;
   for (const sub of subs) {
+    // Each device's own day: the goal resets at its local midnight.
+    const goal = await getGoalProgress(new Date(), sub.timeZone ?? undefined);
     const payload =
-      message ??
+      (await reminderMessage(goal)) ??
       (force ? { title: '小白 Xiaobai', body: 'Reminders are working.', url: '/' } : null);
-    if (!payload || (!force && (await studiedToday(sub.timeZone)))) {
+    if (!payload || (!force && doneForToday(goal))) {
       skipped++;
       continue;
     }
