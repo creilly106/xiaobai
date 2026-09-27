@@ -53,6 +53,7 @@ export async function getPracticeSummary(days = 30): Promise<PracticeSummary> {
     cloze: { right: 0, total: 0 },
     quiz: { right: 0, total: 0 },
     listening: { right: 0, total: 0 },
+    reading: { right: 0, total: 0 },
   };
   for (const c of counts) {
     byKind[c.kind] = { right: Number(c.right ?? 0), total: Number(c.total) };

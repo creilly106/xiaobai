@@ -2,7 +2,7 @@
  * Generates neural-voice audio (Microsoft Azure Speech) for everything the
  * app says that has no native recording: HSK words without one (with their
  * exact pinyin forced, so 了 is "le" and 长 is "cháng"), lesson sentences,
- * grammar examples, scenario phrases/variants/dialogues and the Tatoeba
+ * grammar examples, scenario phrases/variants/dialogues, reading stories and the Tatoeba
  * example sentences. Clips go in public/audio and public/audio/index.json.
  *
  * Needs .env.audio with AZURE_SPEECH_KEY and AZURE_SPEECH_REGION (free F0
@@ -23,6 +23,7 @@ import { grammarPoints } from '../src/lib/grammar-data';
 import { toneless } from '../src/lib/pinyin';
 import { splitPinyinText } from '../src/lib/pinyin-split';
 import { scenarios } from '../src/lib/scenario-data';
+import { stories, storySentences } from '../src/lib/story-data';
 import { readIndex, writeIndex } from './audio-index';
 
 config({ path: '.env', quiet: true });
@@ -125,7 +126,11 @@ async function collect(): Promise<Item[]> {
       }
     }
   }
-  // 4. Tatoeba example sentences (shown on character pages and used in lessons).
+  // 4. Graded reading stories.
+  for (const story of stories)
+    for (const s of storySentences(story))
+      items.push({ text: s.hanzi, voice: VOICE, kind: 'story' });
+  // 5. Tatoeba example sentences (shown on character pages and used in lessons).
   const examples = JSON.parse(readFileSync('src/lib/generated/examples.json', 'utf8')) as {
     sentences: { zh: string }[];
   };

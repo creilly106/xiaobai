@@ -1,7 +1,7 @@
 /**
  * Visits every page of a running app and reports any that fail — an HTTP
  * error, or the app's error screen. Routes come from the app's own content,
- * so new lessons, scenarios and grammar points are covered automatically.
+ * so new lessons, scenarios, stories and grammar points are covered automatically.
  *
  *   npm run smoke                      (http://localhost:3000)
  *   npm run smoke -- http://localhost:3200
@@ -11,6 +11,7 @@
 import { LESSONS, UNITS } from '../src/lib/curriculum';
 import { grammarPoints } from '../src/lib/grammar-data';
 import { scenarios } from '../src/lib/scenario-data';
+import { stories } from '../src/lib/story-data';
 
 const base = (process.argv[2] ?? 'http://localhost:3000').replace(/\/$/, '');
 const PARALLEL = 4;
@@ -29,6 +30,8 @@ const routes: string[] = [
   '/quiz/cloze?count=5&answer=type&examples=1',
   '/scenarios',
   ...scenarios.flatMap((s) => [`/scenarios/${s.slug}`, `/scenarios/${s.slug}?view=dialogues`]),
+  '/read',
+  ...stories.map((s) => `/read/${s.id}`),
   '/grammar',
   '/grammar/time',
   ...grammarPoints.map((g) => `/grammar/${g.slug}`),

@@ -268,6 +268,28 @@ const tests: Test[] = [
       );
     },
   },
+  {
+    name: 'read: a story can be read, words looked up, and questions answered',
+    async run(page) {
+      await page.goto(`${base}/read/my-family`);
+      await page.locator('button[data-word="猫"]').first().tap();
+      const panel = page.getByRole('dialog');
+      await panel.waitFor();
+      assert((await panel.textContent())?.includes('cat'), 'word panel does not show the meaning');
+      await panel.getByRole('button', { name: 'Close' }).tap();
+      const questions = page.locator('[data-question]');
+      const count = await questions.count();
+      assert(count >= 3, `only ${count} questions`);
+      for (let i = 0; i < count; i++) {
+        await questions.nth(i).locator('button.min-h-16').first().tap();
+      }
+      await page.getByText(new RegExp(`^\\d / ${count}$`)).waitFor({ timeout: 5000 });
+      await wait(500); // the result is logged in the background
+      await page.goto(`${base}/read`);
+      const card = page.locator('a[href="/read/my-family"]');
+      assert((await card.textContent())?.includes('Read'), 'story not marked as read');
+    },
+  },
 ];
 
 /** Give some answer to a lesson question (right or wrong — missed ones come back). */

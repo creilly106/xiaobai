@@ -84,3 +84,24 @@ export function pinyinSyllableCount(pinyin: string): number | null {
   }
   return total;
 }
+
+/**
+ * One pinyin syllable per Chinese character of `hanzi`, taken from the
+ * sentence's own pinyin (so 了 is "le" and 一 shows its tone change). Null
+ * when they don't line up — erhua, or a typo.
+ */
+export function alignPinyin(hanzi: string, pinyin: string): string[] | null {
+  const syllables: string[] = [];
+  for (const word of pinyin.split(/[^\p{L}\u0300-\u036F]+/u).filter(Boolean)) {
+    const split = splitPinyinWord(word.toLowerCase());
+    if (!split) return null;
+    // Keep capitals (names, places) as written.
+    let at = 0;
+    for (const s of split) {
+      syllables.push(word.slice(at, at + s.length));
+      at += s.length;
+    }
+  }
+  const chars = Array.from(hanzi).filter((c) => /[㐀-鿿]/u.test(c));
+  return syllables.length === chars.length ? syllables : null;
+}

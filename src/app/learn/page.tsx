@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import {
   ArrowRight,
+  BookOpen,
   ChevronDown,
   CircleCheck,
   CirclePlay,
@@ -13,6 +14,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { grammarPoints } from '@/lib/grammar-data';
 import { getPath, type LessonState, type PathUnitView } from '@/lib/queries/path';
+import { storiesForUnit } from '@/lib/queries/reading';
 
 export const metadata = { title: 'Learn' };
 
@@ -180,6 +182,16 @@ function UnitCard({ unit, number }: { unit: PathUnitView; number: number }) {
                   Practise the dialogue <ArrowRight />
                 </Link>
               )}
+              {complete &&
+                storiesForUnit(unit.id).map((story) => (
+                  <Link
+                    key={story.id}
+                    href={`/read/${story.id}`}
+                    className={buttonVariants({ variant: 'ghost', size: 'sm' })}
+                  >
+                    <BookOpen /> Read: {story.title.meaning}
+                  </Link>
+                ))}
             </div>
           </div>
         </details>

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { splitPinyinText, splitPinyinWord } from './pinyin-split';
+import { alignPinyin, splitPinyinText, splitPinyinWord } from './pinyin-split';
 
 describe('splitPinyinWord', () => {
   it.each([
@@ -38,5 +38,21 @@ describe('splitPinyinText', () => {
   });
   it('splits apostrophes and keeps them', () => {
     expect(splitPinyinText("Xī'ān").map((s) => s.text)).toEqual(['Xī', "'", 'ān']);
+  });
+});
+
+describe('alignPinyin', () => {
+  it('gives each character its syllable', () => {
+    expect(alignPinyin('你好！我叫安娜。', 'nǐ hǎo! wǒ jiào Ānnà.')).toEqual([
+      'nǐ',
+      'hǎo',
+      'wǒ',
+      'jiào',
+      'Ān',
+      'nà',
+    ]);
+  });
+  it('gives up when they do not line up', () => {
+    expect(alignPinyin('你在哪儿？', 'nǐ zài nǎr?')).toBeNull();
   });
 });

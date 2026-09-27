@@ -10,6 +10,7 @@ const KIND_LABEL = {
   tone: { label: 'Tone trainer', href: '/tones' },
   number: { label: 'Numbers drill', href: '/numbers' },
   listening: { label: 'Dialogue listening', href: '/scenarios' },
+  reading: { label: 'Reading', href: '/read' },
 } as const;
 
 function pct(right: number, total: number) {
