@@ -1,32 +1,14 @@
 import Link from 'next/link';
-import {
-  ArrowRight,
-  BookOpen,
-  ChevronDown,
-  CircleCheck,
-  CirclePlay,
-  FastForward,
-  Lock,
-  Sparkles,
-  BookCheck,
-} from 'lucide-react';
+import { ArrowRight, Sparkles } from 'lucide-react';
 import { buttonVariants } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { grammarPoints } from '@/lib/grammar-data';
-import { getPath, type LessonState, type PathUnitView } from '@/lib/queries/path';
+import { getPath, type PathUnitView } from '@/lib/queries/path';
 import { storiesForUnit } from '@/lib/queries/reading';
+import { UnitCard } from './_components/unit-card';
 
 export const metadata = { title: 'Learn' };
-
-const STATE: Record<LessonState, { icon: typeof Lock; label: string; className: string }> = {
-  done: { icon: CircleCheck, label: 'Done', className: 'text-emerald-600 dark:text-emerald-400' },
-  tested: { icon: FastForward, label: 'Tested out', className: 'text-sky-600 dark:text-sky-400' },
-  known: { icon: BookCheck, label: 'Already known', className: 'text-sky-600 dark:text-sky-400' },
-  current: { icon: CirclePlay, label: 'Up next', className: 'text-primary' },
-  new: { icon: Sparkles, label: 'New', className: 'text-amber-600 dark:text-amber-400' },
-  locked: { icon: Lock, label: 'Locked', className: 'text-muted-foreground/60' },
-};
 
 const grammarName = (slug: string | null) =>
   slug ? grammarPoints.find((g) => g.slug === slug)?.englishTitle : undefined;
@@ -125,7 +107,12 @@ function LevelSection({ level, units }: { level: number; units: NumberedUnit[] }
   const list = (
     <ol className="space-y-4">
       {units.map(({ unit, number }) => (
-        <UnitCard key={unit.id} unit={unit} number={number} />
+        <UnitCard
+          key={unit.id}
+          unit={unit}
+          number={number}
+          stories={storiesForUnit(unit.id).map((s) => ({ id: s.id, title: s.title.meaning }))}
+        />
       ))}
     </ol>
   );
@@ -155,110 +142,5 @@ function LevelSection({ level, units }: { level: number; units: NumberedUnit[] }
       </summary>
       {list}
     </details>
-  );
-}
-
-function UnitCard({ unit, number }: { unit: PathUnitView; number: number }) {
-  const complete = unit.finished === unit.lessons.length;
-  const active = unit.lessons.some((l) => l.state === 'current');
-  return (
-    <li>
-      <Card className={active ? 'border-primary/40' : ''}>
-        {/* Only the unit you're in starts open, so the path stays short on a phone. */}
-        <details open={active} className="group">
-          <summary className="flex cursor-pointer list-none items-center gap-3 px-5 py-4 [&::-webkit-details-marker]:hidden">
-            <div className="min-w-0 flex-1">
-              <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Unit {number}
-              </div>
-              <div className="text-lg font-semibold">{unit.title}</div>
-              <div className="text-sm text-muted-foreground">{unit.description}</div>
-            </div>
-            <div className="text-right">
-              <div
-                className={`text-sm tabular-nums ${complete ? 'text-emerald-600 dark:text-emerald-400' : 'text-muted-foreground'}`}
-              >
-                {complete ? '✓ ' : ''}
-                {unit.finished} / {unit.lessons.length}
-              </div>
-            </div>
-            <ChevronDown
-              className="size-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-180"
-              aria-hidden
-            />
-          </summary>
-          <div className="border-t px-2 py-2">
-            <ul>
-              {unit.lessons.map((lesson) => {
-                const s = STATE[lesson.state];
-                const Icon = s.icon;
-                const body = (
-                  <>
-                    <Icon className={`size-5 shrink-0 ${s.className}`} aria-label={s.label} />
-                    <div className="min-w-0 flex-1">
-                      <div className="font-medium">{lesson.title}</div>
-                      <div lang="zh-Hans" className="truncate text-sm text-muted-foreground">
-                        {lesson.words.join(' ')}
-                      </div>
-                    </div>
-                    <span className="text-xs text-muted-foreground">
-                      {lesson.state === 'done' && lesson.bestScore != null
-                        ? `${lesson.bestScore}%`
-                        : lesson.state === 'locked'
-                          ? ''
-                          : s.label}
-                    </span>
-                  </>
-                );
-                return (
-                  <li key={lesson.id}>
-                    {lesson.state === 'locked' ? (
-                      <div className="flex items-center gap-3 rounded-md px-3 py-2 opacity-70">
-                        {body}
-                      </div>
-                    ) : (
-                      <Link
-                        href={`/learn/${lesson.id}`}
-                        className={`flex items-center gap-3 rounded-md px-3 py-2 transition-colors hover:bg-muted/60 ${lesson.state === 'current' ? 'bg-primary/5' : ''}`}
-                      >
-                        {body}
-                      </Link>
-                    )}
-                  </li>
-                );
-              })}
-            </ul>
-            <div className="flex flex-wrap gap-2 px-3 pt-2 pb-1">
-              {!complete && (
-                <Link
-                  href={`/learn/checkpoint/${unit.id}`}
-                  className={buttonVariants({ variant: 'outline', size: 'sm' })}
-                >
-                  <FastForward /> Already know this? Test out
-                </Link>
-              )}
-              {unit.scenario && (
-                <Link
-                  href={`/scenarios/${unit.scenario}?view=dialogues`}
-                  className={buttonVariants({ variant: 'ghost', size: 'sm' })}
-                >
-                  Practise the dialogue <ArrowRight />
-                </Link>
-              )}
-              {complete &&
-                storiesForUnit(unit.id).map((story) => (
-                  <Link
-                    key={story.id}
-                    href={`/read/${story.id}`}
-                    className={buttonVariants({ variant: 'ghost', size: 'sm' })}
-                  >
-                    <BookOpen /> Read: {story.title.meaning}
-                  </Link>
-                ))}
-            </div>
-          </div>
-        </details>
-      </Card>
-    </li>
   );
 }

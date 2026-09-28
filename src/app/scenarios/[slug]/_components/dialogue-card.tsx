@@ -9,6 +9,7 @@ import { TokenizedHanzi } from '@/components/tokenized-hanzi';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { addScenarioDialogue, removeScenarioDialogue } from '@/lib/actions/scenario';
+import { speak } from '@/lib/tts';
 import { useConfirmTap } from '@/lib/use-confirm-tap';
 import type { DialogueLine } from '@/lib/curriculum';
 import type { Dictionary } from '@/lib/queries/dictionary';
@@ -127,7 +128,7 @@ export function DialogueCard({
           <>
             {practice && (
               <p className="text-xs text-muted-foreground">
-                Say your lines out loud first, then tap to check.
+                Say your lines out loud first, then tap to check and hear them.
               </p>
             )}
             {lines.map((line, i) => {
@@ -146,7 +147,11 @@ export function DialogueCard({
                     {hidden ? (
                       <button
                         type="button"
-                        onClick={() => setShown(new Set(shown).add(i))}
+                        onClick={() => {
+                          setShown(new Set(shown).add(i));
+                          // Hear it said right after saying it yourself.
+                          speak(line.hanzi);
+                        }}
                         className="py-1 text-left text-sm text-primary underline-offset-4 hover:underline"
                       >
                         {english ? `“${line.meaning}” — tap to check` : 'Your line — tap to check'}
