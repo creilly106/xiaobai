@@ -3,6 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { getToneDrillData } from '@/lib/queries/tones';
 import { ToneReference } from './_components/tone-reference';
 import { ToneTrainer } from './_components/tone-trainer';
+import { PointerCopy } from '@/components/pointer-copy';
 
 export const metadata: Metadata = { title: 'Tones' };
 
@@ -25,7 +26,7 @@ export default async function TonesPage() {
           id="the-tones"
           className="mb-3 text-xs font-medium uppercase tracking-wider text-muted-foreground"
         >
-          The four tones (+ neutral) — click to hear
+          The four tones (+ neutral) — <PointerCopy touch="tap" mouse="click" /> to hear
         </h2>
         <ToneReference />
       </section>
@@ -72,8 +73,11 @@ export default async function TonesPage() {
         <p className="mt-4 text-xs text-muted-foreground">
           {data.singles.length} single syllables, {data.pairs.length} two-syllable words and{' '}
           {data.groups.length} same-sound groups from your library. Characters with more than one
-          pronunciation are left out so the audio always matches the answer. Keys: 1–5 answer · R
-          replay · Backspace clears a pair.
+          pronunciation are left out so the audio always matches the answer.
+          <span className="pointer-coarse:hidden">
+            {' '}
+            Keys: 1–5 answer · R replay · Backspace clears a pair.
+          </span>
         </p>
       </section>
     </div>

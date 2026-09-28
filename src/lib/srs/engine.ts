@@ -102,3 +102,18 @@ export function nextState(
     log: result.log,
   };
 }
+
+/** How long until the card is due again after each rating (Again, Hard, Good, Easy), in ms. */
+export type Intervals = [number, number, number, number];
+
+/** What each rating would do to the card if it were rated now. */
+export function previewIntervals(
+  row: SrsFields,
+  now: Date = new Date(),
+  requestRetention = 0.9,
+): Intervals {
+  const preview = engineFor(requestRetention).repeat(toFsrsCard(row, now), now);
+  const after = (r: Exclude<Rating, Rating.Manual>) =>
+    Math.max(0, preview[r].card.due.getTime() - now.getTime());
+  return [after(Rating.Again), after(Rating.Hard), after(Rating.Good), after(Rating.Easy)];
+}

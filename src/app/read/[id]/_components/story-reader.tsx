@@ -97,7 +97,7 @@ export function StoryReader({
         </p>
       </header>
 
-      <div className="sticky top-0 z-10 -mx-4 mt-4 flex flex-wrap items-center justify-center gap-1.5 border-b border-border/60 bg-background/95 px-4 py-2 backdrop-blur">
+      <div className="sticky top-14 z-10 -mx-4 mt-4 flex flex-wrap items-center justify-center gap-1.5 border-b border-border/60 bg-background/95 px-4 py-2 backdrop-blur">
         {playing === null ? (
           <Button
             type="button"

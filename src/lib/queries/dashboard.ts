@@ -7,7 +7,6 @@ import { getAvailability, getSettings, getTodayCounts, type Availability } from 
 import { userTimeZone } from '@/lib/timezone';
 
 export type DashboardStats = {
-  totalWords: number;
   totalCards: number;
   newCards: number;
   learningCards: number;
@@ -22,8 +21,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
   await connection();
   const now = new Date();
 
-  const [[wordCount], cardsByState, settings, today, availability] = await Promise.all([
-    db.select({ n: sql<number>`count(*)` }).from(schema.words),
+  const [cardsByState, settings, today, availability] = await Promise.all([
     db
       .select({ state: schema.cards.state, n: sql<number>`count(*)` })
       .from(schema.cards)
@@ -41,7 +39,6 @@ export async function getDashboardStats(): Promise<DashboardStats> {
   const reviewCards = by.get('review') ?? 0;
 
   return {
-    totalWords: Number(wordCount?.n ?? 0),
     totalCards: newCards + learningCards + reviewCards,
     newCards,
     learningCards,

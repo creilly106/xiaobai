@@ -4,6 +4,7 @@ import { digitsToChinese } from '@/lib/numbers';
 import { Converter } from './_components/converter';
 import { Drill } from './_components/drill';
 import { Example, SpeakTile } from './_components/number-tiles';
+import { PointerCopy } from '@/components/pointer-copy';
 
 export const metadata: Metadata = { title: 'Numbers' };
 
@@ -27,7 +28,7 @@ export default function NumbersPage() {
       </h1>
       <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
         Eleven words, four big units (百 千 万 亿) and a handful of rules take you past a billion.
-        Click any number to hear it.
+        <PointerCopy touch="Tap" mouse="Click" /> any number to hear it.
       </p>
 
       <section aria-labelledby="basics" className="mt-8">

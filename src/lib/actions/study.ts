@@ -3,12 +3,12 @@
 import { desc, eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { db, schema } from '@/db/client';
-import { nextState, Rating } from '@/lib/srs/engine';
+import { nextState, previewIntervals, Rating, type Intervals } from '@/lib/srs/engine';
 import type { CardState } from '@/db/schema';
 import { getStudyCard, type StudyCard } from '@/lib/queries/study';
-import { addDays, daysBetweenKeys, localDateKey, startOfLocalDay } from '@/lib/dates';
+import { addDays, startOfLocalDay } from '@/lib/dates';
 import { backfillFollowUpCards } from '@/lib/listening-backfill';
-import { writeBackupFile } from '@/lib/backup';
+import { markStudied } from '@/lib/streak';
 import { userTimeZone } from '@/lib/timezone';
 
 export type ReviewRating = 1 | 2 | 3 | 4;
@@ -16,6 +16,8 @@ export type ReviewRating = 1 | 2 | 3 | 4;
 export type RateResult = {
   nextDue: number;
   state: CardState;
+  /** For the card's next showing: when each rating would bring it back. */
+  intervals?: Intervals;
 };
 
 function assertCardId(id: unknown): asserts id is number {
@@ -121,30 +123,14 @@ export async function rateCard(
     });
   }
 
-  const todayKey = localDateKey(now, await userTimeZone());
-  // Keys are YYYY-MM-DD, so they compare as dates; a rating sent late from
-  // an earlier day mustn't wind the streak back.
-  if (settings && (settings.lastStudyDate == null || todayKey > settings.lastStudyDate)) {
-    // First review of the day: keep a local backup (last 7 days are kept).
-    try {
-      await writeBackupFile('auto');
-    } catch (err) {
-      console.error('Automatic backup failed', err);
-    }
-    const continues =
-      settings.lastStudyDate != null && daysBetweenKeys(settings.lastStudyDate, todayKey) === 1;
-    await db
-      .update(schema.settings)
-      .set({
-        streakDays: continues ? settings.streakDays + 1 : 1,
-        lastStudyDate: todayKey,
-        updatedAt: now,
-      })
-      .where(eq(schema.settings.id, settings.id));
-  }
+  await markStudied(now);
 
   revalidateStudy();
-  return { nextDue: next.due.getTime(), state: next.state };
+  return {
+    nextDue: next.due.getTime(),
+    state: next.state,
+    intervals: previewIntervals(next, next.due, settings?.retentionTarget ?? 0.9),
+  };
 }
 
 /**

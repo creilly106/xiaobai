@@ -7,6 +7,12 @@ import { TokenizedHanzi } from '@/components/tokenized-hanzi';
 import { AudioButton } from '@/components/audio-button';
 import { Pinyin } from '@/components/pinyin';
 import { Card, CardContent } from '@/components/ui/card';
+import { buttonVariants } from '@/components/ui/button';
+import { ArrowLeft, ArrowRight, GraduationCap } from 'lucide-react';
+import { LESSONS } from '@/lib/curriculum';
+
+/** Points in the order the Grammar page lists them: by level, then as written. */
+const ORDERED = [...grammarPoints].sort((a, b) => a.hskLevel - b.hskLevel);
 
 export async function generateMetadata({
   params,
@@ -22,6 +28,10 @@ export default async function GrammarDetail({ params }: PageProps<'/grammar/[slu
   if (!point) notFound();
 
   const dict = await getDictionaryFor(point.examples.map((e) => e.hanzi));
+  const at = ORDERED.indexOf(point);
+  const prev = ORDERED[at - 1];
+  const next = ORDERED[at + 1];
+  const lesson = LESSONS.find((l) => l.grammar === point.slug);
 
   return (
     <div className="mx-auto w-full max-w-3xl px-4 py-10">
@@ -79,6 +89,41 @@ export default async function GrammarDetail({ params }: PageProps<'/grammar/[slu
           {point.notes}
         </div>
       )}
+
+      {lesson && (
+        <Link
+          href={`/learn/${lesson.id}`}
+          className="mt-6 flex items-center gap-3 rounded-lg border px-4 py-3 text-sm transition-colors hover:bg-muted/50"
+        >
+          <GraduationCap className="size-5 shrink-0 text-muted-foreground" />
+          <span className="min-w-0 flex-1">
+            Taught in the lesson <span className="font-medium">{lesson.title}</span>
+            <span className="text-muted-foreground"> · {lesson.unit.title}</span>
+          </span>
+          <ArrowRight className="size-4 shrink-0 text-muted-foreground" />
+        </Link>
+      )}
+
+      <nav aria-label="More grammar" className="mt-8 flex flex-wrap justify-between gap-2">
+        {prev ? (
+          <Link
+            href={`/grammar/${prev.slug}`}
+            className={buttonVariants({ variant: 'ghost', className: 'max-w-[48%]' })}
+          >
+            <ArrowLeft /> <span className="truncate">{prev.name}</span>
+          </Link>
+        ) : (
+          <span />
+        )}
+        {next && (
+          <Link
+            href={`/grammar/${next.slug}`}
+            className={buttonVariants({ variant: 'ghost', className: 'max-w-[48%]' })}
+          >
+            <span className="truncate">{next.name}</span> <ArrowRight />
+          </Link>
+        )}
+      </nav>
     </div>
   );
 }

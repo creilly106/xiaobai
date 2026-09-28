@@ -63,3 +63,21 @@ export function useStoredPref(key: string, fallback: string): [string, (next: st
   };
   return [value, set];
 }
+
+const COARSE = '(pointer: coarse)';
+
+/**
+ * Whether the main pointer is a finger (phones, tablets): hover doesn't exist
+ * there, so anything shown on hover needs a tap instead. False on the server.
+ */
+export function useCoarsePointer(): boolean {
+  return useSyncExternalStore(
+    (onChange) => {
+      const query = window.matchMedia(COARSE);
+      query.addEventListener('change', onChange);
+      return () => query.removeEventListener('change', onChange);
+    },
+    () => window.matchMedia(COARSE).matches,
+    () => false,
+  );
+}

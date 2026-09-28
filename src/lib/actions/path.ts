@@ -5,6 +5,7 @@ import { and, eq, inArray, sql } from 'drizzle-orm';
 import { db, schema } from '@/db/client';
 import { lessonById, unitById } from '@/lib/curriculum';
 import { CHECKPOINT_PASS_MARK } from '@/lib/path/lesson-states';
+import { markStudied } from '@/lib/streak';
 import { rateCard, type ReviewRating } from './study';
 
 export type WordResult = { hanzi: string; mistakes: number };
@@ -89,6 +90,7 @@ export async function completeLesson(
   await db
     .insert(schema.practiceLog)
     .values({ kind: 'lesson', item: lessonId, correct: true, createdAt: when });
+  await markStudied(when);
   await db
     .insert(schema.lessonProgress)
     .values({ lessonId, status: 'done', bestScore: best, attempts: 1, completedAt: when })

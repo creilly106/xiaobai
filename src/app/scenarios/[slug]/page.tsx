@@ -7,6 +7,7 @@ import { scenarioBySlug } from '@/lib/scenario-data';
 import { AddScenarioButton } from './_components/add-scenario-button';
 import { DialogueCard } from './_components/dialogue-card';
 import { PhraseRow, type PhraseVersion } from './_components/phrase-row';
+import { PointerCopy } from '@/components/pointer-copy';
 
 export async function generateMetadata({
   params,
@@ -119,8 +120,11 @@ export default async function ScenarioDetailPage({
       {view === 'phrases' || dialogues.length === 0 ? (
         <>
           <p className="mt-4 text-xs text-muted-foreground">
-            Hover a word for its meaning, or tap it to open its page. Where a phrase has{' '}
-            <span className="rounded-full border px-1.5">Past</span> or{' '}
+            <PointerCopy
+              touch="Tap a word for its meaning."
+              mouse="Hover over a word for its meaning, or click it to open its page."
+            />{' '}
+            Where a phrase has <span className="rounded-full border px-1.5">Past</span> or{' '}
             <span className="rounded-full border px-1.5">Future</span> chips, tap them to see how
             Chinese shows the time.{' '}
             <Link href="/grammar/time" className="underline hover:text-foreground">

@@ -66,7 +66,7 @@ export function AddOwnForm() {
             value={hanzi}
             onChange={(e) => setHanzi(e.target.value)}
             onBlur={autofill}
-            placeholder={kind === 'word' ? '酒店' : '我住在这个酒店。'}
+            placeholder={kind === 'word' ? 'e.g. 酒店' : 'e.g. 我住在这个酒店。'}
             className="text-base text-foreground"
             required
           />
@@ -76,7 +76,7 @@ export function AddOwnForm() {
           <Input
             value={pinyin}
             onChange={(e) => setPinyin(e.target.value)}
-            placeholder={kind === 'word' ? 'jiǔdiàn' : 'wǒ zhù zài zhège jiǔdiàn.'}
+            placeholder={kind === 'word' ? 'e.g. jiǔdiàn' : 'e.g. wǒ zhù zài zhège jiǔdiàn.'}
             className="text-foreground"
             required
           />
@@ -86,7 +86,7 @@ export function AddOwnForm() {
           <Input
             value={meaning}
             onChange={(e) => setMeaning(e.target.value)}
-            placeholder={kind === 'word' ? 'hotel' : "I'm staying at this hotel."}
+            placeholder={kind === 'word' ? 'e.g. hotel' : "e.g. I'm staying at this hotel."}
             className="text-foreground"
             required
           />

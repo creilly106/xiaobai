@@ -19,6 +19,7 @@ import type { Syllable } from '@/lib/pinyin';
 import { getDictionary } from './dictionary';
 import { wordSyllables } from './tones';
 import { examplesFor } from '@/lib/examples';
+import { previewIntervals, type Intervals } from '@/lib/srs/engine';
 
 export type StudyCard = {
   id: number;
@@ -39,6 +40,8 @@ export type StudyCard = {
   production?: ProductionInfo;
   /** A real sentence using the word (Tatoeba), for the answer side. */
   example?: { zh: string; en: string };
+  /** When each rating would bring it back, as of loading. */
+  intervals?: Intervals;
 };
 
 export type ProductionInfo = {
@@ -73,6 +76,14 @@ export const CARD_COLUMNS = {
   sentMeaning: schema.sentences.meaning,
   sentNote: schema.sentences.note,
   fails: sql<number>`(select count(*) from reviews r where r.card_id = ${schema.cards.id} and r.rating = 1)`,
+  stability: schema.cards.stability,
+  difficulty: schema.cards.difficulty,
+  lastReview: schema.cards.lastReview,
+  elapsedDays: schema.cards.elapsedDays,
+  scheduledDays: schema.cards.scheduledDays,
+  learningSteps: schema.cards.learningSteps,
+  reps: schema.cards.reps,
+  lapses: schema.cards.lapses,
 } as const;
 
 type CardRow = {
@@ -92,6 +103,25 @@ type CardRow = {
   sentNote?: string | null;
   fails?: number | null;
 };
+
+type SrsRow = CardRow & {
+  stability: number;
+  difficulty: number;
+  lastReview: Date | null;
+  elapsedDays: number;
+  scheduledDays: number;
+  learningSteps: number;
+  reps: number;
+  lapses: number;
+};
+
+/** A study card, with when each rating would bring it back (given the retention target). */
+function toStudyCard(r: SrsRow, retention: number): StudyCard {
+  return {
+    ...rowToStudyCard(r),
+    intervals: previewIntervals({ ...r, state: r.state as CardState }, new Date(), retention),
+  };
+}
 
 export function rowToStudyCard(r: CardRow): StudyCard {
   const isWord = r.wordId != null;
@@ -130,8 +160,11 @@ function dueCards(states: CardState[], now: Date, followUps: FollowUpSettings) {
 
 /** One card, e.g. to put it back in the session after an undo. */
 export async function getStudyCard(id: number): Promise<StudyCard | null> {
-  const [row] = await cardsQuery().where(eq(schema.cards.id, id)).limit(1);
-  return row ? (await decorate([rowToStudyCard(row)]))[0] : null;
+  const [[row], settings] = await Promise.all([
+    cardsQuery().where(eq(schema.cards.id, id)).limit(1),
+    getSettings(),
+  ]);
+  return row ? (await decorate([toStudyCard(row, settings.retentionTarget)]))[0] : null;
 }
 
 export async function getSuspendedCards(): Promise<StudyCard[]> {
@@ -291,5 +324,9 @@ export async function getStudyQueue({
     return row ? [row] : [];
   });
 
-  return decorate(spreadEarly(learning, interleave(reviews, news)).map(rowToStudyCard));
+  return decorate(
+    spreadEarly(learning, interleave(reviews, news)).map((r) =>
+      toStudyCard(r, settings.retentionTarget),
+    ),
+  );
 }

@@ -28,6 +28,7 @@ export function QuizForm({ scenarios, hskLevels }: Props) {
   const [answerMode, setAnswerMode] = useState<'choose' | 'type'>('choose');
   const [includeScenarioSentences, setIncludeScenarioSentences] = useState(true);
   const [includeGrammar, setIncludeGrammar] = useState(true);
+  const [includeLessons, setIncludeLessons] = useState(true);
   const [includeExamples, setIncludeExamples] = useState(true);
   const [knownOnly, setKnownOnly] = useState(false);
 
@@ -49,6 +50,7 @@ export function QuizForm({ scenarios, hskLevels }: Props) {
         if (selectedScenarios.size > 0)
           params.set('scenarios', Array.from(selectedScenarios).join(','));
       }
+      if (includeLessons) params.set('lessons', '1');
       if (includeGrammar) params.set('grammar', '1');
       if (includeExamples) params.set('examples', '1');
       if (knownOnly) params.set('known', '1');
@@ -167,6 +169,13 @@ export function QuizForm({ scenarios, hskLevels }: Props) {
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex flex-wrap gap-2">
+                <Chip
+                  selected={includeLessons}
+                  onClick={() => setIncludeLessons(!includeLessons)}
+                  title="Sentences from the Learn lessons you've finished"
+                >
+                  Your lessons
+                </Chip>
                 <Chip
                   selected={includeScenarioSentences}
                   onClick={() => setIncludeScenarioSentences(!includeScenarioSentences)}

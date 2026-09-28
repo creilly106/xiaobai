@@ -21,6 +21,7 @@ import {
 import type { StudyCard } from '@/lib/queries/study';
 import type { Dictionary } from '@/lib/queries/dictionary';
 import { isTypingLocked } from '@/lib/typing-lock';
+import { formatInterval } from '@/lib/interval';
 import { TeachCard } from './teach-card';
 import { SessionComplete } from './session-complete';
 import { LeechBanner, QueueCounts, SessionToolbar } from './session-toolbar';
@@ -162,6 +163,8 @@ export function Session({ initialQueue, dict, goal }: Props) {
           state: result.state,
           due: result.nextDue,
           fails: entry.card.fails + (rating === 'again' ? 1 : 0),
+          // Unknown until an offline rating is sent.
+          intervals: result.intervals,
         };
         setQueue((q) => {
           const rest = q.slice(1);
@@ -363,6 +366,14 @@ export function Session({ initialQueue, dict, goal }: Props) {
           onFlip={() => setFlipped(true)}
           onRate={submit}
           ratings={STUDY_RATINGS}
+          ratingDetails={
+            card.intervals && {
+              again: formatInterval(card.intervals[0]),
+              hard: formatInterval(card.intervals[1]),
+              good: formatInterval(card.intervals[2]),
+              easy: formatInterval(card.intervals[3]),
+            }
+          }
           disabled={pending}
           dict={dict}
           // "Always show pinyin" would give listening/production cards away; only the hint does.

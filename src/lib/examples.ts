@@ -2,7 +2,7 @@ import 'server-only';
 import raw from './generated/examples.json';
 
 // Example sentences from Tatoeba (CC BY 2.0 FR), picked per word by
-// scripts/build-examples.ts. Server-only: the JSON is ~230 KB.
+// scripts/build-examples.ts. Server-only: the JSON is ~400 KB.
 
 export type Example = {
   zh: string;

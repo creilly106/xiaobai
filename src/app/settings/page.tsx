@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AccentChoice, ThemeChoice, ToneColorsChoice } from '@/components/appearance';
-import { ResetReviewsButton } from '@/app/stats/_components/reset-button';
+import { ResetReviewsButton } from './_components/reset-button';
 import { getSettings } from '@/lib/queries/settings';
 import { getSuspendedCards } from '@/lib/queries/study';
 import { StudyPrefForm } from './_components/pref-form';

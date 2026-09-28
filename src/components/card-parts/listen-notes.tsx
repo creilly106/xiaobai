@@ -23,7 +23,10 @@ export function ListenPrompt({ listening }: { listening: ListeningInfo }) {
         <Volume2 className="size-10" />
       </Button>
       <span className="text-xs text-muted-foreground">
-        Click or press <kbd className="font-mono">P</kbd> to replay
+        <span className="pointer-coarse:hidden">
+          Click or press <kbd className="font-mono">P</kbd> to replay
+        </span>
+        <span className="hidden pointer-coarse:inline">Tap to replay</span>
       </span>
       {listening.inWord && (
         <p className="max-w-sm text-sm text-muted-foreground">

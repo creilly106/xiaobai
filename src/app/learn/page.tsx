@@ -35,6 +35,12 @@ export default async function LearnPage() {
   const path = await getPath();
   const currentUnit = path.units.find((u) => u.lessons.some((l) => l.state === 'current'));
   const currentLesson = currentUnit?.lessons.find((l) => l.state === 'current');
+  const levels: { level: number; units: NumberedUnit[] }[] = [];
+  path.units.forEach((unit, i) => {
+    const last = levels[levels.length - 1];
+    if (last?.level === unit.hskLevel) last.units.push({ unit, number: i + 1 });
+    else levels.push({ level: unit.hskLevel, units: [{ unit, number: i + 1 }] });
+  });
 
   return (
     <div className="mx-auto w-full max-w-3xl px-4 py-8">
@@ -98,12 +104,57 @@ export default async function LearnPage() {
         </Card>
       )}
 
-      <ol className="mt-8 space-y-4">
-        {path.units.map((unit, i) => (
-          <UnitCard key={unit.id} unit={unit} number={i + 1} />
+      <div className="mt-8 space-y-6">
+        {levels.map(({ level, units }) => (
+          <LevelSection key={level} level={level} units={units} />
         ))}
-      </ol>
+      </div>
     </div>
+  );
+}
+
+type NumberedUnit = { unit: PathUnitView; number: number };
+
+/**
+ * One HSK level's units. A level you've finished folds away into one line, so
+ * the path stays short however far you get.
+ */
+function LevelSection({ level, units }: { level: number; units: NumberedUnit[] }) {
+  const lessons = units.reduce((n, { unit }) => n + unit.lessons.length, 0);
+  const finished = units.reduce((n, { unit }) => n + unit.finished, 0);
+  const list = (
+    <ol className="space-y-4">
+      {units.map(({ unit, number }) => (
+        <UnitCard key={unit.id} unit={unit} number={number} />
+      ))}
+    </ol>
+  );
+  const heading = (
+    <>
+      <span className="font-semibold">HSK {level}</span>
+      <span className="text-sm tabular-nums text-muted-foreground">
+        {finished === lessons ? '✓ ' : ''}
+        {finished} / {lessons} lessons · {units.length} units
+      </span>
+    </>
+  );
+  if (finished < lessons) {
+    return (
+      <section aria-label={`HSK ${level}`}>
+        <h2 className="mb-2 flex items-baseline justify-between gap-3 px-1">{heading}</h2>
+        {list}
+      </section>
+    );
+  }
+  return (
+    <details className="group">
+      <summary className="mb-2 flex cursor-pointer list-none items-baseline gap-3 rounded-lg border px-4 py-3 hover:bg-muted/40 [&::-webkit-details-marker]:hidden">
+        {heading}
+        <span className="ml-auto text-xs text-muted-foreground group-open:hidden">Show</span>
+        <span className="ml-auto hidden text-xs text-muted-foreground group-open:inline">Hide</span>
+      </summary>
+      {list}
+    </details>
   );
 }
 
@@ -118,7 +169,7 @@ function UnitCard({ unit, number }: { unit: PathUnitView; number: number }) {
           <summary className="flex cursor-pointer list-none items-center gap-3 px-5 py-4 [&::-webkit-details-marker]:hidden">
             <div className="min-w-0 flex-1">
               <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Unit {number} · HSK {unit.hskLevel}
+                Unit {number}
               </div>
               <div className="text-lg font-semibold">{unit.title}</div>
               <div className="text-sm text-muted-foreground">{unit.description}</div>

@@ -3,6 +3,7 @@ import { AudioButton } from '@/components/audio-button';
 import { TokenizedHanzi } from '@/components/tokenized-hanzi';
 import { tatoebaUrl, type Example } from '@/lib/examples';
 import type { Dictionary } from '@/lib/queries/dictionary';
+import { PointerCopy } from '@/components/pointer-copy';
 
 /** Real sentences using the word, with audio and hover glosses. */
 export function ExamplesCard({
@@ -46,7 +47,7 @@ export function ExamplesCard({
           >
             Tatoeba
           </a>{' '}
-          (CC BY 2.0 FR). Hover a word for its meaning.
+          (CC BY 2.0 FR). <PointerCopy touch="Tap" mouse="Hover over" /> a word for its meaning.
         </p>
       </CardContent>
     </Card>

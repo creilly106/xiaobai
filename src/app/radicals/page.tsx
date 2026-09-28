@@ -75,12 +75,28 @@ export default async function RadicalsPage() {
         </div>
       </section>
 
-      <div className="mt-10 space-y-10">
+      <nav
+        aria-label="Jump to stroke count"
+        className="sticky top-14 z-10 -mx-4 mt-10 flex gap-1 overflow-x-auto border-b border-border/60 bg-background/95 px-4 py-2 backdrop-blur"
+      >
+        <span className="shrink-0 self-center pr-1 text-xs text-muted-foreground">Strokes</span>
+        {strokeCounts.map((s) => (
+          <a
+            key={s}
+            href={`#strokes-${s}`}
+            className="shrink-0 rounded-md px-2.5 py-1 text-sm tabular-nums transition-colors hover:bg-muted"
+          >
+            {s}
+          </a>
+        ))}
+      </nav>
+
+      <div className="mt-6 space-y-10">
         {strokeCounts.map((s) => (
           <section key={s} aria-labelledby={`strokes-${s}`}>
             <h2
               id={`strokes-${s}`}
-              className="mb-3 text-xs font-medium uppercase tracking-wider text-muted-foreground"
+              className="mb-3 scroll-mt-32 text-xs font-medium uppercase tracking-wider text-muted-foreground"
             >
               {s} stroke{s === 1 ? '' : 's'}
             </h2>

@@ -73,12 +73,6 @@ export function QuizSession({
   const submit = useCallback(
     (outcome: QuizOutcome) => {
       if (!current || pending || !flipped) return;
-      trackPractice({
-        kind: 'quiz',
-        item: current.hanzi,
-        correct: outcome !== 'missed',
-        detail: { outcome, ...(current.itemType === 'word' ? { word: current.hanzi } : {}) },
-      });
       const advance = () => {
         setTally((t) => ({ ...t, [outcome]: t[outcome] + 1 }));
         setIndex((i) => i + 1);
@@ -87,6 +81,14 @@ export function QuizSession({
       };
       const cardId = current.cardId;
       if (!srsMode || cardId == null) {
+        // Practice only. (A rating saved to the queue is already a review; logging
+        // it as practice as well would count it twice toward the daily goal.)
+        trackPractice({
+          kind: 'quiz',
+          item: current.hanzi,
+          correct: outcome !== 'missed',
+          detail: { outcome, ...(current.itemType === 'word' ? { word: current.hanzi } : {}) },
+        });
         advance();
         return;
       }

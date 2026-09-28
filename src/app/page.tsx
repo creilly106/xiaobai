@@ -2,12 +2,15 @@ import Link from 'next/link';
 import {
   ArrowRight,
   AudioLines,
+  BookOpen,
   BookOpenText,
   Dices,
   Hash,
   Languages,
   MessagesSquare,
+  PenLine,
   Puzzle,
+  SquareSplitHorizontal,
 } from 'lucide-react';
 import { buttonVariants } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -15,11 +18,12 @@ import { getDashboardStats } from '@/lib/queries/dashboard';
 import { NextDue } from '@/components/next-due';
 import { getPath } from '@/lib/queries/path';
 import { userTimeZone } from '@/lib/timezone';
-import { StatTile, QueueTile } from './_components/stat-tiles';
+import { StatTile } from './_components/stat-tiles';
 import { TodayGoal } from './_components/today-goal';
 import { OfflineWarmup } from '@/components/offline-warmup';
 import { LESSONS } from '@/lib/curriculum';
 import { getGoalProgress } from '@/lib/queries/goal';
+import { getWordsKnown } from '@/lib/queries/progress';
 
 const EXPLORE = [
   {
@@ -28,6 +32,7 @@ const EXPLORE = [
     desc: 'Real-life phrase packs',
     icon: MessagesSquare,
   },
+  { href: '/read', label: 'Read', desc: 'Stories with your words', icon: BookOpen },
   { href: '/quiz', label: 'Quiz', desc: 'Custom practice drills', icon: Dices },
   { href: '/tones', label: 'Tones', desc: 'Train your ear', icon: AudioLines },
   { href: '/numbers', label: 'Numbers', desc: 'Count, read and hear them', icon: Hash },
@@ -49,14 +54,22 @@ const EXPLORE = [
     desc: 'Every word, searchable',
     icon: BookOpenText,
   },
+  {
+    href: '/breakdown',
+    label: 'Break it down',
+    desc: 'Paste Chinese, read it word by word',
+    icon: SquareSplitHorizontal,
+  },
+  { href: '/find', label: 'Find a character', desc: 'Draw it to look it up', icon: PenLine },
 ] as const;
 
 export default async function Home() {
   const timeZone = await userTimeZone();
-  const [stats, path, goal] = await Promise.all([
+  const [stats, path, goal, words] = await Promise.all([
     getDashboardStats(),
     getPath(),
     getGoalProgress(new Date(), timeZone),
+    getWordsKnown(),
   ]);
   const a = stats.availability;
   const hasCards = stats.totalCards > 0;
@@ -173,27 +186,24 @@ export default async function Home() {
           delay={0}
         />
         <StatTile label="Reviews today" value={stats.reviewsToday} delay={0.05} />
-        <StatTile label="Cards in queue" value={stats.totalCards} delay={0.1} />
-        <StatTile label="Words in library" value={stats.totalWords} delay={0.15} />
+        <StatTile label="Words you know" value={words.known} delay={0.1} />
+        <StatTile label="Cards in queue" value={stats.totalCards} delay={0.15} />
       </div>
 
       {hasCards && (
-        <>
-          <h2 className="mb-3 mt-8 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-            Your queue
-          </h2>
-          <div className="grid gap-4 sm:grid-cols-3">
-            <QueueTile label="Not started" value={stats.newCards} delay={0.2} />
-            <QueueTile label="Learning" value={stats.learningCards} delay={0.25} />
-            <QueueTile label="Long-term review" value={stats.reviewCards} delay={0.3} />
-          </div>
-        </>
+        <QueueBar
+          parts={[
+            { label: 'Long-term review', value: stats.reviewCards, className: 'bg-emerald-500' },
+            { label: 'Learning', value: stats.learningCards, className: 'bg-amber-500' },
+            { label: 'Not started', value: stats.newCards, className: 'bg-muted-foreground/30' },
+          ]}
+        />
       )}
 
       <h2 className="mb-3 mt-8 text-xs font-medium uppercase tracking-wider text-muted-foreground">
         Explore
       </h2>
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-5">
         {EXPLORE.map(({ href, label, desc, icon: Icon }) => (
           <Link key={href} href={href} className="group">
             <Card className="h-full transition-colors group-hover:border-primary/50">
@@ -207,6 +217,36 @@ export default async function Home() {
         ))}
       </div>
     </div>
+  );
+}
+
+/** Your queue at a glance: one bar split by how far along each card is. */
+function QueueBar({ parts }: { parts: { label: string; value: number; className: string }[] }) {
+  const total = parts.reduce((n, p) => n + p.value, 0);
+  if (total === 0) return null;
+  return (
+    <section aria-label="Your queue" className="mt-4 rounded-xl border px-4 py-3">
+      <div className="flex h-2 overflow-hidden rounded-full bg-muted">
+        {parts.map(
+          (p) =>
+            p.value > 0 && (
+              <div
+                key={p.label}
+                className={p.className}
+                style={{ width: `${(p.value / total) * 100}%` }}
+              />
+            ),
+        )}
+      </div>
+      <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+        {parts.map((p) => (
+          <span key={p.label} className="inline-flex items-center gap-1.5">
+            <span className={`size-2 rounded-full ${p.className}`} aria-hidden />
+            {p.label} <span className="font-medium tabular-nums text-foreground">{p.value}</span>
+          </span>
+        ))}
+      </div>
+    </section>
   );
 }
 

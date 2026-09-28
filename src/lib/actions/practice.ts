@@ -5,6 +5,7 @@ import { db, schema } from '@/db/client';
 import type { PracticeKind } from '@/db/schema';
 import { addDays, startOfLocalDay } from '@/lib/dates';
 import { userTimeZone } from '@/lib/timezone';
+import { markStudied } from '@/lib/streak';
 
 export type PracticeEntry = {
   kind: PracticeKind;
@@ -44,6 +45,7 @@ export async function logPractice(entries: PracticeEntry[]): Promise<{ reviewSoo
       detail: e.detail ? JSON.stringify(e.detail).slice(0, 2000) : null,
     })),
   );
+  await markStudied();
 
   const missedWords = [
     ...new Set(

@@ -4,14 +4,23 @@ import { Pinyin } from '@/components/pinyin';
 import { TokenizedHanzi } from '@/components/tokenized-hanzi';
 import type { Dictionary } from '@/lib/queries/dictionary';
 
+/** Known = in long-term review; null = not started. */
+export type WordStatus = 'known' | 'learning' | 'queued' | null;
+
 type Word = {
   id: number;
   hanzi: string;
   pinyin: string;
   meaning: string;
   hskLevel: number | null;
-  inQueue: boolean;
+  status: WordStatus;
 };
+
+const STATUS = {
+  known: { label: 'Known', className: 'bg-emerald-500' },
+  learning: { label: 'Learning', className: 'bg-amber-500' },
+  queued: { label: 'In your queue', className: 'bg-sky-500' },
+} as const;
 
 export function WordRow({ word, dict }: { word: Word; dict: Dictionary }) {
   const isMultiChar = Array.from(word.hanzi).length > 1;
@@ -28,18 +37,29 @@ export function WordRow({ word, dict }: { word: Word; dict: Dictionary }) {
           </Link>
         )}
       </span>
-      <Pinyin text={word.pinyin} className="truncate text-sm text-muted-foreground" />
+      <span className="flex min-w-0 items-center gap-1.5">
+        <Pinyin text={word.pinyin} className="truncate text-sm text-muted-foreground" />
+        {word.status && (
+          <span
+            role="img"
+            className={`size-1.5 shrink-0 rounded-full sm:hidden ${STATUS[word.status].className}`}
+            title={STATUS[word.status].label}
+            aria-label={STATUS[word.status].label}
+          />
+        )}
+      </span>
       <span className="col-start-2 text-sm sm:col-start-auto">
         <Link href={href} className="hover:underline">
           {word.meaning}
         </Link>
       </span>
       <span className="hidden items-center gap-2 text-xs text-muted-foreground sm:flex">
-        {word.inQueue && (
+        {word.status && (
           <span
-            className="size-1.5 rounded-full bg-primary"
-            title="In your study queue"
-            aria-label="In your study queue"
+            role="img"
+            className={`size-1.5 rounded-full ${STATUS[word.status].className}`}
+            title={STATUS[word.status].label}
+            aria-label={STATUS[word.status].label}
           />
         )}
         {word.hskLevel != null && <span>HSK {word.hskLevel}</span>}

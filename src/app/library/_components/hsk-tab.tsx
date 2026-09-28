@@ -6,9 +6,17 @@ import { getDictionaryFor } from '@/lib/queries/dictionary';
 import { getSettings } from '@/lib/queries/settings';
 import { isCjk, plainPinyin } from '@/lib/text';
 import { LibrarySearch } from './library-search';
-import { WordRow } from './word-row';
+import { WordRow, type WordStatus } from './word-row';
+import { PointerCopy } from '@/components/pointer-copy';
 
 const PAGE_LIMIT = 200;
+
+/** From the word's recognition card: how well you know it. */
+function wordStatus(state: string | null, inQueue: boolean): WordStatus {
+  if (state === 'review') return 'known';
+  if (state === 'learning' || state === 'relearning') return 'learning';
+  return inQueue ? 'queued' : null;
+}
 
 /**
  * The HSK 1–4 word lists with search, and progress per level. Add/remove
@@ -24,6 +32,9 @@ export async function HskTab({ q, levelParam }: { q: string; levelParam?: string
       hskLevel: schema.words.hskLevel,
       cardCount: sql<number>`count(${schema.cards.id})`,
       learned: sql<number>`max(case when ${schema.cards.state} <> 'new' then 1 else 0 end)`,
+      recognition: sql<
+        string | null
+      >`max(case when ${schema.cards.mode} = 'recognition' then ${schema.cards.state} end)`,
     })
     .from(schema.words)
     .leftJoin(schema.cards, eq(schema.cards.wordId, schema.words.id))
@@ -70,7 +81,12 @@ export async function HskTab({ q, levelParam }: { q: string; levelParam?: string
     <>
       <p className="text-sm text-muted-foreground">
         {words.length.toLocaleString()} words across HSK {levels[0]}–{levels[levels.length - 1]}.
-        Click a word to open its page.
+        <PointerCopy touch="Tap" mouse="Click" /> a word to open its page.
+      </p>
+      <p className="mt-1 flex flex-wrap gap-x-3 text-xs text-muted-foreground">
+        <Legend className="bg-emerald-500">Known</Legend>
+        <Legend className="bg-amber-500">Learning</Legend>
+        <Legend className="bg-sky-500">In your queue</Legend>
       </p>
 
       <section aria-labelledby="levels-heading" className="mt-6">
@@ -165,10 +181,23 @@ export async function HskTab({ q, levelParam }: { q: string; levelParam?: string
       {shown.length > 0 && (
         <ul className="mt-2 divide-y divide-border/60 rounded-lg border border-border/60 bg-card">
           {shown.map((w) => (
-            <WordRow key={w.id} word={{ ...w, inQueue: Number(w.cardCount) > 0 }} dict={dict} />
+            <WordRow
+              key={w.id}
+              word={{ ...w, status: wordStatus(w.recognition, Number(w.cardCount) > 0) }}
+              dict={dict}
+            />
           ))}
         </ul>
       )}
     </>
+  );
+}
+
+function Legend({ className, children }: { className: string; children: React.ReactNode }) {
+  return (
+    <span className="inline-flex items-center gap-1.5">
+      <span className={`size-1.5 rounded-full ${className}`} aria-hidden />
+      {children}
+    </span>
   );
 }

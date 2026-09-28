@@ -350,6 +350,26 @@ const tests: Test[] = [
     },
   },
   {
+    name: 'touch: tapping a word shows its meaning without leaving the page',
+    async run(page) {
+      // Headless Chrome reports a mouse; a phone has no hover, so taps must do the work.
+      const cdp = await page.context().newCDPSession(page);
+      await cdp.send('Emulation.setEmulatedMedia', {
+        features: [
+          { name: 'pointer', value: 'coarse' },
+          { name: 'hover', value: 'none' },
+        ],
+      });
+      await page.goto(`${base}/scenarios/ordering-food`, { waitUntil: 'networkidle' });
+      const url = page.url();
+      await page.getByRole('button', { name: '菜单' }).first().tap();
+      const popover = page.locator('[data-slot=popover-content]');
+      await popover.waitFor();
+      assert(/menu/.test((await popover.textContent()) ?? ''), 'no meaning in the popover');
+      assert(page.url() === url, `navigated to ${page.url()}`);
+    },
+  },
+  {
     name: 'break it down: pasted Chinese is split into words you can look up',
     async run(page) {
       await page.goto(`${base}/breakdown`);

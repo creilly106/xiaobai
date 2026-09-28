@@ -16,7 +16,12 @@ export default async function ClozePage({ searchParams }: PageProps<'/quiz/cloze
   const scenarioSlugs = (one(params.scenarios) ?? '')
     .split(',')
     .filter((s) => /^[a-z0-9-]{1,64}$/.test(s));
-  const includeGrammar = one(params.grammar) === '1';
+  const picked = ['grammar', 'examples', 'scen', 'lessons', 'scenarios'].some((k) =>
+    one(params[k]),
+  );
+  // Nothing picked (an old link, say): your lessons and the grammar examples.
+  const includeLessons = picked ? one(params.lessons) === '1' : true;
+  const includeGrammar = picked ? one(params.grammar) === '1' : true;
   const includeExamples = one(params.examples) === '1';
   const includeScenarios = one(params.scen) === '1';
   const mode: AnswerMode = one(params.answer) === 'type' ? 'type' : 'choose';
@@ -27,6 +32,7 @@ export default async function ClozePage({ searchParams }: PageProps<'/quiz/cloze
     includeGrammar,
     includeExamples,
     includeScenarios,
+    includeLessons,
     knownOnly: one(params.known) === '1',
     count,
   });

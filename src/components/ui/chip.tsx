@@ -42,9 +42,10 @@ export function ToggleSwitch({
     <button
       type="button"
       onClick={() => onChange(!value)}
-      aria-pressed={value}
+      role="switch"
+      aria-checked={value}
       aria-label={label}
-      className={`relative rounded-full border transition-colors ${dims.track} ${
+      className={`relative shrink-0 rounded-full border transition-colors ${dims.track} ${
         value ? 'border-primary bg-primary' : 'border-border bg-muted'
       }`}
     >

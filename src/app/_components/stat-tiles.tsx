@@ -52,28 +52,3 @@ export function StatTile({
     </motion.div>
   );
 }
-
-export function QueueTile({
-  label,
-  value,
-  delay = 0,
-}: {
-  label: string;
-  value: number;
-  delay?: number;
-}) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.25, delay }}
-    >
-      <Card>
-        <CardContent className="flex items-center justify-between py-4">
-          <span className="text-sm text-muted-foreground">{label}</span>
-          <span className="text-xl font-medium tabular-nums">{value}</span>
-        </CardContent>
-      </Card>
-    </motion.div>
-  );
-}

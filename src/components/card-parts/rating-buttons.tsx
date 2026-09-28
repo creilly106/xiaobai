@@ -19,12 +19,15 @@ export function RatingButtons<K extends string>({
   enabled,
   onRate,
   suggested,
+  details,
 }: {
   ratings: readonly FlashcardRating<K>[];
   enabled: boolean;
   onRate: (key: K) => void;
   /** Highlighted after a typed answer is checked; you still choose. */
   suggested?: K;
+  /** Shown under each label instead of its key: when the card would come back. */
+  details?: Partial<Record<K, string>>;
 }) {
   const suggestedRef = useRef<HTMLButtonElement>(null);
   const enabledAt = useRef(0);
@@ -63,7 +66,11 @@ export function RatingButtons<K extends string>({
           aria-description={enabled && suggested === r.key ? 'Suggested' : undefined}
         >
           <span className="text-base font-semibold">{r.label}</span>
-          <span className="font-mono text-xs opacity-70">{r.hint}</span>
+          {details?.[r.key] ? (
+            <span className="text-xs tabular-nums opacity-70">{details[r.key]}</span>
+          ) : (
+            <span className="font-mono text-xs opacity-70 pointer-coarse:invisible">{r.hint}</span>
+          )}
         </motion.button>
       ))}
     </div>

@@ -3,8 +3,10 @@
  * sentences for each vocabulary word, from Tatoeba (https://tatoeba.org,
  * CC BY 2.0 FR) via the ManyThings.org Chinese–English file.
  *
- * Only sentences written entirely with characters from your HSK vocabulary are
+ * Only sentences written entirely with characters from the HSK vocabulary are
  * kept, which drops traditional-only characters and anything too advanced.
+ * Each word prefers sentences no harder than its own HSK level, so an HSK 1
+ * word isn't shown in a sentence about cargo ships.
  *
  *   npm run data:examples
  */
@@ -37,8 +39,16 @@ export type ExampleData = {
 async function main() {
   const TXT = ensureTatoeba();
   const client = createClient(dbCredentials());
-  const words = (await client.execute('SELECT hanzi FROM words')).rows.map((r) => String(r.hanzi));
+  const rows = (
+    await client.execute('SELECT hanzi, hsk_level FROM words WHERE hsk_level IS NOT NULL')
+  ).rows;
   client.close();
+  const levelOf = new Map<string, number>();
+  for (const r of rows) {
+    const hanzi = String(r.hanzi);
+    levelOf.set(hanzi, Math.min(levelOf.get(hanzi) ?? 9, Number(r.hsk_level)));
+  }
+  const words = [...levelOf.keys()];
 
   const vocab = new Set(words);
   const allowedChars = new Set(words.flatMap((w) => Array.from(w)));
@@ -61,8 +71,19 @@ async function main() {
 
   // For each word, prefer sentences near IDEAL_CHARS — never ones that are just the word.
   const byWord = new Map<string, number[]>();
+  /** The HSK level of each sentence's hardest word (a stray character counts as 6). */
+  const hardest: number[] = [];
   candidates.forEach((s, i) => {
-    for (const w of new Set(segmentWords(s.zh, vocab))) {
+    const segs = segmentWords(s.zh, vocab);
+    const inVocab = segs.filter((w) => vocab.has(w));
+    const covered = inVocab.join('').length;
+    const hanTotal = Array.from(s.zh).filter((c) => HAN.test(c)).length;
+    hardest[i] = Math.max(
+      0,
+      ...inVocab.map((w) => levelOf.get(w) ?? 6),
+      covered < hanTotal ? 6 : 0,
+    );
+    for (const w of new Set(segs)) {
       const list = byWord.get(w) ?? [];
       list.push(i);
       byWord.set(w, list);
@@ -74,11 +95,16 @@ async function main() {
   const out: ExampleData['words'] = {};
   const hanCount = (i: number) => Array.from(candidates[i].zh).filter((c) => HAN.test(c)).length;
   for (const [word, idxs] of byWord) {
+    if (!vocab.has(word)) continue;
     const wordLen = Array.from(word).length;
+    const level = levelOf.get(word) ?? 6;
+    /** Levels above the word's own: 0 means you could read it by the time you meet the word. */
+    const over = (i: number) => Math.max(0, hardest[i] - level);
     const best = idxs
       .filter((i) => hanCount(i) >= wordLen + 2)
       .sort(
         (a, b) =>
+          over(a) - over(b) ||
           Math.abs(hanCount(a) - IDEAL_CHARS) - Math.abs(hanCount(b) - IDEAL_CHARS) ||
           hanCount(a) - hanCount(b) ||
           a - b,

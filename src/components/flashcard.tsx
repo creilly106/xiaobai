@@ -28,6 +28,7 @@ import {
   TypedResult,
   type TypedAnswer,
 } from '@/components/card-parts/production-prompt';
+import { PointerCopy } from '@/components/pointer-copy';
 
 export type { FlashcardRating };
 
@@ -64,6 +65,8 @@ type Props<K extends string> = {
   onHint?: () => void;
   /** Which rating to suggest after a typed answer is checked. */
   gradeToRating?: Partial<Record<PinyinGrade | Verdict, K>>;
+  /** Under each rating: when the card would come back. */
+  ratingDetails?: Partial<Record<K, string>>;
 };
 
 export function Flashcard<K extends string>({
@@ -77,6 +80,7 @@ export function Flashcard<K extends string>({
   showPinyinOnFront,
   onHint,
   gradeToRating,
+  ratingDetails,
 }: Props<K>) {
   const isWord = item.itemType === 'word';
   // A typed answer belongs to one card; ignore it once the card changes.
@@ -213,7 +217,8 @@ export function Flashcard<K extends string>({
                     {item.example && <ExampleLine example={item.example} dict={dict} />}
                     {dict && (
                       <p className="text-xs text-muted-foreground">
-                        Hover a character to see what it means on its own.
+                        <PointerCopy touch="Tap" mouse="Hover over" /> a character to see what it
+                        means on its own.
                       </p>
                     )}
                     {isWord && <WordTools key={item.key} hanzi={item.hanzi} />}
@@ -236,6 +241,7 @@ export function Flashcard<K extends string>({
         ratings={ratings}
         enabled={flipped && !disabled}
         onRate={onRate}
+        details={ratingDetails}
         suggested={
           typedAnswer
             ? gradeToRating?.[typedAnswer.grade]

@@ -8,6 +8,7 @@ import type { Syllable } from '@/lib/pinyin';
 import { getDictionary } from './dictionary';
 import { wordSyllables } from './tones';
 import { allExamples } from '@/lib/examples';
+import { LESSONS } from '@/lib/curriculum';
 
 export type ClozeFilters = {
   /** Include scenario sentences. */
@@ -18,6 +19,8 @@ export type ClozeFilters = {
   includeGrammar: boolean;
   /** Include example sentences from Tatoeba. */
   includeExamples: boolean;
+  /** Include the sentences from Learn lessons you've finished. */
+  includeLessons: boolean;
   /** Only blank out words you've already studied. */
   knownOnly: boolean;
   count: number;
@@ -81,6 +84,25 @@ async function loadSentences(filters: ClozeFilters): Promise<Sentence[]> {
         pinyin: r.pinyin,
         meaning: r.meaning,
       });
+    }
+  }
+  if (filters.includeLessons) {
+    const finished = new Set(
+      (await db.select({ id: schema.lessonProgress.lessonId }).from(schema.lessonProgress)).map(
+        (r) => r.id,
+      ),
+    );
+    for (const lesson of LESSONS) {
+      if (!finished.has(lesson.id)) continue;
+      (lesson.sentences ?? []).forEach((e, i) =>
+        out.push({
+          key: `l-${lesson.id}-${i}`,
+          source: `Lesson · ${lesson.title}`,
+          hanzi: e.hanzi,
+          pinyin: e.pinyin,
+          meaning: e.meaning,
+        }),
+      );
     }
   }
   if (filters.includeGrammar) {

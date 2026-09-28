@@ -9,7 +9,6 @@ import {
   getStatsSummary,
 } from '@/lib/queries/stats';
 import { Heatmap } from './_components/heatmap';
-import { ResetReviewsButton } from './_components/reset-button';
 import { PracticeCard } from './_components/practice-card';
 import { ForecastCard } from './_components/forecast-card';
 import { getForecast, getWordsKnown } from '@/lib/queries/progress';
@@ -34,15 +33,10 @@ export default async function StatsPage() {
 
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-10">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold">Stats</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            The numbers that predict fluency progress, not vanity metrics.
-          </p>
-        </div>
-        <ResetReviewsButton />
-      </div>
+      <h1 className="text-2xl font-semibold">Stats</h1>
+      <p className="mt-1 text-sm text-muted-foreground">
+        How much you&apos;ve studied, how well it&apos;s sticking, and what&apos;s coming up.
+      </p>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
