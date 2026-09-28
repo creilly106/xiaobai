@@ -6,6 +6,7 @@ import type { LevelBank, LevelItem, LevelStep } from '@/lib/level/items';
 import { difficultyFor, type Skill } from '@/lib/level/rating';
 import {
   distractors,
+  seededRandom,
   shuffle,
   type LessonSentence,
   type LessonWord,
@@ -145,7 +146,10 @@ export type BankShape = { reading: number; listening: number; writing: number; t
  * Questions for a Level check: `shape` of each skill at every HSK level (the
  * check picks among them as it learns where you are), plus tone questions.
  */
-export async function buildLevelBank(shape: BankShape, rand: () => number): Promise<LevelBank> {
+export async function buildLevelBank(
+  shape: BankShape,
+  rand: () => number = seededRandom(Date.now()),
+): Promise<LevelBank> {
   const vocab = await loadVocab();
   const sources = levelSources(vocab);
   const bank: LevelBank = { reading: {}, listening: {}, writing: {}, tones: {} };
@@ -208,7 +212,10 @@ export async function buildLevelBank(shape: BankShape, rand: () => number): Prom
 export type ExamQuestions = { level: number; items: LevelItem[] };
 
 /** A promotion exam: every skill at exactly HSK `level`, then the level's passage. */
-export async function buildExam(level: number, rand: () => number): Promise<ExamQuestions | null> {
+export async function buildExam(
+  level: number,
+  rand: () => number = seededRandom(Date.now()),
+): Promise<ExamQuestions | null> {
   const passage = passageFor(level);
   if (!passage) return null;
   const vocab = await loadVocab();

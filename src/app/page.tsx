@@ -24,6 +24,8 @@ import { OfflineWarmup } from '@/components/offline-warmup';
 import { LESSONS } from '@/lib/curriculum';
 import { getGoalProgress } from '@/lib/queries/goal';
 import { getWordsKnown } from '@/lib/queries/progress';
+import { getLevelState, type LevelState } from '@/lib/queries/level';
+import { rankAt } from '@/lib/level/ranks';
 
 const EXPLORE = [
   {
@@ -65,11 +67,12 @@ const EXPLORE = [
 
 export default async function Home() {
   const timeZone = await userTimeZone();
-  const [stats, path, goal, words] = await Promise.all([
+  const [stats, path, goal, words, level] = await Promise.all([
     getDashboardStats(),
     getPath(),
     getGoalProgress(new Date(), timeZone),
     getWordsKnown(),
+    getLevelState(),
   ]);
   const a = stats.availability;
   const hasCards = stats.totalCards > 0;
@@ -95,6 +98,7 @@ export default async function Home() {
       </div>
 
       {goal.goal > 0 && <TodayGoal progress={goal} />}
+      <LevelCard state={level} />
       <OfflineWarmup
         pages={['/learn', '/study', ...upcoming.map((l) => `/learn/${l.id}`)]}
         texts={upcoming.flatMap((l) => [...l.words, ...(l.sentences ?? []).map((x) => x.hanzi)])}
@@ -247,6 +251,50 @@ function QueueBar({ parts }: { parts: { label: string; value: number; className:
         ))}
       </div>
     </section>
+  );
+}
+
+/** Your rank, and the Level check or exam when one is waiting. */
+function LevelCard({ state }: { state: LevelState }) {
+  const rank = rankAt(state.rank);
+  const exam = state.examLevel != null && !state.examRetryAt ? rankAt(state.examLevel) : null;
+  const action = exam
+    ? { href: `/level/exam?level=${exam.level}`, text: `${exam.hanzi} exam ready`, urgent: true }
+    : state.skills == null
+      ? { href: '/level/check', text: 'Find your level', urgent: false }
+      : state.checkDue
+        ? { href: '/level/check', text: 'Level check due', urgent: false }
+        : null;
+  return (
+    <Link
+      href={action?.href ?? '/level'}
+      className="mb-6 flex items-center gap-3 rounded-xl border px-4 py-3 transition-colors hover:bg-muted/40"
+    >
+      <span
+        lang="zh-Hans"
+        className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary text-base font-semibold text-primary-foreground"
+      >
+        {rank.hanzi}
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block text-sm font-medium">{rank.name}</span>
+        <span className="block text-xs text-muted-foreground">
+          {state.overall != null
+            ? `About HSK ${state.overall.toFixed(1)}`
+            : 'A 6-minute check finds your level'}
+        </span>
+      </span>
+      {action && (
+        <span
+          className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${
+            action.urgent ? 'bg-amber-500/15 text-amber-700 dark:text-amber-400' : 'bg-muted'
+          }`}
+        >
+          <span lang={exam ? 'zh-Hans' : undefined}>{action.text}</span>
+          <ArrowRight className="size-3.5" />
+        </span>
+      )}
+    </Link>
   );
 }
 

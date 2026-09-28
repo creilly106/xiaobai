@@ -50,6 +50,8 @@ export type LevelState = {
   towardNext: number;
   lastCheckAt: number | null;
   checkDue: boolean;
+  /** Days until the next weekly check is due (0 = due now). */
+  checkInDays: number;
   history: HistoryPoint[];
   milestones: { key: string; achievedAt: number }[];
 };
@@ -142,6 +144,10 @@ export async function getLevelState(): Promise<LevelState> {
     towardNext: towardNext(rank, overall),
     lastCheckAt,
     checkDue: lastCheckAt == null || Date.now() - lastCheckAt >= CHECK_EVERY_MS,
+    checkInDays:
+      lastCheckAt == null
+        ? 0
+        : Math.max(0, Math.ceil((lastCheckAt + CHECK_EVERY_MS - Date.now()) / 86_400_000)),
     history: history.map((h) => ({
       at: h.takenAt.getTime(),
       kind: h.kind,
