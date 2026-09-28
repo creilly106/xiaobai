@@ -24,6 +24,7 @@ export const NAV_GROUPS: { label: string; menu?: boolean; items: NavItem[] }[] =
       { href: '/quiz', label: 'Quiz', desc: 'Flashcards, typed meanings, fill in the blank' },
       { href: '/read', label: 'Read', desc: 'Short stories with the words you know' },
       { href: '/tones', label: 'Tones', desc: 'Hear it, pick the tones' },
+      { href: '/problem-words', label: 'Problem words', desc: 'The ones you keep missing' },
     ],
   },
   {

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
+import Link from 'next/link';
 import { BarChart3, BookOpen, Flame, Target } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -136,7 +137,10 @@ export default async function StatsPage() {
                   );
                 })}
                 <p className="pt-2 text-xs text-muted-foreground">
-                  Retention = anything but Again, over total reviews.
+                  Retention = anything but Again, over total reviews.{' '}
+                  <Link href="/problem-words" className="underline underline-offset-4">
+                    See the words you miss most
+                  </Link>
                 </p>
               </div>
             )}

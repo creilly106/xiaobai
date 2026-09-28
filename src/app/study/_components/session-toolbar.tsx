@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   Eye,
@@ -211,7 +212,11 @@ export function LeechBanner({
     <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm">
       <TriangleAlert className="size-4 shrink-0 text-amber-600 dark:text-amber-400" />
       <span className="min-w-0 flex-1">
-        This one keeps slipping ({fails} misses). Try the hint, or give it a rest.
+        This one keeps slipping ({fails} misses). Try the hint, give it a rest, or{' '}
+        <Link href="/problem-words" className="underline underline-offset-4">
+          see why
+        </Link>
+        .
       </span>
       <span className="flex gap-1">
         <Button size="sm" variant="ghost" onClick={onBury} disabled={pending}>

@@ -36,6 +36,7 @@ const routes: string[] = [
   '/grammar/time',
   ...grammarPoints.map((g) => `/grammar/${g.slug}`),
   '/breakdown',
+  '/problem-words',
   '/find',
   '/radicals',
   '/numbers',

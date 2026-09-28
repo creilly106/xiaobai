@@ -14,17 +14,18 @@ A Chinese-learning web app, from your first 你好 to reading short stories. It'
 
 Unit checkpoints let you test out of material you already know. Lessons added behind your progress never pull you back.
 
-**Review.** Spaced repetition with [FSRS](https://github.com/open-spaced-repetition/ts-fsrs). Words come in from lessons. Listening and English → Chinese cards are added once a word has stuck.
+**Review.** Spaced repetition with [FSRS](https://github.com/open-spaced-repetition/ts-fsrs). Words come in from lessons. Listening and English → Chinese cards are added once a word has stuck. Each rating button shows when the card will come back.
 
 **Practise.**
 
-- Quizzes: flashcards, typed meanings, fill in the blank.
+- Quizzes: flashcards, typed meanings, fill in the blank, and a Tricky words drill.
+- **Problem words**: the words you keep missing, what might be tripping you up (a word that sounds the same, a shared character, missing it mostly when listening), and a place for a memory hook.
 - A tone trainer and a numbers drill (prices, dates, times).
 - **Read**: 20 graded stories, each written only with words you've already learned, with tap-to-look-up, pinyin over each word, read-aloud and comprehension questions.
 
 **Explore.**
 
-- **Scenarios**: 20 real-life situations (ordering food, the doctor, renting a flat…). Phrases come in past, present and future versions, alongside two-voice dialogues with a "Your turn" mode, a listening mode and comprehension questions.
+- **Scenarios**: 28 real-life situations (ordering food, the doctor, bubble tea, deliveries, the bank…). Phrases come in past, present and future versions, alongside two-voice dialogues with a "Your turn" mode, a listening mode and comprehension questions.
 - **Grammar**: 57 grammar points with examples.
 - **Library**: a dictionary search over CC-CEDICT, with English, pinyin and character search.
 - **Radicals.**

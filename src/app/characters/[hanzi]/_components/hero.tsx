@@ -3,7 +3,7 @@ import { AudioButton } from '@/components/audio-button';
 import { Pinyin } from '@/components/pinyin';
 import { HanziStrokes } from '@/components/hanzi-strokes';
 import { AddToStudyButton } from '@/components/add-to-study-button';
-import { NoteEditor } from './note-editor';
+import { NoteEditor } from '@/components/note-editor';
 import type { CharacterInfo } from '@/lib/queries/characters';
 
 const pill =
@@ -76,7 +76,9 @@ export function Hero({ info }: { info: CharacterInfo }) {
                 }
                 inStudy={study.inStudy}
               />
-              {study.wordId !== null && <NoteEditor wordId={study.wordId} initial={study.note} />}
+              {study.wordId !== null && (
+                <NoteEditor target={{ wordId: study.wordId }} initial={study.note} />
+              )}
             </div>
           )}
         </div>
