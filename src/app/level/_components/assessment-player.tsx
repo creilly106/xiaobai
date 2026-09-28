@@ -78,8 +78,12 @@ export function AssessmentPlayer(props: Props) {
         const r =
           props.mode === 'check' ? await submitCheck(all) : await submitExam(props.level, all);
         setResult(r);
-        if (props.mode === 'exam') celebrate(r.passed ? 'big' : 'small');
-        else celebrate('medium');
+        // Celebrate a promotion, or a check where something went up.
+        if (props.mode === 'exam') {
+          if (r.passed) celebrate('big');
+        } else if (!r.first && LEVEL_SKILLS.some((s) => r.after[s] > r.before[s])) {
+          celebrate('small');
+        }
       } catch {
         setError("Couldn't save your answers. Check your connection and try again.");
       }
@@ -316,7 +320,7 @@ function SkillRows({ result }: { result: AssessmentResult }) {
           <span>{SKILL_NAME[skill]}</span>
           <span className="flex items-baseline gap-2">
             <span className="font-medium tabular-nums">≈ HSK {result.after[skill].toFixed(1)}</span>
-            <Change before={result.before[skill]} after={result.after[skill]} />
+            {!result.first && <Change before={result.before[skill]} after={result.after[skill]} />}
           </span>
         </li>
       ))}

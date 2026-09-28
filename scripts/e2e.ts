@@ -350,6 +350,39 @@ const tests: Test[] = [
     },
   },
   {
+    name: 'level: a Level check runs to the end and updates your level',
+    async run(page) {
+      await page.goto(`${base}/level/check`);
+      let asked = 0;
+      for (; asked < 30; asked++) {
+        const step = page.locator('[data-level-step]');
+        const done = page.getByText('Level check done');
+        await Promise.race([step.waitFor(), done.waitFor()]);
+        if (await done.isVisible()) break;
+        const kind = await step.getAttribute('data-level-step');
+        if (kind === 'type-pinyin') {
+          for (const k of ['m', 'a', '1']) await page.keyboard.press(k);
+          await page.getByRole('button', { name: 'Check' }).last().tap();
+        } else {
+          await step.locator('button.min-h-16').first().tap();
+        }
+        await page.getByRole('button', { name: 'Continue' }).tap();
+        await wait(350); // the answered question slides away first
+      }
+      await page.getByText('Level check done').waitFor({ timeout: 15000 });
+      assert(asked >= 15, `only ${asked} questions`);
+      assert(
+        await page
+          .getByText(/≈ HSK \d\.\d/)
+          .first()
+          .isVisible(),
+        'no skill levels shown',
+      );
+      await page.goto(`${base}/level`);
+      assert(await page.getByText('Your rank').isVisible(), 'no rank on the Level page');
+    },
+  },
+  {
     name: 'touch: tapping a word shows its meaning without leaving the page',
     async run(page) {
       // Headless Chrome reports a mouse; a phone has no hover, so taps must do the work.

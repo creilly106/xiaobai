@@ -26,7 +26,8 @@ export default async function LevelPage() {
   await checkMilestones();
   const state = await getLevelState();
   const rank = rankAt(state.rank);
-  const next = RANKS.find((r) => r.level === state.rank + 1);
+  // When an exam is open, that's the next rank (ranks can be skipped).
+  const next = RANKS.find((r) => r.level === (state.examLevel ?? state.rank + 1));
   const exam = state.examLevel != null ? rankAt(state.examLevel) : null;
   const daysToCheck = state.checkInDays;
   const achieved = new Map(state.milestones.map((m) => [m.key, m.achievedAt]));
@@ -238,34 +239,51 @@ export default async function LevelPage() {
         >
           Milestones · {state.milestones.length} / {MILESTONES.length}
         </h2>
-        <ul className="grid gap-2 sm:grid-cols-2">
-          {MILESTONES.map((m) => {
-            const at = achieved.get(m.key);
-            return (
-              <li
+        {state.milestones.length > 0 && (
+          <ul className="grid gap-2 sm:grid-cols-2">
+            {MILESTONES.filter((m) => achieved.has(m.key)).map((m) => (
+              <MilestoneTile
                 key={m.key}
-                className={`rounded-lg border px-3 py-2 text-sm ${at ? 'border-emerald-500/40 bg-emerald-500/5' : 'opacity-60'}`}
-              >
-                <div className="flex items-center justify-between gap-2">
-                  <span
-                    className="font-medium"
-                    lang={m.key.startsWith('rank') ? 'zh-Hans' : undefined}
-                  >
-                    {m.title}
-                  </span>
-                  {at ? (
-                    <span className="text-xs text-muted-foreground">
-                      <LocalDate value={at} />
-                    </span>
-                  ) : null}
-                </div>
-                <div className="text-xs text-muted-foreground">{m.detail}</div>
-              </li>
-            );
-          })}
-        </ul>
+                title={m.title}
+                detail={m.detail}
+                at={achieved.get(m.key)}
+              />
+            ))}
+          </ul>
+        )}
+        <details className="group mt-2">
+          <summary className="cursor-pointer list-none text-sm text-muted-foreground underline-offset-4 hover:underline [&::-webkit-details-marker]:hidden">
+            <span className="group-open:hidden">
+              Show the {MILESTONES.length - state.milestones.length} still to reach
+            </span>
+            <span className="hidden group-open:inline">Hide the ones still to reach</span>
+          </summary>
+          <ul className="mt-2 grid gap-2 sm:grid-cols-2">
+            {MILESTONES.filter((m) => !achieved.has(m.key)).map((m) => (
+              <MilestoneTile key={m.key} title={m.title} detail={m.detail} />
+            ))}
+          </ul>
+        </details>
       </section>
     </div>
+  );
+}
+
+function MilestoneTile({ title, detail, at }: { title: string; detail: string; at?: number }) {
+  return (
+    <li
+      className={`rounded-lg border px-3 py-2 text-sm ${at ? 'border-emerald-500/40 bg-emerald-500/5' : 'opacity-60'}`}
+    >
+      <div className="flex items-center justify-between gap-2">
+        <span className="font-medium">{title}</span>
+        {at ? (
+          <span className="text-xs text-muted-foreground">
+            <LocalDate value={at} />
+          </span>
+        ) : null}
+      </div>
+      <div className="text-xs text-muted-foreground">{detail}</div>
+    </li>
   );
 }
 

@@ -1,6 +1,5 @@
 'use server';
 
-import { revalidatePath } from 'next/cache';
 import { sql } from 'drizzle-orm';
 import { db, schema } from '@/db/client';
 import type { ScoredAnswer } from '@/lib/level/items';
@@ -32,6 +31,8 @@ export type AssessmentResult = {
   sections: Partial<Record<Skill, Section>>;
   /** Percent right. */
   score: number;
+  /** No earlier check or exam: "before" was only a guess from the Learn path. */
+  first: boolean;
   newMilestones: string[];
   /** Exams only. */
   passed?: boolean;
@@ -132,14 +133,16 @@ async function finish(
 ): Promise<AssessmentResult> {
   const newMilestones = [...(await addMilestones(milestones)), ...(await checkMilestones())];
   const state = await getLevelState();
-  revalidatePath('/level');
-  revalidatePath('/');
+  // No revalidatePath: it would re-render the exam page under you, and that
+  // page sends you away once the exam is taken. /level and / are rendered
+  // fresh on every visit anyway.
   return {
     before: levelsOf(base.priors),
     after: levelsOf(base.after),
     overall: overallLevel(base.after),
     sections: base.sections,
     score: base.score,
+    first: ALL_SKILLS.every((s) => base.priors[s].answers === 0),
     newMilestones,
     examLevel: state.examRetryAt ? null : state.examLevel,
     ...extra,
