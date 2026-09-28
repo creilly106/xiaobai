@@ -15,7 +15,6 @@ export type DashboardStats = {
   reviewsToday: number;
   streakDays: number;
   dailyNewLimit: number;
-  dailyGoal: number;
   availability: Availability;
 };
 
@@ -55,7 +54,6 @@ export async function getDashboardStats(): Promise<DashboardStats> {
       await userTimeZone(),
     ),
     dailyNewLimit: settings.dailyNewLimit,
-    dailyGoal: settings.dailyGoal,
     availability,
   };
 }

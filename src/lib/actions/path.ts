@@ -14,7 +14,11 @@ export type WordResult = { hanzi: string; mistakes: number };
  * first rating from how the lesson went; words already being reviewed are
  * left to their schedule.
  */
-async function scheduleWords(results: WordResult[], rating: (r: WordResult) => ReviewRating) {
+async function scheduleWords(
+  results: WordResult[],
+  rating: (r: WordResult) => ReviewRating,
+  at?: number,
+) {
   if (results.length === 0) return;
   const words = await db
     .select({ id: schema.words.id, hanzi: schema.words.hanzi })
@@ -38,7 +42,7 @@ async function scheduleWords(results: WordResult[], rating: (r: WordResult) => R
   const cardByWord = new Map(cards.map((c) => [c.wordId, c]));
   for (const result of results) {
     const card = cardByWord.get(idByHanzi.get(result.hanzi) ?? -1);
-    if (card?.state === 'new') await rateCard(card.id, rating(result), 0, 'lesson');
+    if (card?.state === 'new') await rateCard(card.id, rating(result), 0, 'lesson', at);
   }
 }
 
@@ -52,27 +56,49 @@ function revalidate() {
   revalidatePath('/study');
 }
 
-/** Finish a lesson: record it and schedule its words for review. */
-export async function completeLesson(lessonId: string, results: WordResult[], score: number) {
+/** Offline finishes are sent later with their time; accept it if it's plausible. */
+function finishedAt(at: number | undefined): Date {
+  const now = Date.now();
+  return at != null && Number.isFinite(at) && at <= now && at > now - 30 * 86_400_000
+    ? new Date(at)
+    : new Date(now);
+}
+
+/**
+ * Finish a lesson: record it, log it for the daily goal (every finish, at the
+ * time it happened), and schedule its words for review.
+ */
+export async function completeLesson(
+  lessonId: string,
+  results: WordResult[],
+  score: number,
+  /** When it was finished, if earlier (done offline, sent later). Epoch ms. */
+  at?: number,
+) {
   const lesson = lessonById(lessonId);
   if (!lesson) throw new Error('Unknown lesson.');
+  const when = finishedAt(at);
   const inLesson = new Set(lesson.words);
   // A word you slipped up on comes back sooner (Hard) than one you got straight away.
   await scheduleWords(
     results.filter((r) => inLesson.has(r.hanzi)),
     (r) => (r.mistakes > 0 ? 2 : 3),
+    when.getTime(),
   );
   const best = clampScore(score);
   await db
+    .insert(schema.practiceLog)
+    .values({ kind: 'lesson', item: lessonId, correct: true, createdAt: when });
+  await db
     .insert(schema.lessonProgress)
-    .values({ lessonId, status: 'done', bestScore: best, attempts: 1, completedAt: new Date() })
+    .values({ lessonId, status: 'done', bestScore: best, attempts: 1, completedAt: when })
     .onConflictDoUpdate({
       target: schema.lessonProgress.lessonId,
       set: {
         status: 'done',
         bestScore: sql`max(${schema.lessonProgress.bestScore}, ${best})`,
         attempts: sql`${schema.lessonProgress.attempts} + 1`,
-        completedAt: new Date(),
+        completedAt: when,
       },
     });
   revalidate();
@@ -86,9 +112,11 @@ export async function completeCheckpoint(
   unitId: string,
   results: WordResult[],
   score: number,
+  at?: number,
 ): Promise<{ passed: boolean }> {
   const unit = unitById(unitId);
   if (!unit) throw new Error('Unknown unit.');
+  const when = finishedAt(at);
   const best = clampScore(score);
   if (best < CHECKPOINT_PASS_MARK) return { passed: false };
 
@@ -96,7 +124,7 @@ export async function completeCheckpoint(
   const tested = new Map(results.filter((r) => unitWords.has(r.hanzi)).map((r) => [r.hanzi, r]));
   // Words the checkpoint didn't ask about count as known too.
   const all = [...unitWords].map((hanzi) => tested.get(hanzi) ?? { hanzi, mistakes: 0 });
-  await scheduleWords(all, (r) => (r.mistakes > 0 ? 2 : 4));
+  await scheduleWords(all, (r) => (r.mistakes > 0 ? 2 : 4), when.getTime());
 
   await db
     .insert(schema.lessonProgress)
@@ -105,10 +133,32 @@ export async function completeCheckpoint(
         lessonId: l.id,
         status: 'tested' as const,
         bestScore: best,
-        completedAt: new Date(),
+        completedAt: when,
       })),
     )
     .onConflictDoNothing();
   revalidate();
   return { passed: true };
+}
+
+/**
+ * Send a lesson or checkpoint finished offline. 'skipped' when it can never be
+ * saved (the lesson has since left the curriculum), so it doesn't block the
+ * rest of the queue. Other failures throw, to be retried later.
+ */
+export async function replayCompletion(
+  kind: 'lesson' | 'checkpoint',
+  id: string,
+  results: WordResult[],
+  score: number,
+  at: number,
+): Promise<'saved' | 'skipped'> {
+  if (kind === 'lesson') {
+    if (!lessonById(id)) return 'skipped';
+    await completeLesson(id, results, score, at);
+  } else {
+    if (!unitById(id)) return 'skipped';
+    await completeCheckpoint(id, results, score, at);
+  }
+  return 'saved';
 }

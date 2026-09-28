@@ -83,7 +83,7 @@ export default async function Home() {
 
       {goal.goal > 0 && <TodayGoal progress={goal} />}
       <OfflineWarmup
-        pages={['/', '/learn', '/study', ...upcoming.map((l) => `/learn/${l.id}`)]}
+        pages={['/learn', '/study', ...upcoming.map((l) => `/learn/${l.id}`)]}
         texts={upcoming.flatMap((l) => [...l.words, ...(l.sentences ?? []).map((x) => x.hanzi)])}
       />
 

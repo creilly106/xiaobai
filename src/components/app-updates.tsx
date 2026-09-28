@@ -4,14 +4,14 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { CloudOff } from 'lucide-react';
 import { toast } from 'sonner';
-import { completeCheckpoint, completeLesson } from '@/lib/actions/path';
-import { rateCard } from '@/lib/actions/study';
+import { replayCompletion } from '@/lib/actions/path';
+import { replayRating } from '@/lib/actions/study';
 import {
   pendingCount,
   readPending,
   readPendingRatings,
   removePending,
-  shiftPendingRating,
+  removePendingRating,
 } from '@/lib/pending-progress';
 
 /** Fired whenever something is queued or sent, so the banner can update. */
@@ -61,26 +61,39 @@ let flushing = false;
 
 /** Send everything saved on this device, oldest first. Returns how many went. */
 async function flushPending(): Promise<{ ratings: number; lessons: number }> {
-  if (flushing) return { ratings: 0, lessons: 0 };
+  const none = { ratings: 0, lessons: 0 };
+  if (flushing || pendingCount() === 0) return none;
+  // One tab at a time (the queue lives in storage shared by all of them);
+  // another tab already sending just means there's nothing to do here.
+  const locks = (navigator as Navigator & { locks?: LockManager }).locks;
+  if (!locks) return send();
+  return (
+    (await locks.request('xiaobai-sync', { ifAvailable: true }, (lock) =>
+      lock ? send() : none,
+    )) ?? none
+  );
+}
+
+async function send(): Promise<{ ratings: number; lessons: number }> {
   flushing = true;
   let ratings = 0;
   let lessons = 0;
   try {
     // Ratings in order: each one's schedule depends on the one before.
+    // Anything that can never be saved comes back 'skipped' and is dropped;
+    // a failure (offline, server trouble) stops here to retry later.
     for (const r of readPendingRatings()) {
       try {
-        await rateCard(r.cardId, r.rating, r.elapsedMs, undefined, r.at);
-      } catch (err) {
-        // A card that no longer exists can't be rated; anything else, retry later.
-        if (!(err instanceof Error && /not found/i.test(err.message))) break;
+        await replayRating(r.cardId, r.rating, r.elapsedMs, r.at);
+      } catch {
+        break;
       }
-      shiftPendingRating();
+      removePendingRating(r);
       ratings++;
     }
     for (const item of readPending()) {
       try {
-        if (item.kind === 'lesson') await completeLesson(item.id, item.results, item.score);
-        else await completeCheckpoint(item.id, item.results, item.score);
+        await replayCompletion(item.kind, item.id, item.results, item.score, item.at);
       } catch {
         break;
       }
@@ -93,6 +106,9 @@ async function flushPending(): Promise<{ ratings: number; lessons: number }> {
   }
   return { ratings, lessons };
 }
+
+/** While answers are waiting, try again this often (the 'online' event isn't reliable). */
+const RETRY_MS = 30_000;
 
 /**
  * Keeps an app that stays open for days (the home-screen app) in step: sends
@@ -126,10 +142,21 @@ export function AppUpdates() {
       }
     }
     void sync();
+    // Retry while anything is waiting: a phone can be "online" with no
+    // internet, and then no 'online' event comes when it's back.
+    const retry = setInterval(() => {
+      if (pendingCount() > 0) void sync();
+    }, RETRY_MS);
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') void sync();
+    };
+    document.addEventListener('visibilitychange', onVisible);
     window.addEventListener('online', sync);
     window.addEventListener('offline', refresh);
     window.addEventListener(PENDING_EVENT, refresh);
     return () => {
+      clearInterval(retry);
+      document.removeEventListener('visibilitychange', onVisible);
       window.removeEventListener('online', sync);
       window.removeEventListener('offline', refresh);
       window.removeEventListener(PENDING_EVENT, refresh);

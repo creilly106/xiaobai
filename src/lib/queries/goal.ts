@@ -1,5 +1,5 @@
 import 'server-only';
-import { and, eq, gte, sql } from 'drizzle-orm';
+import { gte, sql } from 'drizzle-orm';
 import { db, schema } from '@/db/client';
 import { addDays, startOfLocalDay } from '@/lib/dates';
 import { tallyDays, type Activity, type DayTally } from '@/lib/goal';
@@ -19,7 +19,7 @@ export type GoalProgress = {
  */
 export async function getGoalProgress(now: Date, timeZone?: string): Promise<GoalProgress> {
   const since = startOfLocalDay(addDays(now, -7), timeZone);
-  const [settings, reviews, lessons, practice] = await Promise.all([
+  const [settings, reviews, logged] = await Promise.all([
     getSettings(),
     db
       .select({
@@ -28,17 +28,10 @@ export async function getGoalProgress(now: Date, timeZone?: string): Promise<Goa
       })
       .from(schema.reviews)
       .where(gte(schema.reviews.reviewedAt, since)),
+    // Drill answers, and every finished lesson (logged by completeLesson at
+    // the time it was done, so redoing one doesn't move old points).
     db
-      .select({ at: schema.lessonProgress.completedAt })
-      .from(schema.lessonProgress)
-      .where(
-        and(
-          eq(schema.lessonProgress.status, 'done'),
-          gte(schema.lessonProgress.completedAt, since),
-        ),
-      ),
-    db
-      .select({ at: schema.practiceLog.createdAt })
+      .select({ at: schema.practiceLog.createdAt, kind: schema.practiceLog.kind })
       .from(schema.practiceLog)
       .where(gte(schema.practiceLog.createdAt, since)),
   ]);
@@ -47,8 +40,10 @@ export async function getGoalProgress(now: Date, timeZone?: string): Promise<Goa
     ...reviews
       .filter((r) => r.via !== 'lesson')
       .map((r) => ({ at: r.at, kind: 'review' as const })),
-    ...lessons.map((l) => ({ at: l.at, kind: 'lesson' as const })),
-    ...practice.map((p) => ({ at: p.at, kind: 'practice' as const })),
+    ...logged.map((p) => ({
+      at: p.at,
+      kind: p.kind === 'lesson' ? ('lesson' as const) : ('practice' as const),
+    })),
   ];
   const week = tallyDays(events, now, 7, timeZone);
   return { goal: settings.dailyGoal, today: week[week.length - 1], week };

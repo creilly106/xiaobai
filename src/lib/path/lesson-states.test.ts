@@ -30,13 +30,13 @@ describe('lessonStates', () => {
     const saved = new Map([
       ['a', 'done' as const],
       ['b', 'done' as const],
-      ['d', 'tested' as const],
+      ['d', 'done' as const],
     ]);
     expect(lessonStates(lessons, saved, new Set())).toEqual([
       'done',
       'done',
       'new',
-      'tested',
+      'done',
       'current',
     ]);
   });
@@ -49,6 +49,20 @@ describe('lessonStates', () => {
       'locked',
       'locked',
       'known',
+    ]);
+  });
+
+  it("doesn't skip you ahead when you test out of a unit further on", () => {
+    const saved = new Map([
+      ['a', 'done' as const],
+      ['d', 'tested' as const],
+    ]);
+    expect(lessonStates(lessons, saved, new Set())).toEqual([
+      'done',
+      'current',
+      'locked',
+      'tested',
+      'locked',
     ]);
   });
 });

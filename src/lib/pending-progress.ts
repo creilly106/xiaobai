@@ -78,9 +78,9 @@ export function addPendingRating(item: PendingRating) {
   writeRatings([...readPendingRatings(), item]);
 }
 
-/** Drop the oldest rating once it's been saved (they're sent in order). */
-export function shiftPendingRating() {
-  writeRatings(readPendingRatings().slice(1));
+/** Drop a rating once it's been saved (matched exactly, in case another tab changed the list). */
+export function removePendingRating(item: PendingRating) {
+  writeRatings(readPendingRatings().filter((r) => !(r.cardId === item.cardId && r.at === item.at)));
 }
 
 /** Everything still waiting to be saved. */

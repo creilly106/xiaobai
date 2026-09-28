@@ -152,6 +152,7 @@ function playClip(key: string, rate: number, fallback: () => void): boolean {
   };
   a.onerror = () => fail();
   a.onended = null;
+  a.onplaying = null;
   a.src = clipUrl(file);
   a.playbackRate = Math.min(2, Math.max(0.5, rate / NORMAL_RATE));
   a.preservesPitch = true;
@@ -178,22 +179,37 @@ export function stopSpeaking(): void {
  * Like speak(), but resolves once the line has finished playing — or has been
  * interrupted by other audio. Used to play a dialogue line by line.
  */
+/** How long a line may take to start playing before speakAndWait gives up on it. */
+const LOAD_LIMIT_MS = 15_000;
+
 export async function speakAndWait(text: string, rate = NORMAL_RATE): Promise<void> {
   if (typeof window === 'undefined') return;
   await loadClips();
   stopAll();
   return new Promise<void>((resolve) => {
-    // Some browsers (iOS especially) occasionally never fire an end event.
-    const guard = setTimeout(done, 4000 + [...text].length * 500);
+    // Some browsers (iOS especially) occasionally never fire an end event, so
+    // there's a time limit — generous while loading, then based on the length
+    // once it's actually playing (a slow download mustn't cut a line short).
+    let guard = setTimeout(done, LOAD_LIMIT_MS);
+    const playing = (seconds?: number) => {
+      clearTimeout(guard);
+      const estimate = 1000 + [...text].length * 500;
+      const ms =
+        seconds && Number.isFinite(seconds) ? (seconds * 1000 * NORMAL_RATE) / rate : estimate;
+      guard = setTimeout(done, ms + 2000);
+    };
     function done() {
       clearTimeout(guard);
       if (finishCurrent === done) finishCurrent = null;
       resolve();
     }
     finishCurrent = done;
-    const voice = () => speakWithVoice(text, rate, done);
-    if (playClip(clipKey(text), rate, voice)) getPlayer().onended = done;
-    else voice();
+    const voice = () => speakWithVoice(text, rate, done, () => playing());
+    if (playClip(clipKey(text), rate, voice)) {
+      const a = getPlayer();
+      a.onended = done;
+      a.onplaying = () => playing(a.duration);
+    } else voice();
   });
 }
 
@@ -222,13 +238,19 @@ export function speakWord(hanzi: string, pinyin?: string | null, rate = NORMAL_R
   speak(via, rate);
 }
 
-function speakWithVoice(text: string, rate: number, onEnd?: () => void): void {
+function speakWithVoice(
+  text: string,
+  rate: number,
+  onEnd?: () => void,
+  onStart?: () => void,
+): void {
   if (!isTtsSupported()) return onEnd?.();
   const synth = window.speechSynthesis;
   const utter = new SpeechSynthesisUtterance(text);
   utter.lang = 'zh-CN';
   utter.rate = rate;
   if (onEnd) utter.onend = utter.onerror = () => onEnd();
+  if (onStart) utter.onstart = () => onStart();
   const voice = pickVoice();
   if (voice) {
     utter.voice = voice;
@@ -248,13 +270,23 @@ export function primeVoices(): void {
   if (isTtsSupported()) window.speechSynthesis.getVoices();
 }
 
-/** URLs of the recordings for these texts (those that have one), for fetching ahead. */
+/**
+ * URLs of the recordings for these texts (those that have one), for fetching
+ * ahead — including a lone character's per-reading clips ("吗|ma").
+ */
 export async function clipUrlsFor(texts: string[]): Promise<string[]> {
   await loadClips();
+  const all = clips ?? {};
   const urls = new Set<string>();
+  const byChar = new Map<string, string[]>();
+  for (const [key, file] of Object.entries(all)) {
+    const bar = key.indexOf('|');
+    if (bar > 0) byChar.set(key.slice(0, bar), [...(byChar.get(key.slice(0, bar)) ?? []), file]);
+  }
   for (const text of texts) {
-    const file = clips?.[clipKey(text)];
+    const file = all[clipKey(text)];
     if (file) urls.add(clipUrl(file));
+    for (const f of byChar.get(text) ?? []) urls.add(clipUrl(f));
   }
   return [...urls];
 }

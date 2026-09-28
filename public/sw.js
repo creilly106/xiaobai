@@ -124,14 +124,26 @@ async function media(request) {
   const range = request.headers.get('Range');
   if (!range) return full;
   const buf = await full.clone().arrayBuffer();
+  const size = buf.byteLength;
   const [, startText, endText] = /bytes=(\d*)-(\d*)/.exec(range) || [];
-  const start = startText ? Number(startText) : 0;
-  const end = endText ? Math.min(Number(endText), buf.byteLength - 1) : buf.byteLength - 1;
+  let start;
+  let end;
+  if (!startText && endText) {
+    // "bytes=-500": the last 500 bytes.
+    start = Math.max(0, size - Number(endText));
+    end = size - 1;
+  } else {
+    start = startText ? Number(startText) : 0;
+    end = endText ? Math.min(Number(endText), size - 1) : size - 1;
+  }
+  if (start >= size || start > end) {
+    return new Response('', { status: 416, headers: { 'Content-Range': `bytes */${size}` } });
+  }
   return new Response(buf.slice(start, end + 1), {
     status: 206,
     headers: {
       'Content-Type': full.headers.get('Content-Type') || 'application/octet-stream',
-      'Content-Range': `bytes ${start}-${end}/${buf.byteLength}`,
+      'Content-Range': `bytes ${start}-${end}/${size}`,
       'Content-Length': String(end - start + 1),
       'Accept-Ranges': 'bytes',
     },
@@ -177,12 +189,32 @@ async function warm(urls) {
         const res = await fetch(url.href, { credentials: 'same-origin' });
         if (res.ok && !res.redirected && res.headers.get('Content-Type')?.includes('text/html')) {
           await (await caches.open(PAGES)).put(pageKey(url.href), res.clone());
-          // A saved lesson is one particular shuffle; fetch the audio it uses.
-          if (url.pathname.startsWith('/learn/')) await warmAudioIn(await res.text());
+          const html = await res.text();
+          // The page needs its build's code to run offline...
+          await warmStatic(html);
+          // ...and a saved lesson is one particular shuffle: fetch its audio.
+          if (url.pathname.startsWith('/learn/')) await warmAudioIn(html);
         }
       }
     } catch {
       // Offline or failed: try again next time.
+    }
+  }
+}
+
+/** The JS and CSS a saved page loads (content-hashed, so kept for good). */
+async function warmStatic(html) {
+  const cache = await caches.open(STATIC);
+  // (Inside the page's script data they end in an escaped quote, hence the \\.)
+  const urls = new Set(html.match(/\/_next\/static\/[^"'\s\\)]+/g) || []);
+  for (const path of urls) {
+    const href = new URL(path, self.location.origin).href;
+    if (await cache.match(href)) continue;
+    try {
+      const res = await fetch(href);
+      if (res.ok) await cache.put(href, res);
+    } catch {
+      return;
     }
   }
 }
@@ -203,10 +235,17 @@ async function warmAudioIn(html) {
   const indexRes = await networkFirst(MEDIA, new Request('/audio/index.json'));
   if (!indexRes.ok) return;
   const { clips } = await indexRes.json();
-  const cache = await caches.open(MEDIA);
+  // A lone character may also have per-reading clips ("吗|ma").
+  const files = [];
   for (const text of texts) {
-    const file = clips[clipKey(text)];
-    if (!file) continue;
+    if (clips[clipKey(text)]) files.push(clips[clipKey(text)]);
+    if ([...text].length === 1) {
+      for (const [key, file] of Object.entries(clips))
+        if (key.startsWith(`${text}|`)) files.push(file);
+    }
+  }
+  const cache = await caches.open(MEDIA);
+  for (const file of new Set(files)) {
     const href = new URL(
       `/audio/${file.split('/').map(encodeURIComponent).join('/')}`,
       self.location.origin,

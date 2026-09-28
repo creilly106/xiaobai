@@ -147,6 +147,28 @@ export async function rateCard(
   return { nextDue: next.due.getTime(), state: next.state };
 }
 
+/**
+ * Send a rating made offline. 'skipped' when the card no longer exists, so it
+ * doesn't block the rest of the queue (error messages don't survive to the
+ * browser in production, so this can't be told apart from a thrown error).
+ */
+export async function replayRating(
+  cardId: number,
+  rating: ReviewRating,
+  elapsedMs: number,
+  at: number,
+): Promise<'saved' | 'skipped'> {
+  assertCardId(cardId);
+  const [row] = await db
+    .select({ id: schema.cards.id })
+    .from(schema.cards)
+    .where(eq(schema.cards.id, cardId))
+    .limit(1);
+  if (!row) return 'skipped';
+  await rateCard(cardId, rating, elapsedMs, undefined, at);
+  return 'saved';
+}
+
 export type UndoResult =
   | { undone: false; message: string }
   | { undone: true; rating: number; restored: StudyCard; message: string };

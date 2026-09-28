@@ -294,7 +294,9 @@ export const dbSnapshots = sqliteTable('db_snapshots', {
   data: text('data').notNull(),
 });
 
-export type PracticeKind = 'tone' | 'number' | 'cloze' | 'quiz' | 'listening' | 'reading';
+/** 'lesson' rows are logged by completeLesson (for the daily goal), not by drills. */
+export type PracticeKind =
+  'tone' | 'number' | 'cloze' | 'quiz' | 'listening' | 'reading' | 'lesson';
 
 /** One answer in a practice drill (tone trainer, numbers, fill in the blank, quiz). */
 export const practiceLog = sqliteTable(
