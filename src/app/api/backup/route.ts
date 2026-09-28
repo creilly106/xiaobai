@@ -1,4 +1,5 @@
 import { revalidatePath } from 'next/cache';
+import { db, schema } from '@/db/client';
 import { assertBackup, createBackup, restoreBackup, writeBackupFile } from '@/lib/backup';
 import { localDateKey } from '@/lib/dates';
 import { userTimeZone } from '@/lib/timezone';
@@ -30,9 +31,14 @@ export async function POST(request: Request) {
     return Response.json({ ok: false, error: (err as Error).message }, { status: 400 });
   }
 
-  // Best effort: hosts with a read-only disk (Vercel) can't keep a file copy.
-  // The restore itself is one transaction, so a failure changes nothing.
-  const safetyCopy = await writeBackupFile('pre-restore').catch(() => null);
+  // A safety copy first: a file where the disk allows it, otherwise (Vercel's
+  // disk is read-only) a snapshot in the database, which restores don't touch —
+  // it's listed under Settings → Backup. The restore itself is one
+  // transaction, so a failure changes nothing.
+  const safetyCopy = await writeBackupFile('pre-restore').catch(async () => {
+    await db.insert(schema.dbSnapshots).values({ data: JSON.stringify(await createBackup()) });
+    return 'snapshot';
+  });
   try {
     const { rows } = await restoreBackup(data);
     revalidatePath('/', 'layout');

@@ -49,6 +49,7 @@ export default async function QuizSessionPage({ searchParams }: PageProps<'/quiz
     scenarioSlugs: slugList(one(params.scenarios)),
     cardStates: cardStates.length > 0 ? cardStates : undefined,
     lastReviewOlderThanDays: Number.isInteger(olderThan) && olderThan >= 0 ? olderThan : undefined,
+    tricky: one(params.tricky) === '1',
     count,
   });
   const queue = typed ? await withAcceptedMeanings(found) : found;
@@ -58,9 +59,11 @@ export default async function QuizSessionPage({ searchParams }: PageProps<'/quiz
       <div className="mx-auto w-full max-w-xl px-4 py-16 text-center">
         <h1 className="text-2xl font-semibold">Nothing matches those filters.</h1>
         <p className="mt-2 text-muted-foreground">
-          {cardStates.length > 0
-            ? 'Card-state filters only include items already in your study queue — try removing the state filter, or add more to your queue first.'
-            : 'Try loosening the filters.'}
+          {one(params.tricky) === '1'
+            ? "You haven't missed anything yet — nothing to drill here."
+            : cardStates.length > 0
+              ? 'Card-state filters only include items already in your study queue — try removing the state filter, or add more to your queue first.'
+              : 'Try loosening the filters.'}
         </p>
         <Link href="/quiz" className={`mt-6 inline-flex ${buttonVariants({})}`}>
           Back to quiz setup

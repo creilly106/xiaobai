@@ -1,7 +1,7 @@
 import 'server-only';
 import { eq } from 'drizzle-orm';
 import { db, schema } from '@/db/client';
-import { writeBackupFile } from '@/lib/backup';
+import { canKeepBackupFiles, writeBackupFile } from '@/lib/backup';
 import { daysBetweenKeys, localDateKey } from '@/lib/dates';
 import { userTimeZone } from '@/lib/timezone';
 
@@ -16,10 +16,12 @@ export async function markStudied(at: Date = new Date()): Promise<void> {
   // Keys are YYYY-MM-DD, so they compare as dates; something sent late from
   // an earlier day mustn't wind the streak back.
   if (settings.lastStudyDate != null && todayKey <= settings.lastStudyDate) return;
-  try {
-    await writeBackupFile('auto');
-  } catch (err) {
-    console.error('Automatic backup failed', err);
+  if (canKeepBackupFiles()) {
+    try {
+      await writeBackupFile('auto');
+    } catch (err) {
+      console.error('Automatic backup failed', err);
+    }
   }
   const continues =
     settings.lastStudyDate != null && daysBetweenKeys(settings.lastStudyDate, todayKey) === 1;

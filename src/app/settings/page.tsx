@@ -8,7 +8,7 @@ import { StudyPrefForm } from './_components/pref-form';
 import { SuspendedList } from './_components/suspended-list';
 import { AudioPrefs } from './_components/audio-prefs';
 import { BackupPanel } from './_components/backup-panel';
-import { listBackupFiles } from '@/lib/backup';
+import { canKeepBackupFiles, listBackupFiles } from '@/lib/backup';
 import { getOpenFlags } from '@/lib/queries/flags';
 import { listSnapshots } from '@/lib/queries/snapshots';
 import { LocalDate } from '@/components/local-date';
@@ -121,7 +121,7 @@ export default async function SettingsPage() {
             <CardTitle className="text-base">Backup &amp; restore</CardTitle>
           </CardHeader>
           <CardContent>
-            <BackupPanel localBackups={localBackups} />
+            <BackupPanel localBackups={canKeepBackupFiles() ? localBackups : null} />
             <div className="mt-5 border-t pt-4">
               <div className="text-sm font-medium">Automatic weekly copies</div>
               <p className="text-xs text-muted-foreground">

@@ -26,11 +26,11 @@ export default async function ReadPage() {
                 <li key={s.id}>
                   <Link href={`/read/${s.id}`} className="group block h-full">
                     <Card
-                      className={`h-full transition-colors group-hover:border-primary/60 ${
+                      className={`h-full py-0 transition-colors group-hover:border-primary/60 ${
                         s.state === 'locked' ? 'opacity-60' : ''
                       }`}
                     >
-                      <CardContent className="flex items-start justify-between gap-3 py-4">
+                      <CardContent className="flex items-start justify-between gap-3 py-3">
                         <div className="min-w-0">
                           <div lang="zh-Hans" className="text-xl">
                             {s.title.hanzi}
@@ -39,11 +39,14 @@ export default async function ReadPage() {
                             text={s.title.pinyin}
                             className="block text-xs text-muted-foreground"
                           />
-                          <div className="mt-1 text-sm">{s.title.meaning}</div>
-                          <div className="mt-2 text-xs text-muted-foreground">
-                            {s.state === 'locked'
-                              ? `Opens after “${s.unlockLesson}”`
-                              : `${s.sentences} sentences`}
+                          <div className="mt-1 text-sm">
+                            {s.title.meaning}
+                            <span className="text-xs text-muted-foreground">
+                              {' · '}
+                              {s.state === 'locked'
+                                ? `opens after “${s.unlockLesson}”`
+                                : `${s.sentences} sentences`}
+                            </span>
                           </div>
                         </div>
                         {s.state === 'read' ? (

@@ -127,7 +127,14 @@ export async function restoreBackup(backup: Backup): Promise<{ rows: number }> {
 }
 
 /** Save a backup file under data/backups (kept out of git). Returns its name. */
+/**
+ * Whether backup files can be kept on this server's disk. Not on Vercel: its
+ * disk is read-only and wiped per deploy (weekly database snapshots stand in).
+ */
+export const canKeepBackupFiles = () => !process.env.VERCEL;
+
 export async function writeBackupFile(kind: 'auto' | 'pre-restore'): Promise<string> {
+  if (!canKeepBackupFiles()) throw new Error("This server can't keep backup files.");
   await mkdir(BACKUP_DIR, { recursive: true });
   const stamp =
     kind === 'auto'

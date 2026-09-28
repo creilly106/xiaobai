@@ -16,6 +16,8 @@ export type QuizFilters = {
   scenarioSlugs?: string[];
   cardStates?: CardState[];
   lastReviewOlderThanDays?: number;
+  /** Only cards you've missed, the most-missed first. */
+  tricky?: boolean;
   count: number;
 };
 
@@ -158,6 +160,9 @@ async function fromCards(
   if (!side) return [];
   conditions.push(side);
 
+  const fails = sql<number>`(select count(*) from reviews r where r.card_id = ${schema.cards.id} and r.rating = 1)`;
+  if (filters.tricky) conditions.push(sql`${fails} > 0`);
+
   const rows = await db
     .select({
       id: schema.cards.id,
@@ -173,10 +178,10 @@ async function fromCards(
     .leftJoin(schema.words, eq(schema.cards.wordId, schema.words.id))
     .leftJoin(schema.sentences, eq(schema.cards.sentenceId, schema.sentences.id))
     .where(and(...conditions))
-    .orderBy(sql`RANDOM()`)
+    .orderBy(...(filters.tricky ? [sql`${fails} desc`, sql`RANDOM()`] : [sql`RANDOM()`]))
     .limit(count);
 
-  return rows.map((r) => {
+  return (filters.tricky ? shuffle(rows) : rows).map((r) => {
     const isWord = r.wordId != null;
     return {
       key: `card-${r.id}`,

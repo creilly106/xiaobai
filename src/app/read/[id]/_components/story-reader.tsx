@@ -1,12 +1,24 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowRight, Languages, Pause, Play, RotateCcw, Volume2, X } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
+import {
+  ArrowRight,
+  Check,
+  Languages,
+  Pause,
+  Play,
+  Plus,
+  RotateCcw,
+  Volume2,
+  X,
+} from 'lucide-react';
+import { toast } from 'sonner';
 import { OptionButton } from '@/app/learn/_components/steps';
 import { Pinyin } from '@/components/pinyin';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { logPractice } from '@/lib/actions/practice';
+import { addCustomItem } from '@/lib/actions/custom';
 import type { PathSentence } from '@/lib/curriculum';
 import { alignPinyin } from '@/lib/pinyin-split';
 import type { DictEntry, Dictionary } from '@/lib/queries/dictionary';
@@ -54,7 +66,25 @@ export function StoryReader({
   const [english, setEnglish] = useState(false);
   const [selected, setSelected] = useState<{ line: number; word: number } | null>(null);
   const [playing, setPlaying] = useState<number | null>(null);
+  const [saved, setSaved] = useState<Set<number>>(new Set());
+  const [saving, startSaving] = useTransition();
   const run = useRef(0);
+
+  function saveSentence(line: Line) {
+    startSaving(async () => {
+      const result = await addCustomItem({
+        kind: 'sentence',
+        hanzi: line.hanzi,
+        pinyin: line.pinyin,
+        meaning: line.meaning,
+        note: `From the story “${story.title.meaning}”`,
+      }).catch(() => ({ ok: false as const, message: "Couldn't save that. Try again." }));
+      if (result.ok) {
+        setSaved((s) => new Set(s).add(line.index));
+        toast.success(result.message);
+      } else toast.error(result.message);
+    });
+  }
 
   useEffect(() => {
     const runs = run;
@@ -258,6 +288,25 @@ export function StoryReader({
                 <Volume2 />
               </Button>
               <span className="flex-1 pt-1">{pick.meaning}</span>
+            </div>
+            <div className="mt-2 flex flex-wrap justify-end gap-2">
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                disabled={saving || saved.has(pick.index)}
+                onClick={() => saveSentence(pick)}
+              >
+                {saved.has(pick.index) ? (
+                  <>
+                    <Check /> Sentence saved
+                  </>
+                ) : (
+                  <>
+                    <Plus /> Study this sentence
+                  </>
+                )}
+              </Button>
               <Link
                 href={`/characters/${encodeURIComponent(word.text)}`}
                 className={buttonVariants({ variant: 'outline', size: 'sm' })}

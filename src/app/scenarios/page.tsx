@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { listScenarios } from '@/lib/queries/scenarios';
 
@@ -13,36 +12,38 @@ export default async function ScenariosPage() {
       <p className="mt-1 text-sm text-muted-foreground">
         Real-life situation packs. Learn phrases in the context you&apos;ll actually use them.
       </p>
-      <div className="mt-6 grid gap-4 sm:grid-cols-2">
+      <ul className="mt-6 grid gap-3 sm:grid-cols-2">
         {scenarios.map((s) => {
           const pct = s.sentenceCount ? Math.round((s.inQueueCount / s.sentenceCount) * 100) : 0;
           return (
-            <Link key={s.slug} href={`/scenarios/${s.slug}`} className="group">
-              <Card className="h-full transition-colors group-hover:border-primary/60">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg">{s.name}</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {s.description && (
-                    <p className="text-sm text-muted-foreground">{s.description}</p>
-                  )}
-                  <div className="space-y-1.5">
-                    <div className="flex justify-between text-xs text-muted-foreground">
-                      <span>
-                        {s.sentenceCount} sentence{s.sentenceCount === 1 ? '' : 's'}
-                      </span>
-                      <span>
-                        {s.inQueueCount === 0 ? 'Not started' : `${s.inQueueCount} in queue`}
-                      </span>
-                    </div>
-                    <Progress value={pct} aria-label={`${pct}% of ${s.name} in your queue`} />
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
+            <li key={s.slug}>
+              <Link
+                href={`/scenarios/${s.slug}`}
+                className="block h-full rounded-xl border bg-card px-4 py-3 transition-colors hover:border-primary/60"
+              >
+                <div className="flex items-baseline justify-between gap-3">
+                  <span className="font-medium">{s.name}</span>
+                  <span className="shrink-0 text-xs text-muted-foreground">
+                    {s.inQueueCount === 0
+                      ? `${s.sentenceCount} phrases`
+                      : `${s.inQueueCount} / ${s.sentenceCount} in queue`}
+                  </span>
+                </div>
+                {s.description && (
+                  <p className="mt-0.5 text-sm text-muted-foreground">{s.description}</p>
+                )}
+                {s.inQueueCount > 0 && (
+                  <Progress
+                    value={pct}
+                    className="mt-2"
+                    aria-label={`${pct}% of ${s.name} in your queue`}
+                  />
+                )}
+              </Link>
+            </li>
           );
         })}
-      </div>
+      </ul>
     </div>
   );
 }

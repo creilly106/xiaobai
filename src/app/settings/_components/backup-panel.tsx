@@ -17,7 +17,12 @@ import {
 
 type LocalBackup = { name: string; savedAt: number; bytes: number };
 
-export function BackupPanel({ localBackups }: { localBackups: LocalBackup[] }) {
+export function BackupPanel({
+  localBackups,
+}: {
+  /** Backup files on this computer; null where the server can't keep files. */
+  localBackups: LocalBackup[] | null;
+}) {
   const router = useRouter();
   const fileRef = useRef<HTMLInputElement>(null);
   const [pendingFile, setPendingFile] = useState<{ name: string; text: string } | null>(null);
@@ -69,23 +74,26 @@ export function BackupPanel({ localBackups }: { localBackups: LocalBackup[] }) {
         A backup holds everything: your cards, review history, settings and the word lists. Keep a
         copy somewhere other than this computer (cloud drive, USB stick).
       </p>
-      <div className="text-xs text-muted-foreground">
-        <div className="font-medium text-foreground">Automatic backups on this computer</div>
-        {localBackups.length === 0 ? (
-          <p>
-            None yet — one is saved in <code>data/backups</code> on your first review each day.
-          </p>
-        ) : (
-          <ul className="mt-1 space-y-0.5">
-            {localBackups.slice(0, 5).map((b) => (
-              <li key={b.name}>
-                <code>{b.name}</code> · <LocalDate value={b.savedAt} withTime /> ·{' '}
-                {Math.round(b.bytes / 1024)} KB
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+      {localBackups && (
+        <div className="text-xs text-muted-foreground">
+          <div className="font-medium text-foreground">Automatic backups on this computer</div>
+          {localBackups.length === 0 ? (
+            <p>
+              None yet — one is saved in <code>data/backups</code> the first time you study each
+              day.
+            </p>
+          ) : (
+            <ul className="mt-1 space-y-0.5">
+              {localBackups.slice(0, 5).map((b) => (
+                <li key={b.name}>
+                  <code>{b.name}</code> · <LocalDate value={b.savedAt} withTime /> ·{' '}
+                  {Math.round(b.bytes / 1024)} KB
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
 
       <Dialog open={pendingFile != null} onOpenChange={(open) => !open && setPendingFile(null)}>
         <DialogContent>
@@ -93,8 +101,8 @@ export function BackupPanel({ localBackups }: { localBackups: LocalBackup[] }) {
             <DialogTitle>Restore this backup?</DialogTitle>
             <DialogDescription>
               Everything in the app will be replaced with <strong>{pendingFile?.name}</strong>. A
-              safety copy of your current data is saved to <code>data/backups</code> first, so this
-              can be undone.
+              safety copy of your current data is kept first (listed below afterwards), so this can
+              be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

@@ -36,7 +36,11 @@ export function isValidSession(cookie: string | undefined): boolean {
   return Boolean(cookie) && sameString(cookie!, tokenFor(expected));
 }
 
-/** Only same-site paths, so the login form can't be used as an open redirect. */
+/**
+ * Only same-site paths, so the login form can't be used as an open redirect.
+ * Browsers read "//host" and "/\host" as another site, and ignore tabs and
+ * newlines inside URLs, so those are refused too.
+ */
 export function safeNext(next: unknown): string {
-  return typeof next === 'string' && next.startsWith('/') && !next.startsWith('//') ? next : '/';
+  return typeof next === 'string' && /^\/(?![/\\])/.test(next) && !/[\s\\]/.test(next) ? next : '/';
 }

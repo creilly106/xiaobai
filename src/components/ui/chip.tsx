@@ -46,7 +46,7 @@ export function ToggleSwitch({
       aria-checked={value}
       aria-label={label}
       className={`relative shrink-0 rounded-full border transition-colors ${dims.track} ${
-        value ? 'border-primary bg-primary' : 'border-border bg-muted'
+        value ? 'border-primary bg-primary' : 'border-foreground/15 bg-foreground/15'
       }`}
     >
       <span

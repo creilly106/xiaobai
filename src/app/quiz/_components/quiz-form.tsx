@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { Sparkles } from 'lucide-react';
+import { ArrowRight, Sparkles, Target } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Chip, ToggleSwitch } from '@/components/ui/chip';
@@ -81,34 +81,32 @@ export function QuizForm({ scenarios, hskLevels }: Props) {
 
   return (
     <form onSubmit={submit} className="mt-6 space-y-4">
-      <div className="rounded-lg border border-primary/30 bg-primary/5 p-4">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <div className="flex items-center gap-2 font-medium">
-              <Sparkles className="size-4" />
-              Refresher
-            </div>
-            <p className="mt-0.5 text-xs text-muted-foreground">
-              Spot-check 10 mature cards (graduated review-state) you haven&apos;t seen in a few
-              days. Practice only — nothing changes in your queue.
-            </p>
-          </div>
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={() =>
-              startPreset({
-                type: 'both',
-                states: 'review',
-                olderThanDays: '3',
-                count: '10',
-              })
-            }
-          >
-            Start refresher
-          </Button>
-        </div>
+      <div className="grid gap-2 sm:grid-cols-2">
+        <Preset
+          icon={<Sparkles className="size-4" />}
+          title="Refresher"
+          desc="10 words and sentences you know but haven't seen for a few days."
+          onStart={() =>
+            startPreset({ type: 'both', states: 'review', olderThanDays: '3', count: '10' })
+          }
+        />
+        <Preset
+          icon={<Target className="size-4" />}
+          title="Tricky words"
+          desc="The 10 you've missed most in your reviews."
+          onStart={() =>
+            startPreset({
+              type: 'both',
+              states: 'learning,review,relearning',
+              tricky: '1',
+              count: '10',
+            })
+          }
+        />
       </div>
+      <p className="-mt-2 text-xs text-muted-foreground">
+        Both are practice only: nothing changes in your queue.
+      </p>
 
       <div role="radiogroup" aria-label="Quiz format" className="grid gap-2 sm:grid-cols-3">
         {(
@@ -394,12 +392,39 @@ function ToggleRow({
   onChange: (v: boolean) => void;
 }) {
   return (
-    <div className="flex items-center justify-between rounded-lg border border-border/60 px-4 py-3">
+    <div className="flex items-center justify-between gap-4 rounded-lg border border-border/60 px-4 py-3">
       <div>
         <div className="text-sm font-medium">{label}</div>
         <p className="text-xs text-muted-foreground">{desc}</p>
       </div>
       <ToggleSwitch value={value} onChange={onChange} label={label} />
     </div>
+  );
+}
+
+function Preset({
+  icon,
+  title,
+  desc,
+  onStart,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  desc: string;
+  onStart: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onStart}
+      className="flex items-start gap-3 rounded-lg border border-primary/30 bg-primary/5 p-4 text-left transition-colors hover:bg-primary/10"
+    >
+      <span className="mt-0.5 text-primary">{icon}</span>
+      <span className="min-w-0 flex-1">
+        <span className="block font-medium">{title}</span>
+        <span className="mt-0.5 block text-xs text-muted-foreground">{desc}</span>
+      </span>
+      <ArrowRight className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+    </button>
   );
 }

@@ -441,6 +441,8 @@ const tests: Test[] = [
       const panel = page.getByRole('dialog');
       await panel.waitFor();
       assert((await panel.textContent())?.includes('cat'), 'word panel does not show the meaning');
+      await panel.getByRole('button', { name: /Study this sentence/ }).tap();
+      await panel.getByText('Sentence saved').waitFor({ timeout: 5000 });
       await panel.getByRole('button', { name: 'Close' }).tap();
       const questions = page.locator('[data-question]');
       const count = await questions.count();
