@@ -200,6 +200,16 @@ export function AssessmentPlayer(props: Props) {
           <QuestionView step={current.step} answered={answer !== null} onAnswer={onAnswer} />
         </motion.div>
       </AnimatePresence>
+      {!answer && (
+        // Guessing blurs the result; saying so is more useful than a lucky tap.
+        <button
+          type="button"
+          onClick={() => onAnswer({ correct: false, skipped: true })}
+          className="mx-auto mt-6 text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+        >
+          I don&apos;t know
+        </button>
+      )}
       {answer && <Feedback step={current.step} answer={answer} onContinue={next} busy={saving} />}
     </div>
   );
@@ -254,7 +264,9 @@ function Feedback({
     ? 'border-emerald-500/40 bg-emerald-50 dark:bg-emerald-950/60'
     : answer.partial
       ? 'border-amber-500/40 bg-amber-50 dark:bg-amber-950/60'
-      : 'border-red-500/40 bg-red-50 dark:bg-red-950/60';
+      : answer.skipped
+        ? 'border-border bg-background'
+        : 'border-red-500/40 bg-red-50 dark:bg-red-950/60';
   return (
     <motion.div
       initial={{ y: 40, opacity: 0 }}
@@ -270,6 +282,8 @@ function Feedback({
               </>
             ) : answer.partial ? (
               <>Nearly</>
+            ) : answer.skipped ? (
+              <>Here&apos;s the answer</>
             ) : (
               <>
                 <X className="size-5 text-red-600" /> Not quite

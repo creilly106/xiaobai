@@ -360,7 +360,10 @@ const tests: Test[] = [
         await Promise.race([step.waitFor(), done.waitFor()]);
         if (await done.isVisible()) break;
         const kind = await step.getAttribute('data-level-step');
-        if (kind === 'type-pinyin') {
+        if (asked === 2) {
+          await page.getByRole('button', { name: "I don't know" }).tap();
+          await page.getByText("Here's the answer").waitFor();
+        } else if (kind === 'type-pinyin') {
           for (const k of ['m', 'a', '1']) await page.keyboard.press(k);
           await page.getByRole('button', { name: 'Check' }).last().tap();
         } else {

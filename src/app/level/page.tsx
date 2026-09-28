@@ -111,7 +111,8 @@ export default async function LevelPage() {
             <div className="min-w-0 flex-1">
               <div className="font-medium">Take your first Level check</div>
               <div className="text-sm text-muted-foreground">
-                About 18 questions, 6–8 minutes. They adapt to you as you go.
+                About 18 questions, 6–8 minutes. They adapt as you go. If you don&apos;t know one,
+                tap “I don&apos;t know” rather than guess.
               </div>
             </div>
             <ArrowRight className="size-5 shrink-0" />
