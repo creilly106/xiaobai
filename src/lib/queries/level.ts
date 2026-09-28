@@ -174,6 +174,7 @@ export async function examCoolingDown(level: number): Promise<boolean> {
  * when those finish.
  */
 export async function checkMilestones(): Promise<string[]> {
+  await connection();
   const [words, path, read, settings, have] = await Promise.all([
     getWordsKnown(),
     getPath(),
