@@ -3,15 +3,23 @@ import { hsk2Units } from './hsk2';
 import { hsk3Units } from './hsk3';
 import { hsk4Units } from './hsk4';
 import { hsk5Units } from './hsk5';
+import { hsk5bUnits } from './hsk5b';
 import type { Lesson, Unit } from './types';
 
 export type { DialogueLine, Lesson, PathSentence, Unit } from './types';
 
 /** Every unit, in path order. */
-export const UNITS: Unit[] = [...hsk1Units, ...hsk2Units, ...hsk3Units, ...hsk4Units, ...hsk5Units];
+export const UNITS: Unit[] = [
+  ...hsk1Units,
+  ...hsk2Units,
+  ...hsk3Units,
+  ...hsk4Units,
+  ...hsk5Units,
+  ...hsk5bUnits,
+];
 
 /** HSK levels whose words are all covered by the path. */
-export const COMPLETE_LEVELS = [1, 2, 3, 4];
+export const COMPLETE_LEVELS = [1, 2, 3, 4, 5];
 
 export type PathLesson = Lesson & {
   unit: Unit;

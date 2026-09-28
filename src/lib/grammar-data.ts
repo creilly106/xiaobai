@@ -1118,4 +1118,112 @@ export const grammarPoints: GrammarPoint[] = [
     notes:
       'Compare 没有: A 没有 B 快 says the same as A 不如 B 快. 不如 sounds a little more formal.',
   },
+  {
+    slug: 'yuqi-buru',
+    name: '与其…不如…',
+    englishTitle: 'Rather than … (it would be better to) …',
+    hskLevel: 5,
+    formula: '与其 + option A，不如 + option B',
+    description:
+      'Weighs two choices and prefers the second: "rather than A, better to B". 与其 marks the one you reject, 不如 the one you recommend.',
+    examples: [
+      {
+        hanzi: '与其在家等，不如去找他。',
+        pinyin: 'yǔqí zài jiā děng, bùrú qù zhǎo tā.',
+        meaning: 'Rather than wait at home, we might as well go and find him.',
+      },
+      {
+        hanzi: '与其坐出租车，不如坐地铁，又快又便宜。',
+        pinyin: 'yǔqí zuò chūzūchē, bùrú zuò dìtiě, yòu kuài yòu piányi.',
+        meaning: 'Better to take the subway than a taxi: it is quicker and cheaper.',
+      },
+      {
+        hanzi: '与其后悔，不如现在就努力。',
+        pinyin: 'yǔqí hòuhuǐ, bùrú xiànzài jiù nǔlì.',
+        meaning: 'Rather than regret it later, work hard now.',
+      },
+    ],
+    notes: 'The preferred option always comes second, after 不如.',
+  },
+  {
+    slug: 'napa-ye',
+    name: '哪怕…也…',
+    englishTitle: 'Even if … (still) …',
+    hskLevel: 5,
+    formula: '哪怕 + (extreme) condition，Subject + 也 / 都 + result',
+    description:
+      'Like 即使…也, but more colloquial and emphatic: however bad or unlikely the condition, the result stands.',
+    examples: [
+      {
+        hanzi: '哪怕下雨，我也要去。',
+        pinyin: 'nǎpà xià yǔ, wǒ yě yào qù.',
+        meaning: "Even if it rains, I'm going.",
+      },
+      {
+        hanzi: '哪怕只有一个人，我们也要上课。',
+        pinyin: 'nǎpà zhǐ yǒu yí gè rén, wǒmen yě yào shàng kè.',
+        meaning: "Even if there's only one student, we'll hold the class.",
+      },
+      {
+        hanzi: '哪怕再忙，他也会给家里打电话。',
+        pinyin: 'nǎpà zài máng, tā yě huì gěi jiā lǐ dǎ diànhuà.',
+        meaning: 'However busy he is, he always calls home.',
+      },
+    ],
+    notes: 'Compare 不管 / 无论…都…, which needs a question word or 还是: 不管多忙.',
+  },
+  {
+    slug: 'hekuang',
+    name: '…，何况…',
+    englishTitle: '…, let alone …',
+    hskLevel: 5,
+    formula: 'Easier case (连…都 / 也…)，何况 + harder case (呢)？',
+    description:
+      'If even the easier case is true (or not), the harder case obviously is too. Often follows 连…都 in the first part.',
+    examples: [
+      {
+        hanzi: '连老师都不知道，何况我呢？',
+        pinyin: 'lián lǎoshī dōu bù zhīdào, hékuàng wǒ ne?',
+        meaning: "Even the teacher doesn't know, let alone me.",
+      },
+      {
+        hanzi: '走路都来不及了，何况坐公共汽车。',
+        pinyin: 'zǒu lù dōu láibují le, hékuàng zuò gōnggòng qìchē.',
+        meaning: "We'd be late even walking, let alone taking the bus.",
+      },
+      {
+        hanzi: '这个问题很难，何况他才学了一年汉语。',
+        pinyin: 'zhège wèntí hěn nán, hékuàng tā cái xué le yì nián Hànyǔ.',
+        meaning: "It's a hard question — and besides, he has only studied Chinese for a year.",
+      },
+    ],
+    notes: '何况 can also just add a stronger reason: "and besides…".',
+  },
+  {
+    slug: 'ningke-ye',
+    name: '宁可…也…',
+    englishTitle: 'Would rather … (than) …',
+    hskLevel: 5,
+    formula: 'Subject + 宁可 + hard choice，也 + 不 / 要 + what you refuse or insist on',
+    description:
+      'The speaker accepts the harder option in 宁可 to avoid (也不) or achieve (也要) what follows.',
+    examples: [
+      {
+        hanzi: '我宁可走路，也不坐他的车。',
+        pinyin: 'wǒ nìngkě zǒu lù, yě bú zuò tā de chē.',
+        meaning: "I'd rather walk than get in his car.",
+      },
+      {
+        hanzi: '他宁可少睡一会儿，也要把工作做完。',
+        pinyin: 'tā nìngkě shǎo shuì yíhuìr, yě yào bǎ gōngzuò zuò wán.',
+        meaning: "He'd rather sleep less than leave the work unfinished.",
+      },
+      {
+        hanzi: '我宁可多花点钱，也要买质量好的。',
+        pinyin: 'wǒ nìngkě duō huā diǎn qián, yě yào mǎi zhìliàng hǎo de.',
+        meaning: "I'd rather spend more and get something good quality.",
+      },
+    ],
+    notes: 'Compare 与其…不如…, which recommends; 宁可 states the speaker’s own firm preference.',
+  },
 ];

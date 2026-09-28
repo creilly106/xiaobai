@@ -1356,6 +1356,377 @@ export const stories: Story[] = [
       },
     ],
   },
+
+  // ——— HSK 5 ———
+  {
+    id: 'job-hunting',
+    title: s('找工作', 'zhǎo gōngzuò', 'Job hunting'),
+    hskLevel: 5,
+    after: 'h5-u18-l4',
+    extras: [],
+    paragraphs: [
+      [
+        s(
+          '去年我毕业了，开始寻找工作。',
+          'qùnián wǒ bìyè le, kāishǐ xúnzhǎo gōngzuò.',
+          'I graduated last year and started looking for work.',
+        ),
+        s(
+          '刚开始的时候，我对未来充满了希望。',
+          'gāng kāishǐ de shíhou, wǒ duì wèilái chōngmǎn le xīwàng.',
+          'At first I was full of hope for the future.',
+        ),
+        s(
+          '可是找工作比我想象的难多了。',
+          'kěshì zhǎo gōngzuò bǐ wǒ xiǎngxiàng de nán duō le.',
+          'But finding a job was much harder than I had imagined.',
+        ),
+        s(
+          '我应聘了十几家公司，都没有成功。',
+          'wǒ yìngpìn le shí jǐ jiā gōngsī, dōu méiyǒu chénggōng.',
+          'I applied to a dozen companies without success.',
+        ),
+      ],
+      [
+        s(
+          '我开始怀疑自己的能力，情绪也很不好。',
+          'wǒ kāishǐ huáiyí zìjǐ de nénglì, qíngxù yě hěn bù hǎo.',
+          'I started to doubt my own ability, and my mood was low.',
+        ),
+        s(
+          '我的老师知道以后，亲自给我打电话。',
+          'wǒ de lǎoshī zhīdào yǐhòu, qīnzì gěi wǒ dǎ diànhuà.',
+          'When my teacher found out, she phoned me herself.',
+        ),
+        s(
+          '她说：“失败是正常的，关键是要总结经验。”',
+          'tā shuō: "shībài shì zhèngcháng de, guānjiàn shì yào zǒngjié jīngyàn."',
+          'She said, "Failing is normal. What matters is learning from it."',
+        ),
+        s(
+          '她还给我推荐了一家公司。',
+          'tā hái gěi wǒ tuījiàn le yì jiā gōngsī.',
+          'She also recommended a company to me.',
+        ),
+      ],
+      [
+        s(
+          '这家公司的老板很年轻，也很有魅力。',
+          'zhè jiā gōngsī de lǎobǎn hěn niánqīng, yě hěn yǒu mèilì.',
+          "The company's boss was young and very charismatic.",
+        ),
+        s(
+          '他问了我很多具体的问题，我都认真地回答了。',
+          'tā wèn le wǒ hěn duō jùtǐ de wèntí, wǒ dōu rènzhēn de huídá le.',
+          'He asked me lots of detailed questions, and I answered them all carefully.',
+        ),
+        s(
+          '一个星期以后，公司通知我去上班。',
+          'yí gè xīngqī yǐhòu, gōngsī tōngzhī wǒ qù shàngbān.',
+          'A week later, the company told me to start work.',
+        ),
+        s(
+          '我终于实现了自己的目标。',
+          'wǒ zhōngyú shíxiàn le zìjǐ de mùbiāo.',
+          'I had finally reached my goal.',
+        ),
+      ],
+    ],
+    questions: [
+      {
+        question: 'What did the writer do after graduating?',
+        options: ['Looked for a job', 'Went travelling', 'Went back to study'],
+        answer: 'Looked for a job',
+      },
+      {
+        question: 'How did the first applications go?',
+        options: ['None of them worked out', 'Two of them worked out', 'There were several offers'],
+        answer: 'None of them worked out',
+      },
+      {
+        question: "What did the writer's teacher do?",
+        options: ['Phoned and recommended a company', 'Wrote the CV for them', 'Lent them money'],
+        answer: 'Phoned and recommended a company',
+      },
+      {
+        question: 'How did it end?',
+        options: ['The company offered a job', 'They started their own business', 'They gave up'],
+        answer: 'The company offered a job',
+      },
+    ],
+  },
+  {
+    id: 'a-new-city',
+    title: s('新的城市', 'xīn de chéngshì', 'A new city'),
+    hskLevel: 5,
+    after: 'h5-u27-l5',
+    extras: [],
+    paragraphs: [
+      [
+        s(
+          '为了工作，我搬到了一个新的城市。',
+          'wèile gōngzuò, wǒ bān dào le yí gè xīn de chéngshì.',
+          'I moved to a new city for work.',
+        ),
+        s(
+          '我通过中介在公司附近租了一个公寓。',
+          'wǒ tōngguò zhōngjiè zài gōngsī fùjìn zū le yí gè gōngyù.',
+          'I rented a flat near the office through an agent.',
+        ),
+        s(
+          '公寓不大，但是有一个阳台，还有一个小卧室。',
+          'gōngyù bú dà, dànshì yǒu yí gè yángtái, hái yǒu yí gè xiǎo wòshì.',
+          "The flat isn't big, but it has a balcony and a small bedroom.",
+        ),
+        s(
+          '刚搬来的时候，我一个人都不认识，经常觉得很寂寞。',
+          'gāng bān lái de shíhou, wǒ yí gè rén dōu bú rènshi, jīngcháng juéde hěn jìmò.',
+          "When I first moved, I didn't know a soul and often felt lonely.",
+        ),
+      ],
+      [
+        s(
+          '一个周末，隔壁的邻居敲我的门。',
+          'yí gè zhōumò, gébì de línjū qiāo wǒ de mén.',
+          'One weekend, the neighbour next door knocked on my door.',
+        ),
+        s(
+          '她是一个热情的阿姨，送给我一些饺子。',
+          'tā shì yí gè rèqíng de āyí, sòng gěi wǒ yìxiē jiǎozi.',
+          'She was a warm-hearted older woman, and she brought me some dumplings.',
+        ),
+        s(
+          '后来，我们经常一起包饺子。',
+          'hòulái, wǒmen jīngcháng yìqǐ bāo jiǎozi.',
+          'After that, we often made dumplings together.',
+        ),
+        s(
+          '她还教我做中国菜。',
+          'tā hái jiāo wǒ zuò Zhōngguó cài.',
+          'She also taught me to cook Chinese food.',
+        ),
+      ],
+      [
+        s(
+          '周末我们一起去市场买蔬菜和海鲜。',
+          'zhōumò wǒmen yìqǐ qù shìchǎng mǎi shūcài hé hǎixiān.',
+          'At weekends we go to the market together for vegetables and seafood.',
+        ),
+        s(
+          '现在，我已经习惯了这里的生活。',
+          'xiànzài, wǒ yǐjīng xíguàn le zhèlǐ de shēnghuó.',
+          "Now I'm used to life here.",
+        ),
+        s(
+          '我觉得，有一个好邻居真是幸运。',
+          'wǒ juéde, yǒu yí gè hǎo línjū zhēn shì xìngyùn.',
+          "I think I'm really lucky to have a good neighbour.",
+        ),
+      ],
+    ],
+    questions: [
+      {
+        question: 'Why did the writer move?',
+        options: ['For work', 'To study', 'To be near family'],
+        answer: 'For work',
+      },
+      {
+        question: 'How did the writer find the flat?',
+        options: ['Through an agent', 'Through a friend', 'Online, on their own'],
+        answer: 'Through an agent',
+      },
+      {
+        question: 'Who knocked on the door?',
+        options: ['The neighbour next door', 'The landlord', 'A delivery driver'],
+        answer: 'The neighbour next door',
+      },
+      {
+        question: 'What do they do together now?',
+        options: ['Make dumplings and go food shopping', 'Play chess', 'Go running'],
+        answer: 'Make dumplings and go food shopping',
+      },
+    ],
+  },
+  {
+    id: 'grandpas-story',
+    title: s('爷爷的故事', 'yéye de gùshi', "Grandpa's story"),
+    hskLevel: 5,
+    after: 'h5-u35-l9',
+    extras: [],
+    paragraphs: [
+      [
+        s(
+          '我爷爷已经八十岁了，但是身体很健康。',
+          'wǒ yéye yǐjīng bāshí suì le, dànshì shēntǐ hěn jiànkāng.',
+          'My grandpa is eighty, but he is in good health.',
+        ),
+        s(
+          '他平常早上六点起床，在公园里散步。',
+          'tā píngcháng zǎoshang liù diǎn qǐchuáng, zài gōngyuán lǐ sànbù.',
+          'He usually gets up at six and goes for a walk in the park.',
+        ),
+        s(
+          '从前，爷爷是一个农民。',
+          'cóngqián, yéye shì yí gè nóngmín.',
+          'Grandpa used to be a farmer.',
+        ),
+        s(
+          '那个时候，生活很困难，粮食也不够。',
+          'nàge shíhou, shēnghuó hěn kùnnan, liángshi yě bú gòu.',
+          "In those days life was hard, and there wasn't enough food.",
+        ),
+      ],
+      [
+        s(
+          '但是爷爷很乐观，也很勤劳。',
+          'dànshì yéye hěn lèguān, yě hěn qínláo.',
+          'But Grandpa was optimistic and hardworking.',
+        ),
+        s(
+          '他一边干活儿，一边学习写字。',
+          'tā yìbiān gànhuór, yìbiān xuéxí xiě zì.',
+          'He learned to write while he worked.',
+        ),
+        s('后来，他当了老师。', 'hòulái, tā dāng le lǎoshī.', 'Later he became a teacher.'),
+        s(
+          '他经常说：“只要努力，就能改变命运。”',
+          'tā jīngcháng shuō: "zhǐyào nǔlì, jiù néng gǎibiàn mìngyùn."',
+          'He often says, "As long as you work hard, you can change your fate."',
+        ),
+      ],
+      [
+        s(
+          '爷爷退休以后，最大的爱好是下象棋。',
+          'yéye tuìxiū yǐhòu, zuì dà de àihào shì xià xiàngqí.',
+          "Since he retired, Grandpa's great hobby has been Chinese chess.",
+        ),
+        s(
+          '他下得非常好，我从来没有赢过他。',
+          'tā xià de fēicháng hǎo, wǒ cónglái méiyǒu yíng guo tā.',
+          "He plays brilliantly; I've never beaten him.",
+        ),
+        s('我很佩服我的爷爷。', 'wǒ hěn pèifú wǒ de yéye.', 'I really admire my grandpa.'),
+      ],
+    ],
+    questions: [
+      {
+        question: 'How old is Grandpa?',
+        options: ['Eighty', 'Seventy', 'Ninety'],
+        answer: 'Eighty',
+      },
+      {
+        question: 'What was Grandpa before?',
+        options: ['A farmer', 'A soldier', 'A doctor'],
+        answer: 'A farmer',
+      },
+      {
+        question: 'What did he become later?',
+        options: ['A teacher', 'A businessman', 'An engineer'],
+        answer: 'A teacher',
+      },
+      {
+        question: "What's his favourite hobby now?",
+        options: ['Chinese chess', 'Tai chi', 'Fishing'],
+        answer: 'Chinese chess',
+      },
+    ],
+  },
+  {
+    id: 'trip-to-xian',
+    title: s('去西安旅游', "qù Xī'ān lǚyóu", "A trip to Xi'an"),
+    hskLevel: 5,
+    after: 'h5-u39-l4',
+    extras: [s('西安', "Xī'ān", "Xi'an (a city)")],
+    paragraphs: [
+      [
+        s(
+          '国庆节的时候，我和朋友去西安旅游。',
+          "guóqìngjié de shíhou, wǒ hé péngyou qù Xī'ān lǚyóu.",
+          "Over National Day, my friend and I went to Xi'an.",
+        ),
+        s(
+          '西安是一座古老的城市，有悠久的历史。',
+          "Xī'ān shì yí zuò gǔlǎo de chéngshì, yǒu yōujiǔ de lìshǐ.",
+          "Xi'an is an ancient city with a long history.",
+        ),
+        s(
+          '因为是放假期间，到处都很拥挤。',
+          'yīnwèi shì fàngjià qījiān, dàochù dōu hěn yōngjǐ.',
+          'Because it was the holidays, everywhere was packed.',
+        ),
+        s(
+          '我们事先预订了宾馆，所以不用担心住的地方。',
+          'wǒmen shìxiān yùdìng le bīnguǎn, suǒyǐ bú yòng dānxīn zhù de dìfang.',
+          "We'd booked a hotel in advance, so we didn't have to worry about somewhere to stay.",
+        ),
+      ],
+      [
+        s(
+          '我们游览了很多名胜，还参观了博物馆。',
+          'wǒmen yóulǎn le hěn duō míngshèng, hái cānguān le bówùguǎn.',
+          'We toured lots of famous sights and visited a museum.',
+        ),
+        s(
+          '导游给我们讲了很多神话和传说，非常生动。',
+          'dǎoyóu gěi wǒmen jiǎng le hěn duō shénhuà hé chuánshuō, fēicháng shēngdòng.',
+          'The guide told us lots of myths and legends, very vividly.',
+        ),
+        s(
+          '西安的小吃也很有名，口味很特别。',
+          "Xī'ān de xiǎochī yě hěn yǒumíng, kǒuwèi hěn tèbié.",
+          "Xi'an's street food is famous too, with very distinctive flavours.",
+        ),
+        s(
+          '我们几乎吃遍了所有的小吃。',
+          'wǒmen jīhū chī biàn le suǒyǒu de xiǎochī.',
+          'We tried almost every snack there was.',
+        ),
+      ],
+      [
+        s(
+          '回来以前，我们一起合影留念。',
+          'huí lái yǐqián, wǒmen yìqǐ héyǐng liúniàn.',
+          'Before we came back, we had a photo taken together as a keepsake.',
+        ),
+        s(
+          '这次旅行虽然很累，但是收获很大。',
+          'zhè cì lǚxíng suīrán hěn lèi, dànshì shōuhuò hěn dà.',
+          'The trip was tiring, but we got a lot out of it.',
+        ),
+        s(
+          '我盼望着下次再去。',
+          'wǒ pànwàng zhe xià cì zài qù.',
+          "I'm looking forward to going again.",
+        ),
+      ],
+    ],
+    questions: [
+      {
+        question: 'When did they go?',
+        options: ['Over the National Day holiday', "On New Year's Eve", 'In the summer holidays'],
+        answer: 'Over the National Day holiday',
+      },
+      {
+        question: "Why didn't they need to worry about where to stay?",
+        options: [
+          'They had booked a hotel in advance',
+          'They stayed with friends',
+          'They went camping',
+        ],
+        answer: 'They had booked a hotel in advance',
+      },
+      {
+        question: 'What did the guide tell them about?',
+        options: ['Myths and legends', 'Food prices', 'Train times'],
+        answer: 'Myths and legends',
+      },
+      {
+        question: 'How was the trip, overall?',
+        options: ['Tiring but worth it', 'Boring', 'Too expensive'],
+        answer: 'Tiring but worth it',
+      },
+    ],
+  },
 ];
 
 export const storyById = (id: string) => stories.find((s) => s.id === id);

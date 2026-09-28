@@ -1,10 +1,10 @@
 # 小白 Xiaobai
 
-A Chinese-learning web app, from your first 你好 to reading short stories. It's built for daily use on a phone (installable on the iPhone home screen, and it works offline) and covers all of HSK 1–4 and the first half of HSK 5.
+A Chinese-learning web app, from your first 你好 to reading short stories. It's built for daily use on a phone (installable on the iPhone home screen, and it works offline) and covers all of HSK 1–5.
 
 ## What it does
 
-**Learn.** A guided path through the official 2012 HSK lists: every HSK 1–4 word and the 620 most common HSK 5 words (1,897 in all) in 316 short lessons across 67 units. Each lesson teaches a few words and often a grammar point, then practises them with:
+**Learn.** A guided path through the official 2012 HSK lists: all 2,520 words of HSK 1–5 in 419 short lessons across 88 units. Each lesson teaches a few words and often a grammar point, then practises them with:
 
 - multiple choice and match-the-pairs;
 - typing the meaning or the pinyin (with tones);
@@ -20,12 +20,12 @@ Unit checkpoints let you test out of material you already know. Lessons added be
 
 - Quizzes: flashcards, typed meanings, fill in the blank.
 - A tone trainer and a numbers drill (prices, dates, times).
-- **Read**: 16 graded stories, each written only with words you've already learned, with tap-to-look-up, pinyin over each word, read-aloud and comprehension questions.
+- **Read**: 20 graded stories, each written only with words you've already learned, with tap-to-look-up, pinyin over each word, read-aloud and comprehension questions.
 
 **Explore.**
 
 - **Scenarios**: 20 real-life situations (ordering food, the doctor, renting a flat…). Phrases come in past, present and future versions, alongside two-voice dialogues with a "Your turn" mode, a listening mode and comprehension questions.
-- **Grammar**: 53 grammar points with examples.
+- **Grammar**: 57 grammar points with examples.
 - **Library**: a dictionary search over CC-CEDICT, with English, pinyin and character search.
 - **Radicals.**
 - **Find a character**: draw an unknown character, or pick the parts you can see, to look it up. Recognition runs on the device.
@@ -101,7 +101,7 @@ The Learn path, grammar points, scenarios and stories are plain TypeScript data.
 
 ## Data and credits
 
-- **HSK word lists** (2012 standard): [drkameleon/complete-hsk-vocabulary](https://github.com/drkameleon/complete-hsk-vocabulary), MIT, used to check HSK 1–4 and source HSK 5
+- **HSK word lists** (2012 standard): [drkameleon/complete-hsk-vocabulary](https://github.com/drkameleon/complete-hsk-vocabulary), MIT, used to check HSK 1–4 and to source HSK 5
 - **CC-CEDICT** dictionary: [cc-cedict.org](https://cc-cedict.org), CC BY-SA 4.0
 - **Make Me a Hanzi** character data: [skishore/makemeahanzi](https://github.com/skishore/makemeahanzi), Arphic Public License / LGPL
 - **Hanzi Writer data** stroke order: [chanind/hanzi-writer-data](https://github.com/chanind/hanzi-writer-data), Arphic Public License
