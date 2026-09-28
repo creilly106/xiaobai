@@ -8,13 +8,14 @@ import { hsk1 } from './data/hsk1';
 import { hsk2 } from './data/hsk2';
 import { hsk3 } from './data/hsk3';
 import { hsk4 } from './data/hsk4';
+import { hsk5 } from './data/hsk5';
 
 async function main() {
   const client = createClient(dbCredentials());
   const db = drizzle(client, { schema });
 
   console.log(
-    `Seeding ${hsk1.length} HSK 1 + ${hsk2.length} HSK 2 + ${hsk3.length} HSK 3 + ${hsk4.length} HSK 4 words...`,
+    `Seeding ${hsk1.length} HSK 1 + ${hsk2.length} HSK 2 + ${hsk3.length} HSK 3 + ${hsk4.length} HSK 4 + ${hsk5.length} HSK 5 words...`,
   );
 
   const batches: { words: typeof hsk1; level: number }[] = [
@@ -22,6 +23,7 @@ async function main() {
     { words: hsk2, level: 2 },
     { words: hsk3, level: 3 },
     { words: hsk4, level: 4 },
+    { words: hsk5, level: 5 },
   ];
   for (const b of batches) {
     await db
@@ -34,7 +36,13 @@ async function main() {
           hskLevel: b.level,
         })),
       )
-      .onConflictDoNothing({ target: schema.words.hanzi });
+      // A word you'd already added yourself (from the dictionary) becomes the
+      // HSK word, keeping its cards; existing HSK words are left as they are.
+      .onConflictDoUpdate({
+        target: schema.words.hanzi,
+        set: { hskLevel: b.level, source: 'hsk' },
+        setWhere: sql`${schema.words.hskLevel} is null`,
+      });
   }
 
   const inserted = await db.select({ count: sql<number>`count(*)` }).from(schema.words);

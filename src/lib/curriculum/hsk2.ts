@@ -393,6 +393,16 @@ export const hsk2Units: Unit[] = [
           s('你还要什么？', 'nǐ hái yào shénme?', 'What else would you like?'),
         ],
       },
+      {
+        id: 'h2-u8-l4',
+        title: 'A few more words',
+        words: ['饭馆', '吧', '公斤', '男人', '女人', '踢', '阴'],
+        sentences: [
+          s('我们去饭馆吧！', 'wǒmen qù fànguǎn ba!', "Let's go to a restaurant!"),
+          s('这个西瓜三公斤。', 'zhège xīguā sān gōngjīn.', 'This watermelon weighs three kilos.'),
+          s('那个男人是我的老师。', 'nàge nánrén shì wǒ de lǎoshī.', 'That man is my teacher.'),
+        ],
+      },
     ],
   },
 ];

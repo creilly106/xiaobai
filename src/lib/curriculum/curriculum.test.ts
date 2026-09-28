@@ -3,6 +3,7 @@ import { hsk1 } from '../../../scripts/data/hsk1';
 import { hsk2 } from '../../../scripts/data/hsk2';
 import { hsk3 } from '../../../scripts/data/hsk3';
 import { hsk4 } from '../../../scripts/data/hsk4';
+import { hsk5 } from '../../../scripts/data/hsk5';
 import { grammarPoints } from '../grammar-data';
 import { scenarios } from '../scenario-data';
 import { pinyinSyllableCount } from '../pinyin-split';
@@ -10,7 +11,7 @@ import { segmentSpans } from '../segment';
 import { COMPLETE_LEVELS, LESSONS, UNITS, wordsThrough } from './index';
 
 const HSK: Record<number, string[]> = Object.fromEntries(
-  [hsk1, hsk2, hsk3, hsk4].map((list, i) => [i + 1, list.map((w) => w.hanzi)]),
+  [hsk1, hsk2, hsk3, hsk4, hsk5].map((list, i) => [i + 1, list.map((w) => w.hanzi)]),
 );
 const HAN = /[㐀-鿿]/u;
 const HAN_ALL = /[㐀-鿿]/gu;
@@ -67,18 +68,22 @@ describe('curriculum', () => {
   });
 
   it('writes sentences using only words taught so far', () => {
-    const allWords = new Set(Object.values(HSK).flat());
     for (const l of LESSONS) {
       const reached = new Set(wordsThrough(l.index));
       for (const sentence of l.sentences ?? []) {
-        const spans = segmentSpans(sentence.hanzi, allWords);
-        const covered = spans.reduce((n, sp) => n + sp.end - sp.start, 0);
-        const hanCount = Array.from(sentence.hanzi).filter((c) => HAN.test(c)).length;
-        const unknown = spans.map((sp) => sp.word).filter((w) => !reached.has(w));
-        expect({ sentence: sentence.hanzi, covered, unknown }).toEqual({
+        // Split with only the words taught by now: whatever's left over is a
+        // word (or lone character) the learner hasn't met. Splitting with every
+        // HSK word instead would read 五个人 as 五 + 个人 (HSK 5).
+        const chars = Array.from(sentence.hanzi);
+        const covered = new Set(
+          segmentSpans(sentence.hanzi, reached).flatMap((sp) =>
+            Array.from({ length: sp.end - sp.start }, (_, i) => sp.start + i),
+          ),
+        );
+        const notYetTaught = chars.filter((c, i) => HAN.test(c) && !covered.has(i)).join('');
+        expect({ sentence: sentence.hanzi, notYetTaught }).toEqual({
           sentence: sentence.hanzi,
-          covered: hanCount,
-          unknown: [],
+          notYetTaught: '',
         });
       }
     }

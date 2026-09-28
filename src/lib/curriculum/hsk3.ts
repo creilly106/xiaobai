@@ -708,4 +708,58 @@ export const hsk3Units: Unit[] = [
       },
     ],
   },
+  {
+    id: 'h3-u13',
+    hskLevel: 3,
+    title: 'A few more words',
+    description: 'Gardens, letters, wishes, and linking words that round off HSK 3.',
+    lessons: [
+      {
+        id: 'h3-u13-l1',
+        title: 'Home and garden',
+        words: ['花园', '河', '黄', '葡萄', '鞋', '刷'],
+        sentences: [
+          s(
+            '我家后面有一个花园。',
+            'wǒ jiā hòumiàn yǒu yí gè huāyuán.',
+            'There is a garden behind our house.',
+          ),
+          s('这双鞋很漂亮。', 'zhè shuāng xié hěn piàoliang.', 'These shoes are lovely.'),
+          s('我喜欢吃葡萄。', 'wǒ xǐhuan chī pútao.', 'I like grapes.'),
+        ],
+      },
+      {
+        id: 'h3-u13-l2',
+        title: 'Wishes and letters',
+        words: ['祝', '信', '字典', '电子', '以后', '刮'],
+        sentences: [
+          s('祝你生日快乐！', 'zhù nǐ shēngrì kuàilè!', 'Happy birthday!'),
+          s(
+            '下课以后，我给妈妈写信。',
+            'xià kè yǐhòu, wǒ gěi māma xiě xìn.',
+            "After class I'm writing a letter to Mum.",
+          ),
+          s(
+            '这是一本电子字典。',
+            'zhè shì yì běn diànzǐ zìdiǎn.',
+            'This is an electronic dictionary.',
+          ),
+        ],
+      },
+      {
+        id: 'h3-u13-l3',
+        title: 'Linking words',
+        words: ['地', '而且', '兴趣', '作用'],
+        sentences: [
+          s('他很认真地学习。', 'tā hěn rènzhēn de xuéxí.', 'He studies very conscientiously.'),
+          s(
+            '这个菜很好吃，而且很便宜。',
+            'zhège cài hěn hǎochī, érqiě hěn piányi.',
+            'This dish is tasty, and cheap too.',
+          ),
+          s('我的兴趣是画画。', 'wǒ de xìngqù shì huà huà.', 'My hobby is painting.'),
+        ],
+      },
+    ],
+  },
 ];

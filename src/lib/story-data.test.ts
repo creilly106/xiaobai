@@ -1,8 +1,4 @@
 import { describe, expect, it } from 'vitest';
-import { hsk1 } from '../../scripts/data/hsk1';
-import { hsk2 } from '../../scripts/data/hsk2';
-import { hsk3 } from '../../scripts/data/hsk3';
-import { hsk4 } from '../../scripts/data/hsk4';
 import { lessonById, wordsThrough } from './curriculum';
 import { pinyinSyllableCount } from './pinyin-split';
 import { segmentSpans } from './segment';
@@ -10,7 +6,6 @@ import { stories, storySentences } from './story-data';
 
 const HAN = /[㐀-鿿]/u;
 const HAN_ALL = /[㐀-鿿]/gu;
-const hskWords = [hsk1, hsk2, hsk3, hsk4].flat().map((w) => w.hanzi);
 
 describe('stories', () => {
   it('have unique ids and open after real lessons', () => {
@@ -24,18 +19,18 @@ describe('stories', () => {
 
   it.each(stories)('$id: uses only words taught by then, plus its extras', (story) => {
     const extras = story.extras.map((e) => e.hanzi);
-    const lookup = new Set([...hskWords, ...extras]);
     const reached = new Set([...wordsThrough(lessonById(story.after)!.index), ...extras]);
+    // Split with only what's been taught: anything left over hasn't been.
     const problems = storySentences(story).flatMap((sentence) => {
-      const spans = segmentSpans(sentence.hanzi, lookup);
-      const covered = spans.reduce((n, sp) => n + sp.end - sp.start, 0);
-      const hanCount = Array.from(sentence.hanzi).filter((c) => HAN.test(c)).length;
-      const unknown = spans.map((sp) => sp.word).filter((w) => !reached.has(w));
-      const gaps =
-        covered === hanCount
-          ? []
-          : [`${sentence.hanzi}: not all words recognised (${covered}/${hanCount})`];
-      return [...gaps, ...unknown.map((w) => `${sentence.hanzi}: ${w} not taught yet`)];
+      const covered = new Set(
+        segmentSpans(sentence.hanzi, reached).flatMap((sp) =>
+          Array.from({ length: sp.end - sp.start }, (_, i) => sp.start + i),
+        ),
+      );
+      const left = Array.from(sentence.hanzi)
+        .filter((c, i) => HAN.test(c) && !covered.has(i))
+        .join('');
+      return left ? [`${sentence.hanzi}: not taught yet: ${left}`] : [];
     });
     expect(problems).toEqual([]);
     // Extras should be a light touch, not a second vocabulary list.

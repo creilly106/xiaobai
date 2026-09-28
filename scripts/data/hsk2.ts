@@ -151,4 +151,16 @@ export const hsk2: HskEntry[] = [
   { hanzi: '走', pinyin: 'zǒu', meaning: 'to walk, to leave' },
   { hanzi: '最', pinyin: 'zuì', meaning: 'most' },
   { hanzi: '左边', pinyin: 'zuǒbiān', meaning: 'left side' },
+  // Official HSK 1–2 words added later (饭馆 is HSK 1, taught here with these).
+  { hanzi: '饭馆', pinyin: 'fànguǎn', meaning: 'restaurant' },
+  {
+    hanzi: '吧',
+    pinyin: 'ba',
+    meaning: "particle for suggestions (let's…) and checking (…right?)",
+  },
+  { hanzi: '公斤', pinyin: 'gōngjīn', meaning: 'kilogram (kg)' },
+  { hanzi: '男人', pinyin: 'nánrén', meaning: 'a man, a male' },
+  { hanzi: '女人', pinyin: 'nǚrén', meaning: 'woman' },
+  { hanzi: '踢', pinyin: 'tī', meaning: 'to kick, to play' },
+  { hanzi: '阴', pinyin: 'yīn', meaning: 'overcast (weather), cloudy' },
 ];

@@ -961,7 +961,7 @@ export const hsk4Units: Unit[] = [
         title: 'Business',
         words: ['生意', '经济', '广告', '提供', '共同', '条件'],
         sentences: [
-          s('他在做生意。', 'tā zài zuò shēngyi.', "He's in business."),
+          s('他的生意很好。', 'tā de shēngyi hěn hǎo.', 'His business is doing well.'),
           s(
             '电视上的广告太多了。',
             'diànshì shàng de guǎnggào tài duō le.',
@@ -1676,6 +1676,233 @@ export const hsk4Units: Unit[] = [
             "I've got used to life here.",
           ),
           s('我对这里不太熟悉。', 'wǒ duì zhèlǐ bú tài shúxī.', "I don't know this area well."),
+        ],
+      },
+    ],
+  },
+  {
+    id: 'h4-u19',
+    hskLevel: 4,
+    title: 'More everyday words',
+    description: 'Home, food, people, nature and actions that round off HSK 4.',
+    lessons: [
+      {
+        id: 'h4-u19-l1',
+        title: 'Around the house',
+        words: ['墙', '镜子', '洗衣机', '修', '亮', '暗'],
+        sentences: [
+          s('墙上有一个镜子。', 'qiáng shàng yǒu yí gè jìngzi.', "There's a mirror on the wall."),
+          s(
+            '洗衣机坏了，我们要找人修。',
+            'xǐyījī huài le, wǒmen yào zhǎo rén xiū.',
+            "The washing machine's broken; we need someone to fix it.",
+          ),
+          s(
+            '房间里太暗了，开灯吧。',
+            'fángjiān lǐ tài àn le, kāi dēng ba.',
+            "It's too dark in here. Let's turn the light on.",
+          ),
+        ],
+      },
+      {
+        id: 'h4-u19-l2',
+        title: 'Food and money',
+        words: ['西红柿', '食品', '饮料', '市场', '人民币', '请客'],
+        sentences: [
+          s(
+            '我去市场买西红柿。',
+            'wǒ qù shìchǎng mǎi xīhóngshì.',
+            "I'm going to the market to buy tomatoes.",
+          ),
+          s('今天我请客！', 'jīntiān wǒ qǐngkè!', "Today it's my treat!"),
+          s(
+            '这些饮料一共二十块人民币。',
+            'zhèxiē yǐnliào yígòng èrshí kuài rénmínbì.',
+            'These drinks come to twenty yuan in all.',
+          ),
+        ],
+      },
+      {
+        id: 'h4-u19-l3',
+        title: 'People',
+        words: ['大夫', '研究生', '作者', '俩', '群', '精神'],
+        sentences: [
+          s('我哥哥是大夫。', 'wǒ gēge shì dàifu.', 'My older brother is a doctor.'),
+          s('我们俩都是研究生。', 'wǒmen liǎ dōu shì yánjiūshēng.', "We're both postgraduates."),
+          s('你今天很精神！', 'nǐ jīntiān hěn jīngshen!', 'You look full of energy today!'),
+        ],
+      },
+      {
+        id: 'h4-u19-l4',
+        title: 'Countryside',
+        words: ['风景', '农村', '猴子', '狮子', '朵', '干燥', '湿润'],
+        sentences: [
+          s(
+            '农村的风景很漂亮。',
+            'nóngcūn de fēngjǐng hěn piàoliang.',
+            'The countryside scenery is beautiful.',
+          ),
+          s(
+            '北京的天气很干燥。',
+            'Běijīng de tiānqì hěn gānzào.',
+            'The weather in Beijing is very dry.',
+          ),
+          s('我送她一朵花。', 'wǒ sòng tā yì duǒ huā.', 'I gave her a flower.'),
+        ],
+      },
+      {
+        id: 'h4-u19-l5',
+        title: 'Shapes and sizes',
+        words: ['宽', '窄', '圆', '软', '整齐', '高级'],
+        sentences: [
+          s('这条路很窄。', 'zhè tiáo lù hěn zhǎi.', 'This road is narrow.'),
+          s('他的房间非常整齐。', 'tā de fángjiān fēicháng zhěngqí.', 'His room is really tidy.'),
+          s('这个沙发很软。', 'zhège shāfā hěn ruǎn.', 'This sofa is soft.'),
+        ],
+      },
+      {
+        id: 'h4-u19-l6',
+        title: 'Doing things',
+        words: ['弹', '断', '撞', '醒', '握手', '流泪'],
+        sentences: [
+          s(
+            '我早上六点就醒了。',
+            'wǒ zǎoshang liù diǎn jiù xǐng le.',
+            'I was awake by six this morning.',
+          ),
+          s(
+            '见面的时候，我们握手。',
+            'jiànmiàn de shíhou, wǒmen wòshǒu.',
+            'When we meet, we shake hands.',
+          ),
+          s('我的铅笔断了。', 'wǒ de qiānbǐ duàn le.', 'My pencil broke.'),
+        ],
+      },
+      {
+        id: 'h4-u19-l7',
+        title: 'Talking',
+        words: ['谈', '表达', '发', '访问', '吵', '顿'],
+        sentences: [
+          s('我们谈了很久。', 'wǒmen tán le hěn jiǔ.', 'We talked for a long time.'),
+          s('别吵了！', 'bié chǎo le!', 'Stop arguing!'),
+          s('我给你发短信。', 'wǒ gěi nǐ fā duǎnxìn.', "I'll text you."),
+          s(
+            '我们一起吃了一顿饺子。',
+            'wǒmen yìqǐ chī le yí dùn jiǎozi.',
+            'We had a meal of dumplings together.',
+          ),
+        ],
+      },
+    ],
+  },
+  {
+    id: 'h4-u20',
+    hskLevel: 4,
+    title: 'More ideas and change',
+    description: 'Time, linking words, work and growth that round off HSK 4.',
+    lessons: [
+      {
+        id: 'h4-u20-l1',
+        title: 'Suddenly and gradually',
+        words: ['刚刚', '后来', '忽然', '逐渐', '果然', '竟然'],
+        sentences: [
+          s('他刚刚走。', 'tā gānggang zǒu.', 'He just left.'),
+          s('忽然下雨了。', 'hūrán xià yǔ le.', 'Suddenly it started raining.'),
+          s(
+            '天气逐渐暖和了。',
+            'tiānqì zhújiàn nuǎnhuo le.',
+            'The weather is gradually getting warmer.',
+          ),
+        ],
+      },
+      {
+        id: 'h4-u20-l2',
+        title: 'As long as',
+        words: ['不但', '只要', '只好', '极其', '分之', '算'],
+        sentences: [
+          s(
+            '只要你努力，就能成功。',
+            'zhǐyào nǐ nǔlì, jiù néng chénggōng.',
+            'As long as you work hard, you can succeed.',
+          ),
+          s(
+            '没有出租车，我只好走回家。',
+            'méiyǒu chūzūchē, wǒ zhǐhǎo zǒu huí jiā.',
+            'There were no taxis, so I had to walk home.',
+          ),
+          s(
+            '他不但聪明，而且很努力。',
+            'tā búdàn cōngming, érqiě hěn nǔlì.',
+            "He's not only clever but also hardworking.",
+          ),
+        ],
+      },
+      {
+        id: 'h4-u20-l3',
+        title: 'Business',
+        words: ['做生意', '代表', '组织', '工具', '制造', '经历'],
+        sentences: [
+          s('他在做生意。', 'tā zài zuò shēngyi.', "He's in business."),
+          s(
+            '这是一次很好的经历。',
+            'zhè shì yí cì hěn hǎo de jīnglì.',
+            'It was a great experience.',
+          ),
+          s(
+            '他代表我们公司参加会议。',
+            'tā dàibiǎo wǒmen gōngsī cānjiā huìyì.',
+            'He is representing our company at the meeting.',
+          ),
+        ],
+      },
+      {
+        id: 'h4-u20-l4',
+        title: 'Growing and stopping',
+        words: ['增长', '扩大', '限制', '停止', '代替', '包括'],
+        sentences: [
+          s(
+            '公司的收入增长了。',
+            'gōngsī de shōurù zēngzhǎng le.',
+            "The company's income has grown.",
+          ),
+          s('没有人能代替你。', 'méiyǒu rén néng dàitì nǐ.', 'Nobody can replace you.'),
+          s(
+            '这个价格包括两个人。',
+            'zhège jiàgé bāokuò liǎng gè rén.',
+            'This price covers two people.',
+          ),
+        ],
+      },
+      {
+        id: 'h4-u20-l5',
+        title: 'Taking the lead',
+        words: ['主动', '信任', '集合', '组成', '当地', '行'],
+        sentences: [
+          s(
+            '我们八点在门口集合。',
+            'wǒmen bā diǎn zài ménkǒu jíhé.',
+            "We'll meet at the door at eight.",
+          ),
+          s('我很信任他。', 'wǒ hěn xìnrèn tā.', 'I trust him completely.'),
+          s(
+            '明天见面，行吗？',
+            'míngtiān jiànmiàn, xíng ma?',
+            'Can we meet tomorrow? Does that work?',
+          ),
+        ],
+      },
+      {
+        id: 'h4-u20-l6',
+        title: 'Big numbers',
+        words: ['亿', '血', '笔记本', '成熟', '现代', '精彩'],
+        sentences: [
+          s('中国有十四亿人。', 'Zhōngguó yǒu shísì yì rén.', 'China has 1.4 billion people.'),
+          s('这场比赛非常精彩。', 'zhè chǎng bǐsài fēicháng jīngcǎi.', 'This match is brilliant.'),
+          s(
+            '他比以前成熟了。',
+            'tā bǐ yǐqián chéngshú le.',
+            "He's more mature than he used to be.",
+          ),
         ],
       },
     ],
