@@ -21,6 +21,7 @@ import { logPractice } from '@/lib/actions/practice';
 import { addCustomItem } from '@/lib/actions/custom';
 import type { PathSentence } from '@/lib/curriculum';
 import { alignPinyin } from '@/lib/pinyin-split';
+import { seededRandom, shuffle } from '@/lib/path/lesson-builder';
 import type { DictEntry, Dictionary } from '@/lib/queries/dictionary';
 import type { Story } from '@/lib/story-data';
 import { tokenize } from '@/lib/tokenize';
@@ -332,6 +333,15 @@ function StoryQuestions({
   const [attempt, setAttempt] = useState(0);
   const done = answers.every((a) => a !== null);
   const right = story.questions.filter((q, i) => answers[i] === q.answer).length;
+  // The answer is written first in the data; mix the options up, the same way
+  // on the server and in the browser, and differently for each retry.
+  const options = useMemo(
+    () =>
+      story.questions.map((q, qi) =>
+        shuffle(q.options, seededRandom(hashString(`${story.id}:${qi}:${attempt}`))),
+      ),
+    [story, attempt],
+  );
 
   function answer(qi: number, option: string) {
     if (answers[qi] !== null) return;
@@ -359,7 +369,7 @@ function StoryQuestions({
               {qi + 1}. {q.question}
             </p>
             <div className="grid gap-2">
-              {q.options.map((option, oi) => (
+              {options[qi].map((option, oi) => (
                 <OptionButton
                   key={option}
                   index={oi}
@@ -419,4 +429,14 @@ function StoryQuestions({
       )}
     </section>
   );
+}
+
+/** A stable 32-bit number from a string (FNV-1a), to seed the option order. */
+function hashString(text: string): number {
+  let h = 2166136261;
+  for (let i = 0; i < text.length; i++) {
+    h ^= text.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
 }

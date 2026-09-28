@@ -21,7 +21,7 @@ Unit checkpoints let you test out of material you already know. Lessons added be
 - Quizzes: flashcards, typed meanings, fill in the blank, and a Tricky words drill.
 - **Problem words**: the words you keep missing, what might be tripping you up (a word that sounds the same, a shared character, missing it mostly when listening), and a place for a memory hook.
 - A tone trainer and a numbers drill (prices, dates, times).
-- **Read**: 20 graded stories, each written only with words you've already learned, with tap-to-look-up, pinyin over each word, read-aloud and comprehension questions.
+- **Read**: 32 graded stories, each written only with words you've already learned, with tap-to-look-up, pinyin over each word, read-aloud and comprehension questions.
 
 **Explore.**
 

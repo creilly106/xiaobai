@@ -642,6 +642,93 @@ export const stories: Story[] = [
 
   // ——— HSK 3 ———
   {
+    id: 'homesick',
+    title: s('想家', 'xiǎng jiā', 'Homesick'),
+    hskLevel: 3,
+    after: 'h3-u2-l3',
+    extras: [ANNA, WANG_PENG],
+    paragraphs: [
+      [
+        s(
+          '安娜来北京已经三个月了。',
+          'Ānnà lái Běijīng yǐjīng sān gè yuè le.',
+          'Anna has been in Beijing for three months.',
+        ),
+        s(
+          '她很喜欢北京，但是这几个星期她不太高兴。',
+          'tā hěn xǐhuan Běijīng, dànshì zhè jǐ gè xīngqī tā bú tài gāoxìng.',
+          "She loves Beijing, but for the past few weeks she hasn't been very happy.",
+        ),
+        s(
+          '她很想爸爸妈妈，也想她的猫。',
+          'tā hěn xiǎng bàba māma, yě xiǎng tā de māo.',
+          'She misses her mum and dad a lot, and her cat too.',
+        ),
+      ],
+      [
+        s(
+          '星期六晚上，王朋给她打电话。',
+          'xīngqīliù wǎnshang, Wáng Péng gěi tā dǎ diànhuà.',
+          'On Saturday evening, Wang Peng phoned her.',
+        ),
+        s(
+          '“你怎么了？你生病了吗？”',
+          '"nǐ zěnme le? nǐ shēngbìng le ma?"',
+          '"What\'s wrong? Are you ill?"',
+        ),
+        s(
+          '安娜说：“我没生病，我就是想家了。”',
+          'Ānnà shuō: "wǒ méi shēngbìng, wǒ jiù shì xiǎng jiā le."',
+          'Anna said, "I\'m not ill. I\'m just homesick."',
+        ),
+        s(
+          '王朋说：“别难过！明天我们一起去饭馆吃羊肉吧。”',
+          'Wáng Péng shuō: "bié nánguò! míngtiān wǒmen yìqǐ qù fànguǎn chī yángròu ba."',
+          'Wang Peng said, "Don\'t be sad! Let\'s go to a restaurant for lamb tomorrow."',
+        ),
+      ],
+      [
+        s(
+          '星期日中午，王朋还叫了几个同学。',
+          'xīngqīrì zhōngwǔ, Wáng Péng hái jiào le jǐ gè tóngxué.',
+          'At lunchtime on Sunday, Wang Peng brought along a few classmates too.',
+        ),
+        s(
+          '大家一起吃东西、说话，非常快乐。',
+          'dàjiā yìqǐ chī dōngxi, shuōhuà, fēicháng kuàilè.',
+          'They all ate and chatted together, and had a great time.',
+        ),
+        s(
+          '回家的时候，安娜笑着说：“谢谢大家，我现在不想家了！”',
+          'huí jiā de shíhou, Ānnà xiào zhe shuō: "xièxie dàjiā, wǒ xiànzài bù xiǎng jiā le!"',
+          'On the way home Anna said with a smile, "Thanks, everyone — I\'m not homesick any more!"',
+        ),
+      ],
+    ],
+    questions: [
+      {
+        question: 'How long has Anna been in Beijing?',
+        options: ['Three months', 'Three weeks', 'A year'],
+        answer: 'Three months',
+      },
+      {
+        question: 'What does Anna miss?',
+        options: ['Her parents and her cat', 'Her school', 'Her dog'],
+        answer: 'Her parents and her cat',
+      },
+      {
+        question: 'What did Wang Peng suggest?',
+        options: ['Eating out together', 'Going to the cinema', 'Phoning her parents'],
+        answer: 'Eating out together',
+      },
+      {
+        question: 'How did Anna feel at the end?',
+        options: ['Much happier', 'Still homesick', 'Very tired'],
+        answer: 'Much happier',
+      },
+    ],
+  },
+  {
     id: 'new-neighbour',
     title: s('新邻居', 'xīn línjū', 'The new neighbour'),
     hskLevel: 3,
@@ -724,6 +811,109 @@ export const stories: Story[] = [
     ],
   },
   {
+    id: 'cooking-for-friends',
+    title: s('做菜', 'zuò cài', 'Cooking for friends'),
+    hskLevel: 3,
+    after: 'h3-u4-l4',
+    extras: [ANNA, WANG_PENG],
+    paragraphs: [
+      [
+        s(
+          '这个星期六，安娜想请朋友来她家吃中国菜。',
+          'zhège xīngqīliù, Ānnà xiǎng qǐng péngyou lái tā jiā chī Zhōngguó cài.',
+          'This Saturday, Anna wants to have friends over for Chinese food.',
+        ),
+        s('但是她不太会做。', 'dànshì tā bú tài huì zuò.', "But she can't really cook it."),
+        s(
+          '她给王朋打电话，王朋说：“别担心，我来帮忙。”',
+          'tā gěi Wáng Péng dǎ diànhuà, Wáng Péng shuō: "bié dānxīn, wǒ lái bāngmáng."',
+          'She phoned Wang Peng, and he said, "Don\'t worry, I\'ll help."',
+        ),
+      ],
+      [
+        s(
+          '星期六上午，两个人一起去超市买东西。',
+          'xīngqīliù shàngwǔ, liǎng gè rén yìqǐ qù chāoshì mǎi dōngxi.',
+          'On Saturday morning the two of them went shopping at the supermarket.',
+        ),
+        s(
+          '安娜买了鸡蛋、羊肉、面条和很多新鲜水果。',
+          'Ānnà mǎi le jīdàn, yángròu, miàntiáo hé hěn duō xīnxiān shuǐguǒ.',
+          'Anna bought eggs, lamb, noodles and lots of fresh fruit.',
+        ),
+        s(
+          '一共花了两百多块钱。',
+          'yígòng huā le liǎngbǎi duō kuài qián.',
+          'It came to over two hundred yuan altogether.',
+        ),
+      ],
+      [
+        s(
+          '回到家，王朋告诉安娜怎么做菜。',
+          'huí dào jiā, Wáng Péng gàosu Ānnà zěnme zuò cài.',
+          'Back home, Wang Peng showed Anna how to cook.',
+        ),
+        s(
+          '安娜做得很认真，但是第一个菜不太好吃。',
+          'Ānnà zuò de hěn rènzhēn, dànshì dì-yī gè cài bú tài hǎochī.',
+          "Anna worked hard at it, but the first dish wasn't very nice.",
+        ),
+        s(
+          '王朋笑了：“没关系，再做一个！”',
+          'Wáng Péng xiào le: "méi guānxi, zài zuò yí gè!"',
+          'Wang Peng laughed. "Never mind — make another one!"',
+        ),
+      ],
+      [
+        s(
+          '晚上七点，朋友都来了。',
+          'wǎnshang qī diǎn, péngyou dōu lái le.',
+          'At seven that evening, all her friends arrived.',
+        ),
+        s(
+          '大家都说菜很好吃。',
+          'dàjiā dōu shuō cài hěn hǎochī.',
+          'Everyone said the food was delicious.',
+        ),
+        s(
+          '安娜非常高兴：“下次我一个人做！”',
+          'Ānnà fēicháng gāoxìng: "xià cì wǒ yí gè rén zuò!"',
+          'Anna was delighted. "Next time I\'ll do it on my own!"',
+        ),
+      ],
+    ],
+    questions: [
+      {
+        question: 'Why did Anna phone Wang Peng?',
+        options: ["She couldn't cook Chinese food well", 'She needed money', 'She was lost'],
+        answer: "She couldn't cook Chinese food well",
+      },
+      {
+        question: 'Where did they go shopping?',
+        options: ['The supermarket', 'A market', 'Online'],
+        answer: 'The supermarket',
+      },
+      {
+        question: 'What went wrong?',
+        options: [
+          "The first dish wasn't very good",
+          'They forgot the eggs',
+          'The friends were late',
+        ],
+        answer: "The first dish wasn't very good",
+      },
+      {
+        question: 'What does Anna say at the end?',
+        options: [
+          "Next time she'll cook on her own",
+          "She'll never cook again",
+          'She wants to go to a restaurant',
+        ],
+        answer: "Next time she'll cook on her own",
+      },
+    ],
+  },
+  {
     id: 'the-park',
     title: s('去公园', 'qù gōngyuán', 'To the park'),
     hskLevel: 3,
@@ -796,6 +986,93 @@ export const stories: Story[] = [
         question: 'What will they do next week?',
         options: ['Go and see the pandas', 'Go back to the park', 'Climb a mountain'],
         answer: 'Go and see the pandas',
+      },
+    ],
+  },
+  {
+    id: 'restaurant-job',
+    title: s('饭店的工作', 'fàndiàn de gōngzuò', 'A restaurant job'),
+    hskLevel: 3,
+    after: 'h3-u8-l3',
+    extras: [WANG_PENG, s('李', 'Lǐ', 'Li (a surname)')],
+    paragraphs: [
+      [
+        s(
+          '去年七月和八月，王朋在一家饭店工作。',
+          'qùnián qī yuè hé bā yuè, Wáng Péng zài yì jiā fàndiàn gōngzuò.',
+          'Last July and August, Wang Peng worked in a restaurant.',
+        ),
+        s(
+          '他早上八点上班，晚上六点回家。',
+          'tā zǎoshang bā diǎn shàngbān, wǎnshang liù diǎn huí jiā.',
+          'He started work at eight in the morning and got home at six in the evening.',
+        ),
+        s(
+          '工作很累，但是他觉得很有意思。',
+          'gōngzuò hěn lèi, dànshì tā juéde hěn yǒu yìsi.',
+          'The work was tiring, but he found it interesting.',
+        ),
+      ],
+      [
+        s(
+          '饭店的经理姓李，四十多岁。',
+          'fàndiàn de jīnglǐ xìng Lǐ, sìshí duō suì.',
+          'The restaurant manager was called Li, and was in her forties.',
+        ),
+        s(
+          '李经理对王朋很好，也很关心他。',
+          'Lǐ jīnglǐ duì Wáng Péng hěn hǎo, yě hěn guānxīn tā.',
+          'Manager Li was good to Wang Peng and looked out for him.',
+        ),
+        s(
+          '有一次，一个客人生气了，因为他的菜等了很长时间。',
+          'yǒu yí cì, yí gè kèrén shēngqì le, yīnwèi tā de cài děng le hěn cháng shíjiān.',
+          'Once, a customer got angry because he had waited a long time for his food.',
+        ),
+        s(
+          '王朋不知道怎么解决。',
+          'Wáng Péng bù zhīdào zěnme jiějué.',
+          "Wang Peng didn't know how to sort it out.",
+        ),
+      ],
+      [
+        s(
+          '李经理走过来，笑着对客人说：“对不起，今天的菜不要钱。”',
+          'Lǐ jīnglǐ zǒu guòlái, xiào zhe duì kèrén shuō: "duìbuqǐ, jīntiān de cài bú yào qián."',
+          'Manager Li came over and said to him with a smile, "I\'m sorry — today\'s meal is free."',
+        ),
+        s(
+          '客人很快就不生气了。',
+          'kèrén hěn kuài jiù bù shēngqì le.',
+          'The customer soon calmed down.',
+        ),
+        s(
+          '王朋明白了：做这个工作，要让客人满意。',
+          'Wáng Péng míngbai le: zuò zhège gōngzuò, yào ràng kèrén mǎnyì.',
+          'Wang Peng understood: in this job, you have to keep the customers happy.',
+        ),
+      ],
+    ],
+    questions: [
+      {
+        question: 'Where did Wang Peng work last summer?',
+        options: ['A restaurant', 'A shop', 'A school'],
+        answer: 'A restaurant',
+      },
+      {
+        question: 'Why was the customer angry?',
+        options: ['He had waited a long time', 'His food was cold', 'The bill was wrong'],
+        answer: 'He had waited a long time',
+      },
+      {
+        question: 'What did Manager Li do?',
+        options: ['Told him the meal was free', 'Asked him to leave', 'Blamed Wang Peng'],
+        answer: 'Told him the meal was free',
+      },
+      {
+        question: 'What did Wang Peng learn?',
+        options: ['Keeping customers happy matters', 'Cooking is hard', 'Managers are strict'],
+        answer: 'Keeping customers happy matters',
       },
     ],
   },
@@ -877,6 +1154,89 @@ export const stories: Story[] = [
         question: 'How did he do in the competition?',
         options: ['He came first', 'He came second', "He didn't finish"],
         answer: 'He came first',
+      },
+    ],
+  },
+  {
+    id: 'late',
+    title: s('迟到了', 'chídào le', 'Late!'),
+    hskLevel: 3,
+    after: 'h3-u10-l4',
+    extras: [ANNA],
+    paragraphs: [
+      [
+        s(
+          '昨天晚上，安娜看电视看到十二点。',
+          "zuótiān wǎnshang, Ānnà kàn diànshì kàn dào shí'èr diǎn.",
+          'Last night Anna watched TV until midnight.',
+        ),
+        s(
+          '今天早上她起床的时候，已经八点半了。',
+          'jīntiān zǎoshang tā qǐchuáng de shíhou, yǐjīng bā diǎn bàn le.',
+          'When she got up this morning, it was already half past eight.',
+        ),
+        s('她九点有考试！', 'tā jiǔ diǎn yǒu kǎoshì!', 'She had an exam at nine!'),
+      ],
+      [
+        s(
+          '她马上穿好衣服，什么也没吃就走了。',
+          'tā mǎshàng chuān hǎo yīfu, shénme yě méi chī jiù zǒu le.',
+          'She got dressed at once and left without eating anything.',
+        ),
+        s(
+          '但是等公共汽车的人太多了，她等了二十分钟。',
+          'dànshì děng gōnggòng qìchē de rén tài duō le, tā děng le èrshí fēnzhōng.',
+          'But there were too many people waiting for the bus, and she waited twenty minutes.',
+        ),
+        s(
+          '最后她决定走路去学校。',
+          'zuìhòu tā juédìng zǒu lù qù xuéxiào.',
+          'In the end she decided to walk to school.',
+        ),
+      ],
+      [
+        s(
+          '她到教室的时候，已经九点十分了。',
+          'tā dào jiàoshì de shíhou, yǐjīng jiǔ diǎn shí fēn le.',
+          'By the time she reached the classroom, it was ten past nine.',
+        ),
+        s(
+          '老师看了看她，说：“别着急，考试十点才开始。”',
+          'lǎoshī kàn le kàn tā, shuō: "bié zháojí, kǎoshì shí diǎn cái kāishǐ."',
+          'The teacher looked at her and said, "Don\'t panic, the exam doesn\'t start until ten."',
+        ),
+        s(
+          '安娜这才明白，是她看错了时间。',
+          'Ānnà zhè cái míngbai, shì tā kàn cuò le shíjiān.',
+          'Only then did Anna realise she had got the time wrong.',
+        ),
+        s(
+          '她笑了：“下次我十点就睡觉！”',
+          'tā xiào le: "xià cì wǒ shí diǎn jiù shuìjiào!"',
+          'She laughed. "Next time I\'m going to bed at ten!"',
+        ),
+      ],
+    ],
+    questions: [
+      {
+        question: 'Why did Anna get up late?',
+        options: ['She watched TV until midnight', 'Her alarm broke', 'She was ill'],
+        answer: 'She watched TV until midnight',
+      },
+      {
+        question: 'How did she get to school in the end?',
+        options: ['She walked', 'By taxi', 'By bus'],
+        answer: 'She walked',
+      },
+      {
+        question: 'When did the exam really start?',
+        options: ['At ten', 'At nine', 'At half past eight'],
+        answer: 'At ten',
+      },
+      {
+        question: 'What will she do next time?',
+        options: ['Go to bed earlier', 'Take a taxi', 'Skip breakfast'],
+        answer: 'Go to bed earlier',
       },
     ],
   },
@@ -1168,6 +1528,107 @@ export const stories: Story[] = [
     ],
   },
   {
+    id: 'learning-to-swim',
+    title: s('游泳课', 'yóuyǒng kè', 'Swimming lessons'),
+    hskLevel: 4,
+    after: 'h4-u9-l5',
+    extras: [WANG_PENG, ANNA],
+    paragraphs: [
+      [
+        s(
+          '王朋有一个小问题：他不会游泳。',
+          'Wáng Péng yǒu yí gè xiǎo wèntí: tā bú huì yóuyǒng.',
+          "Wang Peng had a little problem: he couldn't swim.",
+        ),
+        s(
+          '他没告诉过别人，因为他觉得很害羞。',
+          'tā méi gàosu guo biérén, yīnwèi tā juéde hěn hàixiū.',
+          "He'd never told anyone, because he was embarrassed.",
+        ),
+        s(
+          '上个月，他终于决定去学习游泳。',
+          'shàng gè yuè, tā zhōngyú juédìng qù xuéxí yóuyǒng.',
+          'Last month, he finally decided to learn.',
+        ),
+        s(
+          '他在学校附近找了一个游泳班，每个星期上两次课。',
+          'tā zài xuéxiào fùjìn zhǎo le yí gè yóuyǒng bān, měi gè xīngqī shàng liǎng cì kè.',
+          'He found a swimming class near his university, with lessons twice a week.',
+        ),
+      ],
+      [
+        s(
+          '第一次上课的时候，他紧张极了。',
+          'dì-yī cì shàng kè de shíhou, tā jǐnzhāng jí le.',
+          'At his first lesson he was incredibly nervous.',
+        ),
+        s(
+          '老师是一个很有耐心的人。',
+          'lǎoshī shì yí gè hěn yǒu nàixīn de rén.',
+          'The teacher was very patient.',
+        ),
+        s(
+          '她对王朋说：“别害怕，先放松身体。”',
+          'tā duì Wáng Péng shuō: "bié hàipà, xiān fàngsōng shēntǐ."',
+          'She told Wang Peng, "Don\'t be scared. First, relax your body."',
+        ),
+        s(
+          '但是王朋一到水里就喝了好几口水。',
+          'dànshì Wáng Péng yí dào shuǐ lǐ jiù hē le hǎo jǐ kǒu shuǐ.',
+          'But the moment Wang Peng got into the water, he swallowed several mouthfuls.',
+        ),
+        s(
+          '大家都笑了，王朋也笑了。',
+          'dàjiā dōu xiào le, Wáng Péng yě xiào le.',
+          'Everyone laughed, and so did Wang Peng.',
+        ),
+      ],
+      [
+        s(
+          '一个月以后，王朋已经会游泳了，他很得意。',
+          'yí gè yuè yǐhòu, Wáng Péng yǐjīng huì yóuyǒng le, tā hěn déyì.',
+          'A month later Wang Peng could swim, and he was very pleased with himself.',
+        ),
+        s(
+          '他发现游泳其实不太难，最重要的是坚持练习。',
+          'tā fāxiàn yóuyǒng qíshí bú tài nán, zuì zhòngyào de shì jiānchí liànxí.',
+          "He found that swimming isn't really that hard; the key is to keep practising.",
+        ),
+        s(
+          '现在他每个周末都去游泳，还叫安娜跟他一起去。',
+          'xiànzài tā měi gè zhōumò dōu qù yóuyǒng, hái jiào Ānnà gēn tā yìqǐ qù.',
+          'Now he goes swimming every weekend, and he gets Anna to come along too.',
+        ),
+      ],
+    ],
+    questions: [
+      {
+        question: "What was Wang Peng's little problem?",
+        options: ["He couldn't swim", 'He was afraid of dogs', 'He was often late'],
+        answer: "He couldn't swim",
+      },
+      {
+        question: 'How did he feel at his first lesson?',
+        options: ['Very nervous', 'Bored', 'Angry'],
+        answer: 'Very nervous',
+      },
+      {
+        question: 'What happened when he got into the water?',
+        options: ['He swallowed a lot of water', 'He swam fifty metres', 'He lost his glasses'],
+        answer: 'He swallowed a lot of water',
+      },
+      {
+        question: 'What did he find out?',
+        options: [
+          'Swimming is fine if you keep practising',
+          'Swimming is too hard for him',
+          'The teacher was strict',
+        ],
+        answer: 'Swimming is fine if you keep practising',
+      },
+    ],
+  },
+  {
     id: 'the-misunderstanding',
     title: s('误会', 'wùhuì', 'A misunderstanding'),
     hskLevel: 4,
@@ -1265,6 +1726,197 @@ export const stories: Story[] = [
     ],
   },
   {
+    id: 'rubbish-in-the-park',
+    title: s('公园里的垃圾', 'gōngyuán lǐ de lājī', 'Rubbish in the park'),
+    hskLevel: 4,
+    after: 'h4-u14-l4',
+    extras: [ANNA, s('垃圾', 'lājī', 'rubbish')],
+    paragraphs: [
+      [
+        s(
+          '安娜早上经常去公园跑步。',
+          'Ānnà zǎoshang jīngcháng qù gōngyuán pǎobù.',
+          'Anna often goes running in the park in the morning.',
+        ),
+        s(
+          '最近她发现，公园里的垃圾越来越多了。',
+          'zuìjìn tā fāxiàn, gōngyuán lǐ de lājī yuè lái yuè duō le.',
+          'Lately she has noticed more and more rubbish in the park.',
+        ),
+        s(
+          '塑料袋、瓶子，哪儿都有。',
+          'sùliàodài, píngzi, nǎr dōu yǒu.',
+          'Plastic bags and bottles were everywhere.',
+        ),
+      ],
+      [
+        s(
+          '她很难过，就上网写了一条消息：',
+          'tā hěn nánguò, jiù shàngwǎng xiě le yì tiáo xiāoxi:',
+          'It upset her, so she went online and wrote a post:',
+        ),
+        s(
+          '“这个星期六，谁愿意跟我一起打扫公园？”',
+          '"zhège xīngqīliù, shéi yuànyì gēn wǒ yìqǐ dǎsǎo gōngyuán?"',
+          '"Who\'ll help me clean up the park this Saturday?"',
+        ),
+        s('她以为没有人会来。', 'tā yǐwéi méiyǒu rén huì lái.', 'She thought nobody would come.'),
+      ],
+      [
+        s(
+          '没想到，星期六早上来了三十多个人！',
+          'méi xiǎngdào, xīngqīliù zǎoshang lái le sānshí duō gè rén!',
+          'To her surprise, over thirty people turned up on Saturday morning!',
+        ),
+        s(
+          '有学生，有老人，还有带着孩子的爸爸妈妈。',
+          'yǒu xuésheng, yǒu lǎorén, hái yǒu dài zhe háizi de bàba māma.',
+          'There were students, old people, and parents with their children.',
+        ),
+        s(
+          '大家打扫了三个小时，把公园打扫得非常干净。',
+          'dàjiā dǎsǎo le sān gè xiǎoshí, bǎ gōngyuán dǎsǎo de fēicháng gānjìng.',
+          'They cleaned for three hours and left the park spotless.',
+        ),
+        s(
+          '一位老人说：“保护环境是每个人的责任。”',
+          'yí wèi lǎorén shuō: "bǎohù huánjìng shì měi gè rén de zérèn."',
+          'One old man said, "Looking after the environment is everyone\'s responsibility."',
+        ),
+      ],
+      [
+        s(
+          '现在，大家每个月都会一起打扫一次公园。',
+          'xiànzài, dàjiā měi gè yuè dōu huì yìqǐ dǎsǎo yí cì gōngyuán.',
+          'Now they all clean the park together once a month.',
+        ),
+      ],
+    ],
+    questions: [
+      {
+        question: 'What did Anna notice in the park?',
+        options: ['More and more rubbish', 'Fewer runners', 'New trees'],
+        answer: 'More and more rubbish',
+      },
+      {
+        question: 'What did she do about it?',
+        options: [
+          'Asked people online to help clean up',
+          'Complained to the police',
+          'Stopped running there',
+        ],
+        answer: 'Asked people online to help clean up',
+      },
+      {
+        question: 'How many people came?',
+        options: ['Over thirty', 'Three', 'Nobody'],
+        answer: 'Over thirty',
+      },
+      {
+        question: 'What happens now?',
+        options: [
+          'They clean the park together every month',
+          'The park is closed',
+          'Anna cleans it alone',
+        ],
+        answer: 'They clean the park together every month',
+      },
+    ],
+  },
+  {
+    id: 'the-lost-bag',
+    title: s('包丢了', 'bāo diū le', 'The lost bag'),
+    hskLevel: 4,
+    after: 'h4-u17-l7',
+    extras: [WANG_PENG],
+    paragraphs: [
+      [
+        s(
+          '上个星期五，王朋坐出租车去机场。',
+          'shàng gè xīngqīwǔ, Wáng Péng zuò chūzūchē qù jīchǎng.',
+          'Last Friday, Wang Peng took a taxi to the airport.',
+        ),
+        s(
+          '到了机场，他突然发现自己的包丢了。',
+          'dào le jīchǎng, tā tūrán fāxiàn zìjǐ de bāo diū le.',
+          'When he got there, he suddenly realised he had lost his bag.',
+        ),
+        s(
+          '包里有他的护照、信用卡和一千多块钱。',
+          'bāo lǐ yǒu tā de hùzhào, xìnyòngkǎ hé yìqiān duō kuài qián.',
+          'It had his passport, his credit card and over a thousand yuan in it.',
+        ),
+        s(
+          '他着急极了，不知道应该怎么做。',
+          'tā zháojí jí le, bù zhīdào yīnggāi zěnme zuò.',
+          "He was frantic and didn't know what to do.",
+        ),
+      ],
+      [
+        s(
+          '他马上给出租车公司打电话，但是一直占线。',
+          'tā mǎshàng gěi chūzūchē gōngsī dǎ diànhuà, dànshì yìzhí zhànxiàn.',
+          'He rang the taxi company straight away, but the line was always busy.',
+        ),
+        s(
+          '飞机还有一个小时就要起飞了。',
+          'fēijī hái yǒu yí gè xiǎoshí jiù yào qǐfēi le.',
+          'His plane was leaving in an hour.',
+        ),
+        s(
+          '正在他准备放弃的时候，手机响了。',
+          'zhèng zài tā zhǔnbèi fàngqì de shíhou, shǒujī xiǎng le.',
+          'Just as he was about to give up, his phone rang.',
+        ),
+      ],
+      [
+        s('是那个出租车司机！', 'shì nàge chūzūchē sījī!', 'It was the taxi driver!'),
+        s(
+          '“你的包在我的出租车里，我现在就给你送过来。”',
+          '"nǐ de bāo zài wǒ de chūzūchē lǐ, wǒ xiànzài jiù gěi nǐ sòng guòlái."',
+          '"Your bag\'s in my taxi. I\'ll bring it over right now."',
+        ),
+        s(
+          '半个小时以后，司机把包送到了机场。',
+          'bàn gè xiǎoshí yǐhòu, sījī bǎ bāo sòng dào le jīchǎng.',
+          'Half an hour later, the driver brought the bag to the airport.',
+        ),
+        s(
+          '王朋想给他一些钱表示感谢，但是司机说什么也不要。',
+          'Wáng Péng xiǎng gěi tā yìxiē qián biǎoshì gǎnxiè, dànshì sījī shuō shénme yě bú yào.',
+          'Wang Peng wanted to give him some money to say thank you, but the driver flatly refused.',
+        ),
+        s(
+          '他笑着说：“这是我应该做的。”',
+          'tā xiào zhe shuō: "zhè shì wǒ yīnggāi zuò de."',
+          'He smiled and said, "I was only doing what anyone should."',
+        ),
+      ],
+    ],
+    questions: [
+      {
+        question: 'Where was Wang Peng going?',
+        options: ['To the airport', 'To the station', 'Home'],
+        answer: 'To the airport',
+      },
+      {
+        question: 'What was in the bag?',
+        options: ['His passport, credit card and cash', 'His laptop', 'Only clothes'],
+        answer: 'His passport, credit card and cash',
+      },
+      {
+        question: 'Who phoned him?',
+        options: ['The taxi driver', 'The police', 'The airline'],
+        answer: 'The taxi driver',
+      },
+      {
+        question: 'What did the driver do when offered money?',
+        options: ["He wouldn't take it", 'He asked for more', 'He took it'],
+        answer: "He wouldn't take it",
+      },
+    ],
+  },
+  {
     id: 'my-dream',
     title: s('我的理想', 'wǒ de lǐxiǎng', 'My dream'),
     hskLevel: 4,
@@ -1357,7 +2009,396 @@ export const stories: Story[] = [
     ],
   },
 
+  {
+    id: 'home-for-new-year',
+    title: s('回家过年', 'huí jiā guò nián', 'Home for Spring Festival'),
+    hskLevel: 4,
+    after: 'h4-u20-l6',
+    extras: [WANG_PENG],
+    paragraphs: [
+      [
+        s(
+          '春节快到了，王朋打算回家过年。',
+          'Chūnjié kuài dào le, Wáng Péng dǎsuàn huí jiā guò nián.',
+          'Spring Festival was coming, and Wang Peng planned to go home for New Year.',
+        ),
+        s(
+          '春节以前，回家的票特别难买。',
+          'Chūnjié yǐqián, huí jiā de piào tèbié nán mǎi.',
+          'Before the festival, tickets home are really hard to get.',
+        ),
+        s(
+          '他试了好几次，终于买到了一张。',
+          'tā shì le hǎo jǐ cì, zhōngyú mǎi dào le yì zhāng.',
+          'He tried several times and finally managed to buy one.',
+        ),
+      ],
+      [
+        s(
+          '路上人非常多，很多人只能站着。',
+          'lù shang rén fēicháng duō, hěn duō rén zhǐ néng zhàn zhe.',
+          'The journey was packed, and lots of people had to stand.',
+        ),
+        s(
+          '王朋坐了十二个小时，才到家。',
+          "Wáng Péng zuò le shí'èr gè xiǎoshí, cái dào jiā.",
+          'It took Wang Peng twelve hours to get home.',
+        ),
+        s(
+          '虽然很累，但是看到爸爸妈妈的时候，他觉得一切都值得。',
+          'suīrán hěn lèi, dànshì kàn dào bàba māma de shíhou, tā juéde yíqiè dōu zhíde.',
+          'He was exhausted, but when he saw his mum and dad, it all felt worth it.',
+        ),
+      ],
+      [
+        s(
+          '晚上，一家人一起包饺子、看电视。',
+          'wǎnshang, yì jiā rén yìqǐ bāo jiǎozi, kàn diànshì.',
+          'That evening, the whole family made dumplings and watched TV together.',
+        ),
+        s(
+          '奶奶问他：“在北京工作辛苦吗？有女朋友了吗？”',
+          'nǎinai wèn tā: "zài Běijīng gōngzuò xīnkǔ ma? yǒu nǚ péngyou le ma?"',
+          'His grandma asked, "Is work in Beijing hard? Have you got a girlfriend yet?"',
+        ),
+        s('大家都笑了。', 'dàjiā dōu xiào le.', 'Everyone laughed.'),
+        s(
+          '十二点的时候，大家互相说“新年快乐”。',
+          'shí\'èr diǎn de shíhou, dàjiā hùxiāng shuō "xīnnián kuàilè".',
+          'At midnight, everyone wished each other a happy New Year.',
+        ),
+        s(
+          '王朋想：“有家真好。”',
+          'Wáng Péng xiǎng: "yǒu jiā zhēn hǎo."',
+          'Wang Peng thought, "It\'s good to have a home to come back to."',
+        ),
+      ],
+    ],
+    questions: [
+      {
+        question: 'What was hard before Spring Festival?',
+        options: ['Getting a ticket home', 'Finding a hotel', 'Buying presents'],
+        answer: 'Getting a ticket home',
+      },
+      {
+        question: 'How long did the journey take?',
+        options: ['Twelve hours', 'Two hours', 'Two days'],
+        answer: 'Twelve hours',
+      },
+      {
+        question: 'What did the family do that evening?',
+        options: ['Made dumplings and watched TV', 'Went to a restaurant', 'Went to bed early'],
+        answer: 'Made dumplings and watched TV',
+      },
+      {
+        question: 'What did his grandma ask about?',
+        options: [
+          'His work and whether he had a girlfriend',
+          'How much he earned',
+          'When he would leave',
+        ],
+        answer: 'His work and whether he had a girlfriend',
+      },
+    ],
+  },
   // ——— HSK 5 ———
+  {
+    id: 'the-old-lady-downstairs',
+    title: s('楼下的老奶奶', 'lóu xià de lǎo nǎinai', 'The old lady downstairs'),
+    hskLevel: 5,
+    after: 'h5-u5-l7',
+    extras: [],
+    paragraphs: [
+      [
+        s(
+          '我住的公寓楼里有一位老奶奶，已经八十岁了。',
+          'wǒ zhù de gōngyù lóu lǐ yǒu yí wèi lǎo nǎinai, yǐjīng bāshí suì le.',
+          "There's an old lady in my block of flats who is eighty.",
+        ),
+        s(
+          '她一个人住，儿子和女儿都在别的城市工作。',
+          "tā yí gè rén zhù, érzi hé nǚ'ér dōu zài bié de chéngshì gōngzuò.",
+          'She lives alone; her son and daughter both work in other cities.',
+        ),
+        s(
+          '每次在楼下遇到她，她都会笑着跟我打招呼。',
+          'měi cì zài lóu xià yùdào tā, tā dōu huì xiào zhe gēn wǒ dǎ zhāohu.',
+          'Whenever I bump into her downstairs, she greets me with a smile.',
+        ),
+      ],
+      [
+        s(
+          '有一个星期，我一直没有看见她，有点担心。',
+          'yǒu yí gè xīngqī, wǒ yìzhí méiyǒu kànjiàn tā, yǒudiǎn dānxīn.',
+          "One week I didn't see her at all, and I got a bit worried.",
+        ),
+        s(
+          '我去敲她的门，过了很久她才开门。',
+          'wǒ qù qiāo tā de mén, guò le hěn jiǔ tā cái kāi mén.',
+          'I knocked on her door, and it was a long time before she opened it.',
+        ),
+        s(
+          '原来她感冒了，一个人在家里躺了好久。',
+          'yuánlái tā gǎnmào le, yí gè rén zài jiā lǐ tǎng le hǎo jiǔ.',
+          'It turned out she had a cold and had been lying at home on her own for ages.',
+        ),
+      ],
+      [
+        s(
+          '从那以后，我每个晚上都去看看她，给她买菜、做菜。',
+          'cóng nà yǐhòu, wǒ měi gè wǎnshang dōu qù kànkan tā, gěi tā mǎi cài, zuò cài.',
+          'After that I went to see her every evening, and did her shopping and cooking.',
+        ),
+        s(
+          '她说她有时候很寂寞，很想念自己的孩子。',
+          'tā shuō tā yǒu shíhou hěn jìmò, hěn xiǎngniàn zìjǐ de háizi.',
+          'She told me she was sometimes lonely and missed her children.',
+        ),
+        s(
+          '她还给我讲了很多她年轻时候的故事。',
+          'tā hái gěi wǒ jiǎng le hěn duō tā niánqīng shíhou de gùshi.',
+          'She also told me lots of stories from when she was young.',
+        ),
+        s(
+          '她的身体慢慢好了，我们也成为了好朋友。',
+          'tā de shēntǐ mànman hǎo le, wǒmen yě chéngwéi le hǎo péngyou.',
+          'She slowly got better, and we became good friends.',
+        ),
+        s(
+          '她总是说：“有时候，邻居比家人还重要。”',
+          'tā zǒngshì shuō: "yǒu shíhou, línjū bǐ jiārén hái zhòngyào."',
+          'She always says, "Sometimes a neighbour matters even more than family."',
+        ),
+        s(
+          '我现在终于明白这个意思了。',
+          'wǒ xiànzài zhōngyú míngbai zhège yìsi le.',
+          'Now I finally understand what that means.',
+        ),
+      ],
+    ],
+    questions: [
+      {
+        question: 'Who does the old lady live with?',
+        options: ['Nobody — she lives alone', 'Her son', 'Her daughter'],
+        answer: 'Nobody — she lives alone',
+      },
+      {
+        question: "Why hadn't the writer seen her for a week?",
+        options: ['She had a cold', 'She was travelling', 'She had moved away'],
+        answer: 'She had a cold',
+      },
+      {
+        question: 'What does the writer do now?',
+        options: ['Visits her every evening', 'Phones her children', 'Takes her to hospital'],
+        answer: 'Visits her every evening',
+      },
+      {
+        question: 'What does she always say?',
+        options: [
+          'Sometimes a neighbour matters more than family',
+          'Family always comes first',
+          'Old people should live with their children',
+        ],
+        answer: 'Sometimes a neighbour matters more than family',
+      },
+    ],
+  },
+  {
+    id: 'grandmas-new-phone',
+    title: s('奶奶的新手机', 'nǎinai de xīn shǒujī', "Grandma's new phone"),
+    hskLevel: 5,
+    after: 'h5-u10-l5',
+    extras: [],
+    paragraphs: [
+      [
+        s(
+          '奶奶七十岁生日的时候，我送了她一个新手机。',
+          'nǎinai qīshí suì shēngrì de shíhou, wǒ sòng le tā yí gè xīn shǒujī.',
+          "For Grandma's seventieth birthday, I gave her a new phone.",
+        ),
+        s(
+          '她以前从来没用过这种手机。',
+          'tā yǐqián cónglái méi yòng guo zhè zhǒng shǒujī.',
+          'She had never used a phone like this before.',
+        ),
+        s(
+          '“太复杂了，我肯定不会用。”她说。',
+          '"tài fùzá le, wǒ kěndìng bú huì yòng." tā shuō.',
+          '"It\'s far too complicated. I\'ll never manage it," she said.',
+        ),
+      ],
+      [
+        s(
+          '我很有耐心地教她怎么打电话、怎么发短信。',
+          'wǒ hěn yǒu nàixīn de jiāo tā zěnme dǎ diànhuà, zěnme fā duǎnxìn.',
+          'I patiently showed her how to make calls and send messages.',
+        ),
+        s(
+          '然后又教她怎么上网看新闻。',
+          'ránhòu yòu jiāo tā zěnme shàngwǎng kàn xīnwén.',
+          'Then I showed her how to read the news online.',
+        ),
+        s(
+          '开始的时候她总是忘记，一个问题要问好几次。',
+          'kāishǐ de shíhou tā zǒngshì wàngjì, yí gè wèntí yào wèn hǎo jǐ cì.',
+          'At first she kept forgetting, and asked the same question several times.',
+        ),
+        s(
+          '但是她不着急，每个晚上都认真练习。',
+          'dànshì tā bù zháojí, měi gè wǎnshang dōu rènzhēn liànxí.',
+          'But she took her time and practised carefully every evening.',
+        ),
+      ],
+      [
+        s(
+          '一个月以后，奶奶已经能自己上网买东西了。',
+          'yí gè yuè yǐhòu, nǎinai yǐjīng néng zìjǐ shàngwǎng mǎi dōngxi le.',
+          'A month later, Grandma could shop online by herself.',
+        ),
+        s(
+          '她发现这个手机有很多有用的功能。',
+          'tā fāxiàn zhège shǒujī yǒu hěn duō yǒu yòng de gōngnéng.',
+          'She discovered the phone had lots of useful features.',
+        ),
+        s(
+          '她还会拍照了，经常给我发花园里的照片。',
+          'tā hái huì pāizhào le, jīngcháng gěi wǒ fā huāyuán lǐ de zhàopiàn.',
+          'She can take pictures now too, and often sends me photos from her garden.',
+        ),
+        s(
+          '她得意地说：“你看，老人也能跟上时代！”',
+          'tā déyì de shuō: "nǐ kàn, lǎorén yě néng gēn shàng shídài!"',
+          'She says proudly, "See? Old people can keep up with the times too!"',
+        ),
+      ],
+    ],
+    questions: [
+      {
+        question: 'What did the writer give Grandma?',
+        options: ['A new phone', 'A computer', 'A camera'],
+        answer: 'A new phone',
+      },
+      {
+        question: 'What did Grandma think at first?',
+        options: ['It was too complicated', 'It was too expensive', 'It was too small'],
+        answer: 'It was too complicated',
+      },
+      {
+        question: 'What could she do by herself a month later?',
+        options: ['Shop online', 'Drive a car', 'Fix the phone'],
+        answer: 'Shop online',
+      },
+      {
+        question: 'What does she often send the writer?',
+        options: ['Photos from her garden', 'Recipes', 'News articles'],
+        answer: 'Photos from her garden',
+      },
+    ],
+  },
+  {
+    id: 'uncles-restaurant',
+    title: s('叔叔的饭馆', 'shūshu de fànguǎn', "Uncle's restaurant"),
+    hskLevel: 5,
+    after: 'h5-u14-l7',
+    extras: [WANG_PENG],
+    paragraphs: [
+      [
+        s(
+          '王朋的叔叔以前在一家公司工作，去年他辞职了。',
+          'Wáng Péng de shūshu yǐqián zài yì jiā gōngsī gōngzuò, qùnián tā cízhí le.',
+          "Wang Peng's uncle used to work for a company, but last year he quit.",
+        ),
+        s(
+          '他一直有一个愿望：开一家自己的饭馆。',
+          'tā yìzhí yǒu yí gè yuànwàng: kāi yì jiā zìjǐ de fànguǎn.',
+          'He had always had one dream: to open his own restaurant.',
+        ),
+        s(
+          '他在学校附近开了一家小饭馆，专门卖面条。',
+          'tā zài xuéxiào fùjìn kāi le yì jiā xiǎo fànguǎn, zhuānmén mài miàntiáo.',
+          'He opened a little place near the university that only sold noodles.',
+        ),
+      ],
+      [
+        s(
+          '刚开始的时候，饭馆的生意很糟糕。',
+          'gāng kāishǐ de shíhou, fànguǎn de shēngyi hěn zāogāo.',
+          'At first, business was terrible.',
+        ),
+        s(
+          '每个中午只有十几个客人。',
+          'měi gè zhōngwǔ zhǐ yǒu shí jǐ gè kèrén.',
+          'There were only a dozen or so customers each lunchtime.',
+        ),
+        s(
+          '叔叔很着急，甚至开始怀疑自己的决定。',
+          'shūshu hěn zháojí, shènzhì kāishǐ huáiyí zìjǐ de juédìng.',
+          'His uncle was worried, and even began to doubt his decision.',
+        ),
+      ],
+      [
+        s(
+          '王朋和叔叔一起分析原因。',
+          'Wáng Péng hé shūshu yìqǐ fēnxī yuányīn.',
+          'Wang Peng and his uncle worked out together what was wrong.',
+        ),
+        s(
+          '两个人发现，附近的学生喜欢便宜又好吃的东西，而且没有太多时间。',
+          'liǎng gè rén fāxiàn, fùjìn de xuésheng xǐhuan piányi yòu hǎochī de dōngxi, érqiě méiyǒu tài duō shíjiān.',
+          "They realised the students nearby wanted food that was cheap and tasty, and they didn't have much time.",
+        ),
+        s(
+          '于是叔叔降低了价格，还保证面条五分钟就能做好。',
+          'yúshì shūshu jiàngdī le jiàgé, hái bǎozhèng miàntiáo wǔ fēnzhōng jiù néng zuò hǎo.',
+          'So his uncle lowered his prices and promised the noodles would be ready in five minutes.',
+        ),
+        s(
+          '王朋还在学校的网站上给他做了广告。',
+          'Wáng Péng hái zài xuéxiào de wǎngzhàn shang gěi tā zuò le guǎnggào.',
+          "Wang Peng also advertised it on the university's website.",
+        ),
+      ],
+      [
+        s(
+          '一个月以后，饭馆里的学生越来越多。',
+          'yí gè yuè yǐhòu, fànguǎn lǐ de xuésheng yuè lái yuè duō.',
+          'A month later, more and more students were coming in.',
+        ),
+        s(
+          '现在每个中午，门口都要排队。',
+          'xiànzài měi gè zhōngwǔ, ménkǒu dōu yào páiduì.',
+          'Now there is a queue at the door every lunchtime.',
+        ),
+        s(
+          '叔叔感激地说：“没有你，就没有这家饭馆的今天。”',
+          'shūshu gǎnjī de shuō: "méiyǒu nǐ, jiù méiyǒu zhè jiā fànguǎn de jīntiān."',
+          'His uncle said gratefully, "Without you, this restaurant wouldn\'t be where it is today."',
+        ),
+      ],
+    ],
+    questions: [
+      {
+        question: 'What did the uncle do after quitting his job?',
+        options: ['Opened a noodle restaurant', 'Went travelling', 'Went back to university'],
+        answer: 'Opened a noodle restaurant',
+      },
+      {
+        question: 'How was business at first?',
+        options: ['Terrible', 'Very busy', 'About what he expected'],
+        answer: 'Terrible',
+      },
+      {
+        question: 'What did they change?',
+        options: ['Lower prices and faster food', 'A bigger menu', 'Longer opening hours'],
+        answer: 'Lower prices and faster food',
+      },
+      {
+        question: 'How is the restaurant doing now?',
+        options: ['There is a queue every lunchtime', 'It has closed', 'It is still quiet'],
+        answer: 'There is a queue every lunchtime',
+      },
+    ],
+  },
   {
     id: 'job-hunting',
     title: s('找工作', 'zhǎo gōngzuò', 'Job hunting'),
@@ -1452,6 +2493,120 @@ export const stories: Story[] = [
         question: 'How did it end?',
         options: ['The company offered a job', 'They started their own business', 'They gave up'],
         answer: 'The company offered a job',
+      },
+    ],
+  },
+  {
+    id: 'huangshan',
+    title: s('去黄山', 'qù Huángshān', 'A trip to Huangshan'),
+    hskLevel: 5,
+    after: 'h5-u24-l5',
+    extras: [ANNA, WANG_PENG, s('黄山', 'Huángshān', 'Huangshan, the Yellow Mountains')],
+    paragraphs: [
+      [
+        s(
+          '十月的一个周末，安娜和王朋去了黄山。',
+          'shí yuè de yí gè zhōumò, Ānnà hé Wáng Péng qù le Huángshān.',
+          'One weekend in October, Anna and Wang Peng went to Huangshan.',
+        ),
+        s(
+          '黄山是中国非常有名的名胜。',
+          'Huángshān shì Zhōngguó fēicháng yǒumíng de míngshèng.',
+          "Huangshan is one of China's most famous sights.",
+        ),
+        s(
+          '两个人打算在黄山上住一个晚上，早上五点起床看日出。',
+          'liǎng gè rén dǎsuàn zài Huángshān shang zhù yí gè wǎnshang, zǎoshang wǔ diǎn qǐchuáng kàn rì chū.',
+          'They planned to spend a night on the mountain and get up at five to watch the sunrise.',
+        ),
+      ],
+      [
+        s(
+          '爬山比想象的累多了。',
+          'páshān bǐ xiǎngxiàng de lèi duō le.',
+          'The climb was much harder than they had imagined.',
+        ),
+        s(
+          '台阶一个接一个，好像永远也走不完。',
+          'táijiē yí gè jiē yí gè, hǎoxiàng yǒngyuǎn yě zǒu bù wán.',
+          'The steps went on and on, as if they would never end.',
+        ),
+        s(
+          '安娜的腿疼极了，好几次想放弃。',
+          'Ānnà de tuǐ téng jí le, hǎo jǐ cì xiǎng fàngqì.',
+          "Anna's legs hurt terribly, and several times she wanted to give up.",
+        ),
+        s(
+          '王朋一直鼓励她：“坚持一下，前面的景色一定非常美丽。”',
+          'Wáng Péng yìzhí gǔlì tā: "jiānchí yíxià, qiánmiàn de jǐngsè yídìng fēicháng měilì."',
+          'Wang Peng kept encouraging her: "Keep going — the view ahead is sure to be beautiful."',
+        ),
+      ],
+      [
+        s(
+          '下午四点，两个人终于到了。',
+          'xiàwǔ sì diǎn, liǎng gè rén zhōngyú dào le.',
+          'At four in the afternoon, they finally made it.',
+        ),
+        s(
+          '早上五点，很多人已经在等日出了。',
+          'zǎoshang wǔ diǎn, hěn duō rén yǐjīng zài děng rì chū le.',
+          'At five the next morning, lots of people were already waiting for the sunrise.',
+        ),
+        s(
+          '可是雾太大了，什么也看不清楚。',
+          'kěshì wù tài dà le, shénme yě kàn bù qīngchu.',
+          'But the fog was so thick they could hardly see a thing.',
+        ),
+        s('安娜非常失望。', 'Ānnà fēicháng shīwàng.', 'Anna was really disappointed.'),
+      ],
+      [
+        s(
+          '就在两个人准备离开的时候，雾忽然没有了。',
+          'jiù zài liǎng gè rén zhǔnbèi líkāi de shíhou, wù hūrán méiyǒu le.',
+          'Just as they were about to leave, the fog suddenly cleared.',
+        ),
+        s(
+          '太阳从云里出来，景色雄伟极了。',
+          'tàiyáng cóng yún lǐ chūlái, jǐngsè xióngwěi jí le.',
+          'The sun came out from the clouds, and the view was magnificent.',
+        ),
+        s(
+          '安娜拿出照相机，拍了很多照片。',
+          'Ānnà ná chū zhàoxiàngjī, pāi le hěn duō zhàopiàn.',
+          'Anna took out her camera and took lots of photos.',
+        ),
+        s(
+          '她说：“这是我看过的最美丽的景色，一切都值得！”',
+          'tā shuō: "zhè shì wǒ kàn guo de zuì měilì de jǐngsè, yíqiè dōu zhíde!"',
+          'She said, "That\'s the most beautiful view I\'ve ever seen. It was all worth it!"',
+        ),
+      ],
+    ],
+    questions: [
+      {
+        question: 'What did they plan to see?',
+        options: ['The sunrise', 'A temple', 'The sunset'],
+        answer: 'The sunrise',
+      },
+      {
+        question: 'How did Anna find the climb?',
+        options: ['Her legs hurt and she wanted to give up', 'Easy', 'She took a cable car'],
+        answer: 'Her legs hurt and she wanted to give up',
+      },
+      {
+        question: 'What happened at five in the morning?',
+        options: ['It was too foggy to see', 'They overslept', 'It rained'],
+        answer: 'It was too foggy to see',
+      },
+      {
+        question: 'What happened as they were about to leave?',
+        options: [
+          'The fog cleared and the view was magnificent',
+          'It started to snow',
+          'They got lost',
+        ],
+        answer: 'The fog cleared and the view was magnificent',
       },
     ],
   },
