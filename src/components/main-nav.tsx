@@ -38,6 +38,11 @@ export const NAV_GROUPS: { label: string; menu?: boolean; items: NavItem[] }[] =
         match: ['/characters'],
       },
       {
+        href: '/breakdown',
+        label: 'Break it down',
+        desc: 'Paste Chinese to read it word by word',
+      },
+      {
         href: '/find',
         label: 'Find a character',
         desc: 'Draw it, or pick the parts you can see',

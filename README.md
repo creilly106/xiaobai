@@ -29,6 +29,7 @@ Unit checkpoints let you test out of material you already know. Lessons added be
 - **Library**: a dictionary search over CC-CEDICT, with English, pinyin and character search.
 - **Radicals.**
 - **Find a character**: draw an unknown character, or pick the parts you can see, to look it up. Recognition runs on the device.
+- **Break it down**: paste any Chinese (a message, a menu, a paragraph) to read it word by word. Each word shows its pinyin, its meaning and how well you know it, with one tap to add it to your reviews.
 
 **Around it.**
 

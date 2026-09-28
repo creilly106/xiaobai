@@ -350,6 +350,23 @@ const tests: Test[] = [
     },
   },
   {
+    name: 'break it down: pasted Chinese is split into words you can look up',
+    async run(page) {
+      await page.goto(`${base}/breakdown`);
+      await page.getByLabel('Chinese text').fill('我喜欢吃苹果，你呢？');
+      await page.getByRole('button', { name: 'Break it down' }).tap();
+      const apple = page.locator('button[data-word="苹果"]');
+      await apple.waitFor({ timeout: 10_000 });
+      assert((await page.locator('[data-word]').count()) >= 5, 'too few words found');
+      await apple.tap();
+      await page.getByRole('dialog').getByText(/apple/i).waitFor({ timeout: 5000 });
+      assert(
+        await page.getByText(/^You know \d+ of \d+ words$/).isVisible(),
+        'no known-words summary',
+      );
+    },
+  },
+  {
     name: 'scenarios: time chips and "Your turn"',
     async run(page) {
       await page.goto(`${base}/scenarios/relationships`);
