@@ -19,6 +19,7 @@ Unit checkpoints let you test out of material you already know. Lessons added be
 **Practise.**
 
 - Quizzes: flashcards, typed meanings, fill in the blank, and a Tricky words drill.
+- **Level & rank**: a weekly five-minute Level check adapts to you and estimates reading, listening and pinyin as HSK levels (item response theory, so every question has a difficulty). Ranks run from 小白 to 高手, and each is earned by passing a promotion exam: 80% overall and at least 60% in every skill. Milestones mark words known, finished HSK levels and more.
 - **Problem words**: the words you keep missing, what might be tripping you up (a word that sounds the same, a shared character, missing it mostly when listening), and a place for a memory hook.
 - A tone trainer and a numbers drill (prices, dates, times).
 - **Read**: 32 graded stories, each written only with words you've already learned, with tap-to-look-up, pinyin over each word, read-aloud and comprehension questions.
