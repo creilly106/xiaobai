@@ -36,12 +36,19 @@ async function main() {
           hskLevel: b.level,
         })),
       )
-      // A word you'd already added yourself (from the dictionary) becomes the
-      // HSK word, keeping its cards; existing HSK words are left as they are.
+      // HSK words follow the lists (so corrected readings and meanings reach
+      // the database); a word you'd added yourself (from the dictionary)
+      // becomes the HSK word, keeping its cards. A word already at a lower
+      // level keeps that level (还 and 长 appear in two lists).
       .onConflictDoUpdate({
         target: schema.words.hanzi,
-        set: { hskLevel: b.level, source: 'hsk' },
-        setWhere: sql`${schema.words.hskLevel} is null`,
+        set: {
+          hskLevel: sql`coalesce(${schema.words.hskLevel}, excluded.hsk_level)`,
+          source: 'hsk',
+          pinyin: sql`excluded.pinyin`,
+          meaning: sql`excluded.meaning`,
+        },
+        setWhere: sql`${schema.words.hskLevel} is null or ${schema.words.hskLevel} = ${b.level}`,
       });
   }
 

@@ -1036,4 +1036,86 @@ export const grammarPoints: GrammarPoint[] = [
     ],
     notes: '要不然 means the same and is more casual in speech.',
   },
+  {
+    slug: 'fan-er',
+    name: '…，反而…',
+    englishTitle: 'On the contrary … (the opposite of what you expect)',
+    hskLevel: 5,
+    formula: 'Situation，Subject + 反而 + unexpected result',
+    description:
+      '反而 says the result went the other way from what the first part would lead you to expect. It goes after the subject, before the verb or adjective.',
+    examples: [
+      {
+        hanzi: '吃了药，他反而更难受了。',
+        pinyin: "chī le yào, tā fǎn'ér gèng nánshòu le.",
+        meaning: 'After taking the medicine, he actually felt worse.',
+      },
+      {
+        hanzi: '我想帮他，他反而生气了。',
+        pinyin: "wǒ xiǎng bāng tā, tā fǎn'ér shēngqì le.",
+        meaning: 'I tried to help him, but he got angry instead.',
+      },
+      {
+        hanzi: '下雨了，公园里的人反而更多了。',
+        pinyin: "xià yǔ le, gōngyuán lǐ de rén fǎn'ér gèng duō le.",
+        meaning: 'It started raining, yet there were even more people in the park.',
+      },
+    ],
+    notes: 'Often paired with 不但不… or 不仅没有…: 他不但不感谢我，反而骂我。',
+  },
+  {
+    slug: 'yidan-jiu',
+    name: '一旦…就…',
+    englishTitle: 'Once … (then) …',
+    hskLevel: 5,
+    formula: '一旦 + something happens，(Subject) + 就 + result',
+    description:
+      '一旦 introduces something that might happen (or has just happened), and 就 what follows from it — often something hard to undo.',
+    examples: [
+      {
+        hanzi: '一旦决定了，就不要改变。',
+        pinyin: 'yídàn juédìng le, jiù bú yào gǎibiàn.',
+        meaning: "Once you've decided, don't change your mind.",
+      },
+      {
+        hanzi: '一旦下雨，比赛就会取消。',
+        pinyin: 'yídàn xià yǔ, bǐsài jiù huì qǔxiāo.',
+        meaning: 'If it rains, the match will be cancelled.',
+      },
+      {
+        hanzi: '习惯一旦养成，就很难改。',
+        pinyin: 'xíguàn yídàn yǎngchéng, jiù hěn nán gǎi.',
+        meaning: 'Once a habit forms, it is hard to change.',
+      },
+    ],
+    notes: '万一 is similar but only for unlikely, unwanted things: 万一下雨，我们就不去了。',
+  },
+  {
+    slug: 'buru',
+    name: 'A 不如 B',
+    englishTitle: 'A is not as good as B',
+    hskLevel: 5,
+    formula: 'A + 不如 + B (+ adjective)',
+    description:
+      'A 不如 B means A falls short of B. Add an adjective to say in what way; without one, it means "not as good as". It also gives advice: 不如… "you might as well…".',
+    examples: [
+      {
+        hanzi: '坐出租车不如坐地铁快。',
+        pinyin: 'zuò chūzūchē bùrú zuò dìtiě kuài.',
+        meaning: "A taxi isn't as fast as the subway.",
+      },
+      {
+        hanzi: '我的汉语不如他。',
+        pinyin: 'wǒ de Hànyǔ bùrú tā.',
+        meaning: "My Chinese isn't as good as his.",
+      },
+      {
+        hanzi: '外面太冷了，不如在家看电影。',
+        pinyin: 'wàimiàn tài lěng le, bùrú zài jiā kàn diànyǐng.',
+        meaning: "It's too cold out; we might as well watch a film at home.",
+      },
+    ],
+    notes:
+      'Compare 没有: A 没有 B 快 says the same as A 不如 B 快. 不如 sounds a little more formal.',
+  },
 ];

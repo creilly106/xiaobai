@@ -1,10 +1,10 @@
 # 小白 Xiaobai
 
-A Chinese-learning web app, from your first 你好 to reading short stories. It's built for daily use on a phone (installable on the iPhone home screen, and it works offline) and covers the whole of HSK 1–4.
+A Chinese-learning web app, from your first 你好 to reading short stories. It's built for daily use on a phone (installable on the iPhone home screen, and it works offline) and covers all of HSK 1–4 and the first half of HSK 5.
 
 ## What it does
 
-**Learn.** A guided path through HSK 1–4: all 1,175 words in 196 short lessons across 46 units. Each lesson teaches a few words and often a grammar point, then practises them with:
+**Learn.** A guided path through the official 2012 HSK lists: every HSK 1–4 word and the 620 most common HSK 5 words (1,897 in all) in 316 short lessons across 67 units. Each lesson teaches a few words and often a grammar point, then practises them with:
 
 - multiple choice and match-the-pairs;
 - typing the meaning or the pinyin (with tones);
@@ -25,7 +25,7 @@ Unit checkpoints let you test out of material you already know. Lessons added be
 **Explore.**
 
 - **Scenarios**: 20 real-life situations (ordering food, the doctor, renting a flat…). Phrases come in past, present and future versions, alongside two-voice dialogues with a "Your turn" mode, a listening mode and comprehension questions.
-- **Grammar**: 50 grammar points with examples.
+- **Grammar**: 53 grammar points with examples.
 - **Library**: a dictionary search over CC-CEDICT, with English, pinyin and character search.
 - **Radicals.**
 - **Find a character**: draw an unknown character, or pick the parts you can see, to look it up. Recognition runs on the device.
@@ -36,7 +36,7 @@ Unit checkpoints let you test out of material you already know. Lessons added be
 - Weekly database snapshots, and a JSON backup you can download.
 - Offline mode. Reviews and your next lessons work without a connection, and answers sync afterwards, with the time they were made, so card scheduling stays correct.
 
-**Audio.** Native recordings for about 1,080 words. Everything else, including every sentence, uses Azure neural voices. Characters with more than one reading (了, 长, 吗…) have a recording for each reading.
+**Audio.** Native recordings for about 2,300 words. Everything else, including every sentence, uses Azure neural voices. Characters with more than one reading (了, 长, 吗…) have a recording for each reading.
 
 ## Stack
 
@@ -91,7 +91,7 @@ src/app/           pages (learn, study, quiz, scenarios, read, find, grammar, li
 src/lib/           app logic: curriculum, lesson builder, scheduling, audio, handwriting, …
 src/lib/actions/   server actions (everything that writes)
 src/lib/queries/   server-side reads
-src/lib/curriculum/  the Learn path, HSK 1–4 (static data, tested for vocabulary order)
+src/lib/curriculum/  the Learn path, HSK 1–5 (static data, tested for vocabulary order)
 src/db/            Drizzle schema and client; migrations are in drizzle/
 scripts/           data builders, seeding, audio generation, smoke and e2e tests
 public/sw.js       service worker (reminders, offline)
@@ -101,6 +101,7 @@ The Learn path, grammar points, scenarios and stories are plain TypeScript data.
 
 ## Data and credits
 
+- **HSK word lists** (2012 standard): [drkameleon/complete-hsk-vocabulary](https://github.com/drkameleon/complete-hsk-vocabulary), MIT, used to check HSK 1–4 and source HSK 5
 - **CC-CEDICT** dictionary: [cc-cedict.org](https://cc-cedict.org), CC BY-SA 4.0
 - **Make Me a Hanzi** character data: [skishore/makemeahanzi](https://github.com/skishore/makemeahanzi), Arphic Public License / LGPL
 - **Hanzi Writer data** stroke order: [chanind/hanzi-writer-data](https://github.com/chanind/hanzi-writer-data), Arphic Public License
