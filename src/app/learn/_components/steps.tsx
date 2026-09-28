@@ -23,6 +23,8 @@ export type Answer = {
   missed?: string[];
   /** Passed over (e.g. writing): not scored, not repeated. */
   skipped?: boolean;
+  /** Half right: the sounds were right but a tone wasn't (typed pinyin). */
+  partial?: boolean;
 };
 
 type StepProps<K extends LessonStep['kind']> = {
@@ -228,23 +230,38 @@ export function ChooseStep({ step, answered, onAnswer }: StepProps<'choose'>) {
 }
 
 export function TranslateStep({ step, answered, onAnswer }: StepProps<'translate'>) {
-  const { sentence, options } = step;
+  const { sentence, options, listen } = step;
   const { pick, stateOf, locked } = useChoice(
     answered,
     onAnswer,
     (i) => options[i] === sentence.meaning,
   );
   useNumberKeys(options.length, !locked, pick);
+  useEffect(() => {
+    if (listen) play(sentence.hanzi);
+  }, [listen, sentence.hanzi]);
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col items-center gap-3 text-center">
-        <Prompt>What does this sentence mean?</Prompt>
-        <div className="flex items-center gap-2">
-          <span lang="zh-Hans" className="text-4xl font-medium">
-            {sentence.hanzi}
-          </span>
-          <AudioButton text={sentence.hanzi} label="Play sentence" />
-        </div>
+        <Prompt>{listen ? 'What did you hear?' : 'What does this sentence mean?'}</Prompt>
+        {listen && !answered ? (
+          <Button
+            type="button"
+            variant="outline"
+            className="size-20 rounded-full"
+            onClick={() => play(sentence.hanzi)}
+            aria-label="Play again"
+          >
+            <Volume2 className="size-8" />
+          </Button>
+        ) : (
+          <div className="flex items-center gap-2">
+            <span lang="zh-Hans" className="text-4xl font-medium">
+              {sentence.hanzi}
+            </span>
+            <AudioButton text={sentence.hanzi} label="Play sentence" />
+          </div>
+        )}
       </div>
       <div className="grid gap-2">
         {options.map((o, i) => (
@@ -454,6 +471,7 @@ export function TypePinyinStep({ step, answered, onAnswer }: StepProps<'type-pin
     const { grade, given } = gradeDraft(draft, word.syllables, word.pinyin);
     onAnswer({
       correct: grade === 'correct',
+      partial: grade === 'tones',
       note: grade === 'tones' ? `Right sounds, wrong tones — you typed ${given}.` : undefined,
     });
   }

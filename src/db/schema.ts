@@ -329,3 +329,52 @@ export type NewCard = typeof cards.$inferInsert;
 export type Review = typeof reviews.$inferSelect;
 export type Deck = typeof decks.$inferSelect;
 export type Settings = typeof settings.$inferSelect;
+
+/** Skills the Level check measures (see lib/level). */
+export type Skill = 'reading' | 'listening' | 'writing' | 'tones';
+
+/** Your current rating in each skill, estimated from Level checks and exams. */
+export const skillRatings = sqliteTable('skill_ratings', {
+  skill: text('skill').$type<Skill>().primaryKey(),
+  rating: real('rating').notNull(),
+  /** How unsure the estimate is (one standard deviation, in rating points). */
+  spread: real('spread').notNull(),
+  /** Answers counted so far. */
+  answers: integer('answers').notNull().default(0),
+  updatedAt: integer('updated_at', { mode: 'timestamp_ms' })
+    .notNull()
+    .default(sql`(unixepoch() * 1000)`),
+});
+
+export type AssessmentKind = 'check' | 'exam';
+
+/** A finished Level check or promotion exam. */
+export const assessments = sqliteTable(
+  'assessments',
+  {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    kind: text('kind').$type<AssessmentKind>().notNull(),
+    /** Exams: the HSK level of the rank tried for. */
+    level: integer('level'),
+    /** Percent right. */
+    score: integer('score').notNull(),
+    /** Exams: whether it was passed. */
+    passed: integer('passed', { mode: 'boolean' }),
+    /** JSON: per-skill right/total and ratings afterwards. */
+    detail: text('detail').notNull(),
+    takenAt: integer('taken_at', { mode: 'timestamp_ms' })
+      .notNull()
+      .default(sql`(unixepoch() * 1000)`),
+  },
+  (t) => ({
+    kindTime: index('assessments_kind_time').on(t.kind, t.takenAt),
+  }),
+);
+
+/** Milestones reached, e.g. "words-500"; each is recorded once. */
+export const milestones = sqliteTable('milestones', {
+  key: text('key').primaryKey(),
+  achievedAt: integer('achieved_at', { mode: 'timestamp_ms' })
+    .notNull()
+    .default(sql`(unixepoch() * 1000)`),
+});

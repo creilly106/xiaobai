@@ -49,7 +49,14 @@ export type LessonStep =
   | { kind: 'arrange'; sentence: LessonSentence; tiles: Tile[]; targets: string[] }
   /** Listening: hear the sentence (no English shown), rebuild it from tiles. */
   | { kind: 'dictation'; sentence: LessonSentence; tiles: Tile[]; targets: string[] }
-  | { kind: 'translate'; sentence: LessonSentence; options: string[]; targets: string[] }
+  | {
+      kind: 'translate';
+      sentence: LessonSentence;
+      options: string[];
+      targets: string[];
+      /** Hear it instead of reading it (Level checks). */
+      listen?: boolean;
+    }
   | {
       kind: 'fill';
       sentence: LessonSentence;

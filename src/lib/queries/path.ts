@@ -118,9 +118,9 @@ export async function getPath(): Promise<PathView> {
   };
 }
 
-type Vocab = Map<string, { pinyin: string; meaning: string }>;
+export type Vocab = Map<string, { pinyin: string; meaning: string }>;
 
-async function loadVocab(): Promise<Vocab> {
+export async function loadVocab(): Promise<Vocab> {
   const rows = await db
     .select({
       hanzi: schema.words.hanzi,
@@ -137,7 +137,7 @@ const HAN = /[㐀-鿿]/u;
  * Split a sentence into vocabulary words, or null if it uses anything
  * outside `reached` — so practice only ever uses words you've been taught.
  */
-function tokenise(text: string, vocab: Vocab, reached: Set<string>) {
+export function tokenise(text: string, vocab: Vocab, reached: Set<string>) {
   const spans = segmentSpans(text, vocab);
   const hanCount = Array.from(text).filter((c) => HAN.test(c)).length;
   const covered = spans.reduce((n, s) => n + s.end - s.start, 0);
@@ -209,7 +209,7 @@ async function practiceSentences(
   return { sentences, otherMeanings: [...new Set(otherMeanings)] };
 }
 
-async function lessonWords(hanzi: string[], vocab: Vocab): Promise<LessonWord[]> {
+export async function lessonWords(hanzi: string[], vocab: Vocab): Promise<LessonWord[]> {
   const known = hanzi.filter((h) => vocab.has(h));
   const [accepted, dict] = await Promise.all([
     acceptedMeanings(known.map((h) => ({ hanzi: h, meaning: vocab.get(h)!.meaning }))),
@@ -227,7 +227,7 @@ async function lessonWords(hanzi: string[], vocab: Vocab): Promise<LessonWord[]>
   });
 }
 
-const asPoolWord = (hanzi: string, vocab: Vocab): LessonWord[] => {
+export const asPoolWord = (hanzi: string, vocab: Vocab): LessonWord[] => {
   const v = vocab.get(hanzi);
   return v ? [{ hanzi, ...v, accepted: [v.meaning], syllables: null }] : [];
 };

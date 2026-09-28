@@ -55,7 +55,11 @@ export const NAV_GROUPS: { label: string; menu?: boolean; items: NavItem[] }[] =
   },
   {
     label: 'Progress',
-    items: [{ href: '/stats', label: 'Stats' }],
+    menu: true,
+    items: [
+      { href: '/level', label: 'Level & rank', desc: 'Weekly Level check, ranks and milestones' },
+      { href: '/stats', label: 'Stats', desc: "Reviews, retention and what's coming up" },
+    ],
   },
 ];
 

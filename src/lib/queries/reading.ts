@@ -19,7 +19,7 @@ export type StoryListItem = {
 };
 
 /** Stories whose questions have been answered, by id. */
-async function readStories(): Promise<Set<string>> {
+export async function readStories(): Promise<Set<string>> {
   const rows = await db
     .select({ item: schema.practiceLog.item })
     .from(schema.practiceLog)
