@@ -8,7 +8,8 @@ import { FlagButton } from '@/components/flag-button';
 import { Pinyin } from '@/components/pinyin';
 import { TokenizedHanzi } from '@/components/tokenized-hanzi';
 import { Button } from '@/components/ui/button';
-import { addScenarioSentence } from '@/lib/actions/scenario';
+import { addScenarioSentence, removeScenarioSentence } from '@/lib/actions/scenario';
+import { useConfirmTap } from '@/lib/use-confirm-tap';
 import type { Dictionary } from '@/lib/queries/dictionary';
 
 export type PhraseVersion = {
@@ -34,21 +35,36 @@ export function PhraseRow({
   dict: Dictionary;
 }) {
   const [selected, setSelected] = useState(0);
-  const [added, setAdded] = useState<Set<string>>(new Set());
+  // What you've added or removed here, until the page refreshes.
+  const [changed, setChanged] = useState<Map<string, boolean>>(new Map());
   const [pending, startTransition] = useTransition();
+  const confirm = useConfirmTap();
   const v = versions[selected];
-  const inQueue = v.inQueue || added.has(v.hanzi);
+  const inQueue = changed.get(v.hanzi) ?? v.inQueue;
 
   function add() {
     startTransition(async () => {
       try {
         const { created } = await addScenarioSentence(slug, v.hanzi);
-        setAdded(new Set(added).add(v.hanzi));
+        setChanged(new Map(changed).set(v.hanzi, true));
         toast.success(
           created > 0 ? `Added “${v.hanzi}” to your study queue.` : 'Already in your queue.',
         );
       } catch {
         toast.error("Couldn't add that sentence.");
+      }
+    });
+  }
+
+  function remove() {
+    confirm.disarm();
+    startTransition(async () => {
+      try {
+        await removeScenarioSentence(slug, v.hanzi);
+        setChanged(new Map(changed).set(v.hanzi, false));
+        toast.success(`Removed “${v.hanzi}” from study.`);
+      } catch {
+        toast.error("Couldn't remove that sentence.");
       }
     });
   }
@@ -96,19 +112,33 @@ export function PhraseRow({
       <div className="flex items-center gap-0.5">
         <AudioButton text={v.hanzi} />
         <FlagButton subject={v.hanzi} detail={`${v.pinyin} · ${v.meaning}`} />
-        {v.studyable && (
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-sm"
-            onClick={add}
-            disabled={pending || inQueue}
-            aria-label={inQueue ? 'In your study queue' : `Add “${v.hanzi}” to study`}
-            title={inQueue ? 'In your study queue' : 'Add to study'}
-          >
-            {inQueue ? <Check /> : <Plus />}
-          </Button>
-        )}
+        {v.studyable &&
+          (inQueue && confirm.isArmed(v.hanzi) ? (
+            <Button
+              type="button"
+              variant="destructive"
+              size="sm"
+              onClick={remove}
+              disabled={pending}
+              aria-label={`Remove “${v.hanzi}” from study (and its review history)`}
+            >
+              Remove?
+            </Button>
+          ) : (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              onClick={inQueue ? () => confirm.arm(v.hanzi) : add}
+              disabled={pending}
+              aria-label={
+                inQueue ? `In your study queue — remove “${v.hanzi}”` : `Add “${v.hanzi}” to study`
+              }
+              title={inQueue ? 'In your study queue (tap to remove)' : 'Add to study'}
+            >
+              {inQueue ? <Check /> : <Plus />}
+            </Button>
+          ))}
       </div>
     </div>
   );

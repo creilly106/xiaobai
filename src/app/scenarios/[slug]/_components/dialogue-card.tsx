@@ -8,7 +8,8 @@ import { Pinyin } from '@/components/pinyin';
 import { TokenizedHanzi } from '@/components/tokenized-hanzi';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { addScenarioDialogue } from '@/lib/actions/scenario';
+import { addScenarioDialogue, removeScenarioDialogue } from '@/lib/actions/scenario';
+import { useConfirmTap } from '@/lib/use-confirm-tap';
 import type { DialogueLine } from '@/lib/curriculum';
 import type { Dictionary } from '@/lib/queries/dictionary';
 import { DialogueListen, type PoolLine } from './dialogue-listen';
@@ -42,6 +43,21 @@ export function DialogueCard({
   const [english, setEnglish] = useState(true);
   const [added, setAdded] = useState(inQueue);
   const [pending, startTransition] = useTransition();
+
+  const confirm = useConfirmTap();
+
+  function remove() {
+    confirm.disarm();
+    startTransition(async () => {
+      try {
+        const { removed } = await removeScenarioDialogue(slug, index);
+        setAdded(false);
+        toast.success(`Removed ${removed} line${removed === 1 ? '' : 's'} from your study queue.`);
+      } catch {
+        toast.error("Couldn't remove this dialogue.");
+      }
+    });
+  }
 
   function add() {
     startTransition(async () => {
@@ -157,16 +173,29 @@ export function DialogueCard({
           </>
         )}
         <div className="flex justify-end pt-1">
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            onClick={add}
-            disabled={pending || added}
-          >
-            {added ? <Check /> : <Plus />}
-            {added ? 'In your queue' : 'Add dialogue to study'}
-          </Button>
+          {added && confirm.isArmed() ? (
+            <Button
+              type="button"
+              size="sm"
+              variant="destructive"
+              onClick={remove}
+              disabled={pending}
+            >
+              Remove from study? (clears its review history)
+            </Button>
+          ) : (
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={added ? () => confirm.arm() : add}
+              disabled={pending}
+              title={added ? 'Tap to take this dialogue out of study' : undefined}
+            >
+              {added ? <Check /> : <Plus />}
+              {added ? 'In your queue' : 'Add dialogue to study'}
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>

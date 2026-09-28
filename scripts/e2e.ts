@@ -327,6 +327,29 @@ const tests: Test[] = [
     },
   },
   {
+    name: 'scenarios: a phrase can be added to study and removed again',
+    async run(page) {
+      await page.goto(`${base}/scenarios/weather`);
+      const row = page
+        .locator('div.px-4.py-3')
+        .filter({ has: page.getByRole('button', { name: /^Add “/ }) })
+        .first();
+      const addButton = row.getByRole('button', { name: /^Add “/ });
+      const label = (await addButton.getAttribute('aria-label'))!;
+      const hanzi = label.slice('Add “'.length, label.indexOf('”'));
+      await addButton.tap();
+      await page.getByText(`Added “${hanzi}” to your study queue.`).waitFor({ timeout: 5000 });
+      await page.getByRole('button', { name: `In your study queue — remove “${hanzi}”` }).tap();
+      await page.getByRole('button', { name: /^Remove “.*” from study/ }).tap();
+      await page.getByText(`Removed “${hanzi}” from study.`).waitFor({ timeout: 5000 });
+      await page.reload();
+      assert(
+        await page.getByRole('button', { name: `Add “${hanzi}” to study` }).isVisible(),
+        `${hanzi} still in the queue after removing it`,
+      );
+    },
+  },
+  {
     name: 'scenarios: time chips and "Your turn"',
     async run(page) {
       await page.goto(`${base}/scenarios/relationships`);

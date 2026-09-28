@@ -4,6 +4,7 @@ import { and, eq, inArray } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { db, schema } from '@/db/client';
 import { queueWordsFor } from '@/lib/queue-words';
+import { segmentWords } from '@/lib/segment';
 import { scenarioBySlug } from '@/lib/scenario-data';
 
 export async function addScenarioToQueue(slug: string) {
@@ -111,4 +112,91 @@ export async function addScenarioDialogue(slug: string, index: number) {
     dialogue.lines.map((l) => l.hanzi),
   );
   return { created: await queueSentences(ids, slug) };
+}
+
+/**
+ * Take scenario sentences out of study: their cards (every mode) and review
+ * history. Words they brought in go too if they're your own or dictionary
+ * words you never started and no queued sentence still uses. HSK words are
+ * left alone: lessons teach those, and a queued sentence only pulls them
+ * forward while it's there.
+ */
+async function unqueueSentences(ids: number[], slug: string): Promise<number> {
+  if (ids.length === 0) return 0;
+  const removed = await db
+    .select({ hanzi: schema.sentences.hanzi })
+    .from(schema.sentences)
+    .where(inArray(schema.sentences.id, ids));
+  const deleted = await db
+    .delete(schema.cards)
+    .where(inArray(schema.cards.sentenceId, ids))
+    .returning({ sentenceId: schema.cards.sentenceId });
+  await dropUnusedNewWords(removed.map((r) => r.hanzi));
+  revalidatePath('/');
+  revalidatePath('/scenarios');
+  revalidatePath(`/scenarios/${slug}`);
+  revalidatePath('/library');
+  return new Set(deleted.map((d) => d.sentenceId)).size;
+}
+
+/** Non-HSK word cards from these sentences, never studied and no longer needed. */
+async function dropUnusedNewWords(sentences: string[]) {
+  const vocab = await db
+    .select({ id: schema.words.id, hanzi: schema.words.hanzi, source: schema.words.source })
+    .from(schema.words);
+  const lookup = new Set(vocab.map((w) => w.hanzi));
+  const used = new Set(sentences.flatMap((s) => segmentWords(s, lookup)));
+  if (used.size === 0) return;
+  // Words any still-queued sentence needs stay.
+  const stillQueued = await db
+    .selectDistinct({ hanzi: schema.sentences.hanzi })
+    .from(schema.cards)
+    .innerJoin(schema.sentences, eq(schema.sentences.id, schema.cards.sentenceId));
+  for (const s of stillQueued) for (const w of segmentWords(s.hanzi, lookup)) used.delete(w);
+  const candidates = vocab.filter((w) => used.has(w.hanzi) && w.source !== 'hsk').map((w) => w.id);
+  if (candidates.length === 0) return;
+  await db
+    .delete(schema.cards)
+    .where(
+      and(
+        inArray(schema.cards.wordId, candidates),
+        eq(schema.cards.state, 'new'),
+        eq(schema.cards.reps, 0),
+      ),
+    );
+}
+
+/** Take one phrase (or the time variant showing) out of study. */
+export async function removeScenarioSentence(slug: string, hanzi: string) {
+  if (typeof hanzi !== 'string' || hanzi.length > 200) return { removed: 0 };
+  const ids = await scenarioSentenceIds(slug, [hanzi]);
+  return { removed: await unqueueSentences(ids, slug) };
+}
+
+/** Take every line of a scenario dialogue out of study. */
+export async function removeScenarioDialogue(slug: string, index: number) {
+  const dialogue = scenarioBySlug(slug)?.dialogues?.[index];
+  if (!dialogue) return { removed: 0 };
+  const ids = await scenarioSentenceIds(
+    slug,
+    dialogue.lines.map((l) => l.hanzi),
+  );
+  return { removed: await unqueueSentences(ids, slug) };
+}
+
+/** Take everything from a scenario (phrases, variants, dialogues) out of study. */
+export async function removeScenarioFromQueue(slug: string) {
+  if (typeof slug !== 'string' || !/^[a-z0-9-]{1,64}$/.test(slug)) return { removed: 0 };
+  const [tag] = await db.select().from(schema.tags).where(eq(schema.tags.slug, slug)).limit(1);
+  if (!tag) return { removed: 0 };
+  const rows = await db
+    .select({ id: schema.sentenceTags.sentenceId })
+    .from(schema.sentenceTags)
+    .where(eq(schema.sentenceTags.tagId, tag.id));
+  return {
+    removed: await unqueueSentences(
+      rows.map((r) => r.id),
+      slug,
+    ),
+  };
 }

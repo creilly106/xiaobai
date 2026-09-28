@@ -83,7 +83,11 @@ export default async function ScenarioDetailPage({
                 : `${scenario.inQueueCount} of ${total} phrases in your study queue`}
           </p>
         </div>
-        <AddScenarioButton slug={scenario.slug} remaining={total - scenario.inQueueCount} />
+        <AddScenarioButton
+          slug={scenario.slug}
+          remaining={total - scenario.inQueueCount}
+          queued={scenario.inQueueCount}
+        />
       </div>
 
       {dialogues.length > 0 && (
