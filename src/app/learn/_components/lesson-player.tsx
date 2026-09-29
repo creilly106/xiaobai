@@ -139,13 +139,17 @@ export function LessonPlayer({
   }, [firstTry, session]);
 
   const advance = useCallback(() => {
+    // Nothing left to move past (saving): a second Enter mustn't save twice.
+    if (!entry) return;
     if (question && !answer) return;
     // Don't let the last answer's audio run on into the next question.
     stopSpeaking();
     setAnswer(null);
+    // Move past the last question before saving, so it doesn't reappear
+    // (still holding your answer) while the save is under way.
+    setPos(pos + 1);
     if (pos + 1 >= queue.length) finish();
-    else setPos(pos + 1);
-  }, [question, answer, pos, queue.length, finish]);
+  }, [entry, question, answer, pos, queue.length, finish]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -160,7 +164,11 @@ export function LessonPlayer({
   }, [advance, question, answer]);
 
   const percent = useMemo(
-    () => Math.round(((pos + (answer || !question ? 1 : 0)) / Math.max(queue.length, 1)) * 100),
+    () =>
+      Math.min(
+        100,
+        Math.round(((pos + (answer || !question ? 1 : 0)) / Math.max(queue.length, 1)) * 100),
+      ),
     [pos, answer, question, queue.length],
   );
 
@@ -229,9 +237,7 @@ export function LessonPlayer({
           className="flex flex-1 flex-col justify-center"
         >
           {entry && <StepView entry={entry} answered={answer !== null} onAnswer={onAnswer} />}
-          {!entry && saving && (
-            <p className="text-center text-muted-foreground">Saving your progress…</p>
-          )}
+          {!entry && <p className="text-center text-muted-foreground">Saving your progress…</p>}
         </motion.div>
       </AnimatePresence>
 
@@ -324,7 +330,8 @@ function FeedbackBar({
               )}
             </div>
             {answer.note && <p className="text-sm">{answer.note}</p>}
-            {solution && (!answer.correct || step.kind !== 'choose') && (
+            {/* Always, even when right: seeing the pinyin again helps it stick. */}
+            {solution && (
               <div className="mt-1 text-sm">
                 <span lang="zh-Hans" className="text-base font-medium">
                   {solution.hanzi}

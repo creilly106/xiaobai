@@ -291,7 +291,7 @@ function Feedback({
             )}
           </div>
           {answer.note && <p className="text-sm">{answer.note}</p>}
-          {solution && !answer.correct && (
+          {solution && (
             <div className="mt-1 text-sm">
               <span lang="zh-Hans" className="text-base font-medium">
                 {solution.hanzi}
