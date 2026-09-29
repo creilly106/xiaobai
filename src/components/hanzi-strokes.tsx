@@ -19,7 +19,17 @@ type HanziWriterModule = {
   };
 };
 
-export function HanziStrokes({ hanzi }: { hanzi: string }) {
+export function HanziStrokes({
+  hanzi,
+  size = 112,
+  showFallback = false,
+}: {
+  hanzi: string;
+  /** Width and height of each character, in pixels. */
+  size?: number;
+  /** Without stroke data, show the character as text instead of a note. */
+  showFallback?: boolean;
+}) {
   const containerRef = useRef<HTMLDivElement>(null);
   const writersRef = useRef<HanziWriterInstance[]>([]);
   const [ready, setReady] = useState(false);
@@ -41,8 +51,8 @@ export function HanziStrokes({ hanzi }: { hanzi: string }) {
         for (const ch of chars) {
           const slot = document.createElement('div');
           slot.className = 'inline-block';
-          slot.style.width = '112px';
-          slot.style.height = '112px';
+          slot.style.width = `${size}px`;
+          slot.style.height = `${size}px`;
           containerRef.current.appendChild(slot);
           // Read theme-aware colors from CSS custom properties so strokes
           // look intentional in both light and dark mode.
@@ -54,8 +64,8 @@ export function HanziStrokes({ hanzi }: { hanzi: string }) {
             root.getPropertyValue('--stroke-outline').trim() ||
             (document.documentElement.classList.contains('dark') ? '#334155' : '#e2e8f0');
           const writer = mod.default.create(slot, ch, {
-            width: 112,
-            height: 112,
+            width: size,
+            height: size,
             padding: 5,
             charDataLoader,
             strokeAnimationSpeed: 1.2,
@@ -81,14 +91,20 @@ export function HanziStrokes({ hanzi }: { hanzi: string }) {
     return () => {
       cancelled = true;
     };
-  }, [hanzi]);
+  }, [hanzi, size]);
 
   function playAll() {
     writersRef.current.forEach((w) => w.animateCharacter());
   }
 
   if (failed) {
-    return <p className="text-xs text-muted-foreground">Stroke data unavailable.</p>;
+    return showFallback ? (
+      <div lang="zh-Hans" className="leading-none" style={{ fontSize: size * 0.85 }}>
+        {hanzi}
+      </div>
+    ) : (
+      <p className="text-xs text-muted-foreground">Stroke data unavailable.</p>
+    );
   }
 
   return (

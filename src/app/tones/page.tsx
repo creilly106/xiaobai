@@ -21,7 +21,25 @@ export default async function TonesPage() {
         are opposites. Training your ear early pays off in every other skill.
       </p>
 
-      <section aria-labelledby="the-tones" className="mt-8">
+      <section aria-labelledby="train" className="mt-6">
+        <h2
+          id="train"
+          className="mb-3 text-xs font-medium uppercase tracking-wider text-muted-foreground"
+        >
+          Train your ear
+        </h2>
+        <ToneTrainer data={data} />
+        <p className="mt-4 text-xs text-muted-foreground">
+          {data.singles.length} single syllables, {data.pairs.length} two-syllable words and{' '}
+          {data.groups.length} same-sound groups from your library. Characters with more than one
+          pronunciation are left out so the audio always matches the answer.
+          <span className="pointer-coarse:hidden">
+            {' '}
+            Keys: 1–5 answer · R replay · Backspace clears a pair.
+          </span>
+        </p>
+      </section>
+      <section aria-labelledby="the-tones" className="mt-12">
         <h2
           id="the-tones"
           className="mb-3 text-xs font-medium uppercase tracking-wider text-muted-foreground"
@@ -60,25 +78,6 @@ export default async function TonesPage() {
             </div>
           </CardContent>
         </Card>
-      </section>
-
-      <section aria-labelledby="train" className="mt-10">
-        <h2
-          id="train"
-          className="mb-3 text-xs font-medium uppercase tracking-wider text-muted-foreground"
-        >
-          Train your ear
-        </h2>
-        <ToneTrainer data={data} />
-        <p className="mt-4 text-xs text-muted-foreground">
-          {data.singles.length} single syllables, {data.pairs.length} two-syllable words and{' '}
-          {data.groups.length} same-sound groups from your library. Characters with more than one
-          pronunciation are left out so the audio always matches the answer.
-          <span className="pointer-coarse:hidden">
-            {' '}
-            Keys: 1–5 answer · R replay · Backspace clears a pair.
-          </span>
-        </p>
       </section>
     </div>
   );

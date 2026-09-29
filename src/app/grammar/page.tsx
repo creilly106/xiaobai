@@ -1,13 +1,15 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { connection } from 'next/server';
-import { ArrowRight, CircleCheck } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
+import { ArrowRight, CircleCheck, Clock } from 'lucide-react';
 import { db, schema } from '@/db/client';
 import { LESSONS } from '@/lib/curriculum';
 import { grammarPoints } from '@/lib/grammar-data';
 
 export const metadata: Metadata = { title: 'Grammar' };
+
+/** The time guide is listed with HSK 2, where most of the time patterns are. */
+const TIME_GUIDE_LEVEL = 2;
 
 /** Grammar point → the lesson that teaches it. */
 const lessonFor = new Map(LESSONS.flatMap((l) => (l.grammar ? [[l.grammar, l.id] as const] : [])));
@@ -34,27 +36,9 @@ export default async function GrammarPage() {
         Core patterns for building Chinese sentences, sorted by rough HSK level.
       </p>
 
-      <Link href="/grammar/time" className="group mt-6 block">
-        <Card className="border-2 border-primary/40 bg-primary/5 transition-colors group-hover:border-primary/70">
-          <CardContent className="flex items-center gap-4 py-4">
-            <div lang="zh-Hans" className="text-3xl" aria-hidden>
-              了
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="font-semibold">Talking about time</div>
-              <p className="text-sm text-muted-foreground">
-                Past, present and future without tenses — one verb in every time frame, and the
-                patterns behind it.
-              </p>
-            </div>
-            <ArrowRight className="size-5 text-muted-foreground" />
-          </CardContent>
-        </Card>
-      </Link>
-
       <nav
         aria-label="Jump to level"
-        className="sticky top-14 z-10 -mx-4 mt-8 flex gap-1 overflow-x-auto border-b border-border/60 bg-background/95 px-4 py-2 backdrop-blur"
+        className="sticky top-14 z-10 -mx-4 mt-6 flex gap-1 overflow-x-auto border-b border-border/60 bg-background/95 px-4 py-2 backdrop-blur"
       >
         {levels.map((lvl) => (
           <a
@@ -83,6 +67,24 @@ export default async function GrammarPage() {
                 </span>
               </h2>
               <ul className="divide-y divide-border/60 overflow-hidden rounded-xl border bg-card">
+                {lvl === TIME_GUIDE_LEVEL && (
+                  // The time guide sits where most of its patterns (了, 过, 在, 要) are met.
+                  <li>
+                    <Link
+                      href="/grammar/time"
+                      className="flex items-center gap-3 bg-primary/5 px-4 py-3 transition-colors hover:bg-primary/10"
+                    >
+                      <Clock className="size-5 shrink-0 text-primary" />
+                      <div className="min-w-0 flex-1">
+                        <div className="font-medium">Guide: talking about time</div>
+                        <div className="text-sm text-muted-foreground">
+                          Chinese has no tenses. How the time points below fit together.
+                        </div>
+                      </div>
+                      <ArrowRight className="size-4 shrink-0 text-muted-foreground" />
+                    </Link>
+                  </li>
+                )}
                 {points.map((p) => (
                   <li key={p.slug}>
                     <Link
@@ -90,7 +92,14 @@ export default async function GrammarPage() {
                       className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-muted/50"
                     >
                       <div className="min-w-0 flex-1">
-                        <div className="font-medium">{p.name}</div>
+                        <div className="flex items-center gap-2 font-medium">
+                          {p.name}
+                          {p.time && (
+                            <span className="rounded-full border px-1.5 text-[10px] font-normal uppercase tracking-wide text-muted-foreground">
+                              time
+                            </span>
+                          )}
+                        </div>
                         <div className="text-sm text-muted-foreground">{p.englishTitle}</div>
                         {p.formula && (
                           <div className="mt-0.5 truncate font-mono text-xs text-foreground/70">

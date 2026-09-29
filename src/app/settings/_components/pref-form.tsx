@@ -29,6 +29,20 @@ export function StudyPrefForm({ initial }: Props) {
   const [goal, setGoal] = useState(initial.dailyGoal);
   const [fromPath, setFromPath] = useState(initial.newWordsFrom === 'path');
   const [pending, startTransition] = useTransition();
+  const current = {
+    newLimit,
+    reviewLimit,
+    retention,
+    listening,
+    production,
+    goal,
+    fromPath,
+  };
+  // What's stored, so the button can say whether there's anything to save.
+  const [stored, setStored] = useState(current);
+  const dirty = (Object.keys(current) as (keyof typeof current)[]).some(
+    (k) => current[k] !== stored[k],
+  );
 
   function save(e: React.FormEvent) {
     e.preventDefault();
@@ -48,6 +62,14 @@ export function StudyPrefForm({ initial }: Props) {
         if (saved.dailyGoal != null) setGoal(saved.dailyGoal);
         if (saved.dailyReviewLimit != null) setReviewLimit(saved.dailyReviewLimit);
         if (saved.retentionTarget != null) setRetention(Math.round(saved.retentionTarget * 100));
+        setStored({
+          ...current,
+          newLimit: saved.dailyNewLimit ?? newLimit,
+          goal: saved.dailyGoal ?? goal,
+          reviewLimit: saved.dailyReviewLimit ?? reviewLimit,
+          retention:
+            saved.retentionTarget != null ? Math.round(saved.retentionTarget * 100) : retention,
+        });
         toast.success('Settings saved.');
       } catch {
         toast.error('Could not save settings. Try again.');
@@ -162,9 +184,12 @@ export function StudyPrefForm({ initial }: Props) {
         </div>
         <ToggleSwitch value={production} onChange={setProduction} label="Production cards" />
       </div>
-      <div className="flex justify-end">
-        <Button type="submit" disabled={pending}>
-          {pending ? 'Saving…' : 'Save changes'}
+      <div className="flex items-center justify-end gap-3">
+        {dirty && !pending && (
+          <span className="text-xs text-amber-700 dark:text-amber-400">Unsaved changes</span>
+        )}
+        <Button type="submit" disabled={pending || !dirty}>
+          {pending ? 'Saving…' : dirty ? 'Save changes' : 'Saved'}
         </Button>
       </div>
     </form>

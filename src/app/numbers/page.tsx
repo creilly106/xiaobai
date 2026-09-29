@@ -27,7 +27,7 @@ export default function NumbersPage() {
         <span className="text-base font-normal text-muted-foreground">shùzì</span>
       </h1>
       <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-        Eleven words, four big units (百 千 万 亿) and a handful of rules take you past a billion.
+        Eleven words, four big units (百 千 万 亿) and a handful of rules take you past a billion.{' '}
         <PointerCopy touch="Tap" mouse="Click" /> any number to hear it.
       </p>
 

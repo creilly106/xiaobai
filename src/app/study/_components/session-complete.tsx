@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Undo2 } from 'lucide-react';
+import { ArrowRight, Undo2 } from 'lucide-react';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { STUDY_RATINGS, type StudyRating } from '@/components/rating-styles';
 
@@ -13,6 +13,7 @@ export function SessionComplete({
   pending,
   onUndo,
   goal,
+  nextLesson,
 }: {
   learned: number;
   rated: number;
@@ -20,6 +21,7 @@ export function SessionComplete({
   pending: boolean;
   onUndo: () => void;
   goal?: { target: number; done: number };
+  nextLesson: { id: string; title: string } | null;
 }) {
   const recalled = tally.hard + tally.good + tally.easy;
   return (
@@ -61,7 +63,12 @@ export function SessionComplete({
         </div>
       )}
       <div className="mt-6 flex flex-wrap justify-center gap-3">
-        <Link href="/" className={buttonVariants({})}>
+        {nextLesson && (
+          <Link href={`/learn/${nextLesson.id}`} className={buttonVariants({})}>
+            Next lesson: {nextLesson.title} <ArrowRight />
+          </Link>
+        )}
+        <Link href="/" className={buttonVariants({ variant: nextLesson ? 'outline' : 'default' })}>
           Back to home
         </Link>
         <Link href="/study" className={buttonVariants({ variant: 'outline' })}>

@@ -19,7 +19,7 @@ function wordStatus(state: string | null, inQueue: boolean): WordStatus {
 }
 
 /**
- * The HSK 1–4 word lists with search, and progress per level. Add/remove
+ * The HSK 1–5 word lists with search, and progress per level. Add/remove
  * buttons only appear when new words aren't coming from the Learn path.
  */
 export async function HskTab({ q, levelParam }: { q: string; levelParam?: string }) {
@@ -80,7 +80,7 @@ export async function HskTab({ q, levelParam }: { q: string; levelParam?: string
   return (
     <>
       <p className="text-sm text-muted-foreground">
-        {words.length.toLocaleString()} words across HSK {levels[0]}–{levels[levels.length - 1]}.
+        {words.length.toLocaleString()} words across HSK {levels[0]}–{levels[levels.length - 1]}.{' '}
         <PointerCopy touch="Tap" mouse="Click" /> a word to open its page.
       </p>
       <p className="mt-1 flex flex-wrap gap-x-3 text-xs text-muted-foreground">

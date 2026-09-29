@@ -3,62 +3,136 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
-import { ChevronDown, Menu } from 'lucide-react';
+import {
+  AudioLines,
+  BarChart3,
+  BookOpen,
+  BookOpenText,
+  ChevronDown,
+  Dices,
+  GraduationCap,
+  Hash,
+  House,
+  Languages,
+  Layers,
+  Menu,
+  MessagesSquare,
+  PenLine,
+  Puzzle,
+  SquareSplitHorizontal,
+  Target,
+  Trophy,
+  type LucideIcon,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 
-type NavItem = { href: string; label: string; desc?: string; match?: string[] };
+type NavItem = {
+  href: string;
+  label: string;
+  icon: LucideIcon;
+  desc?: string;
+  match?: string[];
+};
 
 /** Groups shown as a dropdown on wide screens; the rest are plain links. */
 export const NAV_GROUPS: { label: string; menu?: boolean; items: NavItem[] }[] = [
   {
     label: 'Learn',
-    items: [{ href: '/learn', label: 'Learn' }],
+    items: [{ href: '/learn', label: 'Learn', icon: GraduationCap }],
   },
   {
     label: 'Practice',
     menu: true,
     items: [
-      { href: '/study', label: 'Review', desc: 'Your spaced-repetition reviews for today' },
-      { href: '/quiz', label: 'Quiz', desc: 'Flashcards, typed meanings, fill in the blank' },
-      { href: '/read', label: 'Read', desc: 'Short stories with the words you know' },
-      { href: '/tones', label: 'Tones', desc: 'Hear it, pick the tones' },
-      { href: '/problem-words', label: 'Problem words', desc: 'The ones you keep missing' },
+      {
+        href: '/study',
+        label: 'Review',
+        icon: Layers,
+        desc: 'Your spaced-repetition reviews for today',
+      },
+      {
+        href: '/quiz',
+        label: 'Quiz',
+        icon: Dices,
+        desc: 'Flashcards, typed meanings, fill in the blank',
+      },
+      {
+        href: '/read',
+        label: 'Read',
+        icon: BookOpen,
+        desc: 'Short stories with the words you know',
+      },
+      { href: '/tones', label: 'Tones', icon: AudioLines, desc: 'Hear it, pick the tones' },
+      {
+        href: '/problem-words',
+        label: 'Problem words',
+        icon: Target,
+        desc: 'The ones you keep missing',
+      },
     ],
   },
   {
     label: 'Explore',
     menu: true,
     items: [
-      { href: '/scenarios', label: 'Scenarios', desc: 'Real-life phrases by situation' },
+      {
+        href: '/scenarios',
+        label: 'Scenarios',
+        icon: MessagesSquare,
+        desc: 'Real-life phrases by situation',
+      },
       {
         href: '/library',
         label: 'Library',
+        icon: BookOpenText,
         desc: 'Your words and the full dictionary',
         match: ['/characters'],
       },
       {
         href: '/breakdown',
         label: 'Break it down',
+        icon: SquareSplitHorizontal,
         desc: 'Paste Chinese to read it word by word',
       },
       {
         href: '/find',
         label: 'Find a character',
+        icon: PenLine,
         desc: 'Draw it, or pick the parts you can see',
       },
-      { href: '/grammar', label: 'Grammar', desc: 'Sentence patterns with examples' },
-      { href: '/radicals', label: 'Radicals', desc: 'The building blocks of characters' },
-      { href: '/numbers', label: 'Numbers', desc: 'Counting, prices, dates and times' },
+      {
+        href: '/grammar',
+        label: 'Grammar',
+        icon: Languages,
+        desc: 'Sentence patterns with examples',
+      },
+      {
+        href: '/radicals',
+        label: 'Radicals',
+        icon: Puzzle,
+        desc: 'The building blocks of characters',
+      },
+      { href: '/numbers', label: 'Numbers', icon: Hash, desc: 'Counting, prices, dates and times' },
     ],
   },
   {
     label: 'Progress',
     menu: true,
     items: [
-      { href: '/level', label: 'Level & rank', desc: 'Weekly Level check, ranks and milestones' },
-      { href: '/stats', label: 'Stats', desc: "Reviews, retention and what's coming up" },
+      {
+        href: '/level',
+        label: 'Level & rank',
+        icon: Trophy,
+        desc: 'Weekly Level check, ranks and milestones',
+      },
+      {
+        href: '/stats',
+        label: 'Stats',
+        icon: BarChart3,
+        desc: "Reviews, retention and what's coming up",
+      },
     ],
   },
 ];
@@ -130,8 +204,13 @@ function NavMenu({
               aria-current={current ? 'page' : undefined}
               className={`rounded-md px-3 py-2 transition-colors hover:bg-muted/70 ${current ? 'bg-muted' : ''}`}
             >
-              <div className="font-medium">{item.label}</div>
-              {item.desc && <div className="text-xs text-muted-foreground">{item.desc}</div>}
+              <div className="flex items-start gap-3">
+                <item.icon className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden />
+                <div>
+                  <div className="font-medium">{item.label}</div>
+                  {item.desc && <div className="text-xs text-muted-foreground">{item.desc}</div>}
+                </div>
+              </div>
             </Link>
           );
         })}
@@ -172,7 +251,10 @@ export function MobileNav() {
               pathname === '/' ? 'bg-muted font-medium' : 'hover:bg-muted/60'
             }`}
           >
-            Home
+            <span className="flex items-center gap-3">
+              <House className="size-4 text-muted-foreground" aria-hidden />
+              Home
+            </span>
           </Link>
           {NAV_GROUPS.map((g) => (
             <div key={g.label}>
@@ -195,7 +277,10 @@ export function MobileNav() {
                         active ? 'bg-muted font-medium' : 'hover:bg-muted/60'
                       }`}
                     >
-                      {item.label}
+                      <span className="flex items-center gap-3">
+                        <item.icon className="size-4 text-muted-foreground" aria-hidden />
+                        {item.label}
+                      </span>
                     </Link>
                   );
                 })}

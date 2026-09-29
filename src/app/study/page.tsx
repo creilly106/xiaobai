@@ -4,6 +4,7 @@ import { buttonVariants } from '@/components/ui/button';
 import { getStudyQueue } from '@/lib/queries/study';
 import { getAvailability } from '@/lib/queries/settings';
 import { getGoalProgress } from '@/lib/queries/goal';
+import { getPath } from '@/lib/queries/path';
 import { userTimeZone } from '@/lib/timezone';
 import { getDictionaryFor } from '@/lib/queries/dictionary';
 import { NextDue } from '@/components/next-due';
@@ -88,7 +89,10 @@ export default async function StudyPage({ searchParams }: PageProps<'/study'>) {
     queue.flatMap((c) => (c.example ? [c.hanzi, c.example.zh] : [c.hanzi])),
   );
   // Keyed so "learn more" (a new ?extra=) starts a fresh session.
-  const progress = await getGoalProgress(new Date(), await userTimeZone());
+  const [progress, path] = await Promise.all([
+    getGoalProgress(new Date(), await userTimeZone()),
+    getPath(),
+  ]);
   return (
     <>
       <Session
@@ -96,6 +100,7 @@ export default async function StudyPage({ searchParams }: PageProps<'/study'>) {
         initialQueue={queue}
         dict={dict}
         goal={{ target: progress.goal, doneBefore: progress.today.points }}
+        nextLesson={path.current ? { id: path.current.id, title: path.current.title } : null}
       />
       <OfflineWarmup
         texts={queue.flatMap((c) => (c.example ? [c.hanzi, c.example.zh] : [c.hanzi]))}

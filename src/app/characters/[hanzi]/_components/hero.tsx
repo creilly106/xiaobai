@@ -16,13 +16,17 @@ export function Hero({ info }: { info: CharacterInfo }) {
     <Card className="overflow-hidden py-0">
       <div className="grid gap-6 p-6 sm:p-8 md:grid-cols-[minmax(220px,auto)_1fr]">
         <div className="flex flex-col items-center justify-center gap-4 rounded-lg border border-border/50 bg-muted/30 p-6">
-          <div
-            lang="zh-Hans"
-            className={`leading-none tracking-tight ${charCount > 3 ? 'text-6xl' : 'text-8xl'}`}
-          >
-            {hanzi}
-          </div>
-          {info.isSingle && <HanziStrokes hanzi={hanzi} />}
+          {info.isSingle ? (
+            // The strokes draw the character itself: one big character, not two.
+            <HanziStrokes hanzi={hanzi} size={168} showFallback />
+          ) : (
+            <div
+              lang="zh-Hans"
+              className={`leading-none tracking-tight ${charCount > 3 ? 'text-6xl' : 'text-8xl'}`}
+            >
+              {hanzi}
+            </div>
+          )}
         </div>
         <div className="flex flex-col justify-center gap-4">
           <div className="space-y-1">
@@ -50,8 +54,8 @@ export function Hero({ info }: { info: CharacterInfo }) {
                 {study.source === 'custom' ? 'Your word' : 'Added from the dictionary'}
               </span>
             ) : gloss ? (
-              <span className={pill} title="Not in the HSK 1–4 word lists">
-                Not in HSK 1–4
+              <span className={pill} title="Not in the HSK 1–5 word lists">
+                Not an HSK 1–5 word
               </span>
             ) : null}
             <span className={pill}>

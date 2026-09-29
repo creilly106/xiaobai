@@ -179,27 +179,30 @@ export default async function TimeGuidePage() {
           <section key={frame} className="mt-8">
             <h2 className="text-lg font-semibold">{title}</h2>
             <p className="text-sm text-muted-foreground">{blurb}</p>
-            <div className="mt-3 grid gap-2 sm:grid-cols-2">
+            <ul className="mt-3 divide-y divide-border/60 overflow-hidden rounded-xl border bg-card">
               {points.map((p) => (
-                <Link key={p.slug} href={`/grammar/${p.slug}`} className="group">
-                  <Card className="h-full transition-colors group-hover:border-primary/60">
-                    <CardContent className="py-3">
-                      <div className="flex items-center justify-between gap-2">
-                        <div lang="zh-Hans" className="font-medium">
-                          {p.name}
-                        </div>
-                        <ArrowRight className="size-4 text-muted-foreground" />
+                <li key={p.slug}>
+                  <Link
+                    href={`/grammar/${p.slug}`}
+                    className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-muted/50"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <div lang="zh-Hans" className="font-medium">
+                        {p.name}{' '}
+                        <span lang="en" className="font-normal text-muted-foreground">
+                          · {p.englishTitle}
+                        </span>
                       </div>
-                      <div className="text-sm text-muted-foreground">{p.englishTitle}</div>
-                      <div className="mt-1 text-sm">
+                      <div className="mt-0.5 text-sm">
                         <span lang="zh-Hans">{p.examples[0]?.hanzi}</span>{' '}
                         <span className="text-muted-foreground">— {p.examples[0]?.meaning}</span>
                       </div>
-                    </CardContent>
-                  </Card>
-                </Link>
+                    </div>
+                    <ArrowRight className="size-4 shrink-0 text-muted-foreground" />
+                  </Link>
+                </li>
               ))}
-            </div>
+            </ul>
           </section>
         );
       })}

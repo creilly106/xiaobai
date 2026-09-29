@@ -158,7 +158,7 @@ export function BreakdownTool() {
                   data-word={p.word}
                   data-status={w.status}
                   onClick={() => setSelected(p.word!)}
-                  className={`rounded-sm transition-colors hover:ring-1 hover:ring-primary/40 ${STATUS[w.status].mark} ${
+                  className={`mx-px rounded-sm px-px transition-colors hover:ring-1 hover:ring-primary/40 ${STATUS[w.status].mark} ${
                     selected === p.word ? 'ring-2 ring-primary/60' : ''
                   }`}
                 >

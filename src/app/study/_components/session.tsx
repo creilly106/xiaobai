@@ -31,6 +31,8 @@ type Props = {
   dict?: Dictionary;
   /** Daily goal (points) and points already earned today before this session. */
   goal?: { target: number; doneBefore: number };
+  /** Where "what next?" points after the session: your next Learn lesson. */
+  nextLesson?: { id: string; title: string } | null;
 };
 
 /** teach = first meeting (answer shown, no rating); test = recall + rating. */
@@ -67,7 +69,7 @@ function insertAt<T>(list: T[], index: number, item: T): T[] {
   return [...list.slice(0, i), item, ...list.slice(i)];
 }
 
-export function Session({ initialQueue, dict, goal }: Props) {
+export function Session({ initialQueue, dict, goal, nextLesson }: Props) {
   const seqRef = useRef(initialQueue.length);
   const [queue, setQueue] = useState<QueueEntry[]>(() =>
     initialQueue.map((card, i) => ({
@@ -293,6 +295,7 @@ export function Session({ initialQueue, dict, goal }: Props) {
         pending={pending}
         onUndo={doUndo}
         goal={goal ? { target: goal.target, done: goal.doneBefore + rated } : undefined}
+        nextLesson={nextLesson ?? null}
       />
     );
   }
