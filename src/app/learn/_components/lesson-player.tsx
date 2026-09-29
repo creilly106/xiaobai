@@ -11,7 +11,13 @@ import { Pinyin } from '@/components/pinyin';
 import { FlagButton } from '@/components/flag-button';
 import { celebrate } from '@/lib/celebrate';
 import { completeCheckpoint, completeLesson, type WordResult } from '@/lib/actions/path';
-import { isQuestion, MAX_RETRIES, stepTargets, type LessonStep } from '@/lib/path/lesson-builder';
+import {
+  isQuestion,
+  retriesWhenMissed,
+  SKIP_AFTER_MISSES,
+  stepTargets,
+  type LessonStep,
+} from '@/lib/path/lesson-builder';
 import type { LessonSession } from '@/lib/queries/path';
 import { primeVoices, stopSpeaking } from '@/lib/tts';
 import { addPending, removePending } from '@/lib/pending-progress';
@@ -75,13 +81,9 @@ export function LessonPlayer({
         for (const h of a.missed ?? stepTargets(entry.step)) {
           mistakes.current.set(h, (mistakes.current.get(h) ?? 0) + 1);
         }
-        // Missed questions come back at the end (a match only counts once).
-        // A match or a writing drill only counts once; repeating them is a chore.
-        if (
-          entry.tries < MAX_RETRIES &&
-          entry.step.kind !== 'match' &&
-          entry.step.kind !== 'write'
-        ) {
+        // Missed questions come back at the end until they're answered right
+        // (after a few misses, "Skip this one" appears instead of trying forever).
+        if (retriesWhenMissed(entry.step)) {
           setQueue((q) => [
             ...q,
             { id: nextId.current++, step: entry.step, tries: entry.tries + 1 },
@@ -240,6 +242,16 @@ export function LessonPlayer({
           {!entry && <p className="text-center text-muted-foreground">Saving your progress…</p>}
         </motion.div>
       </AnimatePresence>
+
+      {entry && question && !answer && entry.tries >= SKIP_AFTER_MISSES && (
+        <button
+          type="button"
+          onClick={() => onAnswer({ correct: false, skipped: true })}
+          className="mx-auto mt-6 text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+        >
+          Missed it {entry.tries} times. Skip this one
+        </button>
+      )}
 
       {entry && (!question || answer) && (
         <FeedbackBar step={entry.step} answer={answer} onContinue={advance} busy={saving} />

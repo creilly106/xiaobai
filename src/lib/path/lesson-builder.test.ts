@@ -3,6 +3,7 @@ import {
   buildCheckpoint,
   buildLesson,
   distractors,
+  retriesWhenMissed,
   seededRandom,
   stepTargets,
   type LessonSentence,
@@ -113,6 +114,19 @@ describe('buildLesson', () => {
 
   it('is repeatable for a seed', () => {
     expect(JSON.stringify(build(7))).toBe(JSON.stringify(build(7)));
+  });
+});
+
+describe('retriesWhenMissed', () => {
+  it('brings back missed questions, but not matches, tracing or teaching', () => {
+    const word = words[0];
+    expect(retriesWhenMissed({ kind: 'choose', prompt: 'meaning', word, options: words })).toBe(
+      true,
+    );
+    expect(retriesWhenMissed({ kind: 'type-pinyin', word })).toBe(true);
+    expect(retriesWhenMissed({ kind: 'match', words, order: [0, 1, 2] })).toBe(false);
+    expect(retriesWhenMissed({ kind: 'write', word })).toBe(false);
+    expect(retriesWhenMissed({ kind: 'teach', word })).toBe(false);
   });
 });
 

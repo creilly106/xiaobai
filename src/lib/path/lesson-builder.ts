@@ -294,5 +294,12 @@ export function buildCheckpoint(input: Omit<BuildInput, 'review' | 'grammar'>): 
   return shuffle(steps.slice(0, sample.length), rand).concat(steps.slice(sample.length));
 }
 
-/** A step answered wrong comes back later; teach/grammar never repeat. */
-export const MAX_RETRIES = 2;
+/**
+ * A question answered wrong comes back at the end of the lesson until it's
+ * right. After this many misses it can be skipped instead.
+ */
+export const SKIP_AFTER_MISSES = 3;
+
+/** Whether a missed step comes back (a match or a tracing drill only counts once). */
+export const retriesWhenMissed = (step: LessonStep) =>
+  isQuestion(step) && step.kind !== 'match' && step.kind !== 'write';

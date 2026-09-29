@@ -536,6 +536,12 @@ const tests: Test[] = [
 /** Give some answer to a lesson question (right or wrong — missed ones come back). */
 async function answer(page: Page, step: string) {
   const area = page.locator('[data-step]');
+  // Missed questions come back until they're right; after three misses they can be skipped.
+  const skip = page.getByRole('button', { name: /Skip this one/ });
+  if (await skip.isVisible()) {
+    await skip.tap();
+    return;
+  }
   switch (step) {
     case 'choose':
     case 'translate':
