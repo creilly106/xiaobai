@@ -6,6 +6,8 @@ import { markTone, TONE_TEXT, type Tone } from '@/lib/pinyin';
 import {
   backspace,
   draftIsEmpty,
+  syllablesOf,
+  typeApostrophe,
   typeLetter,
   typeTone,
   type PinyinDraft,
@@ -30,7 +32,8 @@ type Props = {
 
 /**
  * Pinyin entry without an input method: type letters, then press a tone
- * (1–5 or the tone keys) to finish each syllable. v types ü.
+ * (1–5 or the tone keys) to finish each syllable. v (or ü) types ü, and '
+ * separates syllables (nǚ’ér).
  */
 export function PinyinKeyboard({ value, onChange, onSubmit, disabled }: Props) {
   // Own the keyboard while active so page shortcuts (Space, 1–4, P…) stand down.
@@ -42,9 +45,12 @@ export function PinyinKeyboard({ value, onChange, onSubmit, disabled }: Props) {
       if (e.ctrlKey || e.metaKey || e.altKey) return;
       if (e.target instanceof HTMLElement && e.target.closest('input, textarea')) return;
       const k = e.key.toLowerCase();
-      if (/^[a-z]$/.test(k)) {
+      if (/^[a-z]$/.test(k) || k === 'ü') {
         e.preventDefault();
-        onChange(typeLetter(value, k));
+        onChange(typeLetter(value, k === 'ü' ? 'v' : k));
+      } else if (k === "'" || k === '’') {
+        e.preventDefault();
+        onChange(typeApostrophe(value));
       } else if (/^[1-5]$/.test(k)) {
         e.preventDefault();
         onChange(typeTone(value, Number(k) as Tone));
@@ -63,6 +69,11 @@ export function PinyinKeyboard({ value, onChange, onSubmit, disabled }: Props) {
     return () => window.removeEventListener('keydown', onKey);
   }, [value, onChange, onSubmit, disabled]);
 
+  // Tone keys show the syllable being typed with each tone ("nü" → nǚ…).
+  const typing = syllablesOf(value.current.replace(/'/g, '')).at(-1) ?? '';
+  const toneLabel = (tone: Tone, fallback: string) =>
+    typing && /[aeiouv]/.test(typing) ? markTone(typing, tone) : fallback;
+
   const key =
     'flex h-10 min-w-0 items-center justify-center rounded-md border border-border/70 bg-card text-sm font-medium transition-colors hover:bg-muted active:scale-95 disabled:opacity-50 sm:h-11';
 
@@ -75,10 +86,12 @@ export function PinyinKeyboard({ value, onChange, onSubmit, disabled }: Props) {
       >
         {value.done.map((s, i) => (
           <span key={i} className={TONE_TEXT[s.tone]}>
-            {markTone(s.letters, s.tone)}
+            {markTone(s.letters, s.tone).replace(/'/g, '’')}
           </span>
         ))}
-        <span className="text-foreground">{value.current.replace(/v/g, 'ü')}</span>
+        <span className="text-foreground">
+          {value.current.replace(/v/g, 'ü').replace(/'/g, '’')}
+        </span>
         {!disabled && <span className="h-7 w-0.5 animate-pulse bg-primary" aria-hidden />}
         {draftIsEmpty(value) && (
           <span className="text-base text-muted-foreground">type letters, then a tone</span>
@@ -96,7 +109,9 @@ export function PinyinKeyboard({ value, onChange, onSubmit, disabled }: Props) {
               className={`${key} flex-col gap-0 ${TONE_TEXT[t.tone]}`}
               title={t.tone === 5 ? 'Neutral tone (or Space)' : `Tone ${t.tone}`}
             >
-              <span className="text-base leading-none">{t.label}</span>
+              <span className="max-w-full truncate text-base leading-none">
+                {toneLabel(t.tone, t.label)}
+              </span>
               <span className="text-[10px] text-muted-foreground">
                 {t.tone === 5 ? 'neutral' : `tone ${t.tone}`}
               </span>
@@ -108,7 +123,7 @@ export function PinyinKeyboard({ value, onChange, onSubmit, disabled }: Props) {
             key={row}
             className="grid gap-1.5"
             style={{
-              gridTemplateColumns: `repeat(${r === 2 ? row.length + 2 : row.length}, minmax(0, 1fr))`,
+              gridTemplateColumns: `repeat(${r === 2 ? row.length + 3 : row.length}, minmax(0, 1fr))`,
             }}
           >
             {r === 2 && (
@@ -128,11 +143,31 @@ export function PinyinKeyboard({ value, onChange, onSubmit, disabled }: Props) {
                 type="button"
                 disabled={disabled}
                 onClick={() => onChange(typeLetter(value, ch))}
-                className={key}
+                className={ch === 'v' ? `${key} flex-col gap-0` : key}
+                aria-label={ch === 'v' ? 'ü (or type v)' : undefined}
               >
-                {ch === 'v' ? 'ü' : ch}
+                {ch === 'v' ? (
+                  <>
+                    <span className="leading-none">ü</span>
+                    <span className="text-[10px] leading-none text-muted-foreground">v</span>
+                  </>
+                ) : (
+                  ch
+                )}
               </button>
             ))}
+            {r === 2 && (
+              <button
+                type="button"
+                disabled={disabled}
+                onClick={() => onChange(typeApostrophe(value))}
+                className={key}
+                aria-label="Apostrophe (syllable break)"
+                title="Syllable break, as in nǚ’ér"
+              >
+                ’
+              </button>
+            )}
             {r === 2 && (
               <button
                 type="button"

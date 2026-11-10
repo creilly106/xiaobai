@@ -55,7 +55,7 @@ export async function reloadIfOutdated(): Promise<boolean> {
 }
 
 /** Pages where a reload would throw away work in progress. */
-const BUSY = /^\/(learn\/.+|study|quiz\/.+|read\/.+|tones|numbers)/;
+const BUSY = /^\/(learn\/.+|study|quiz\/.+|read\/.+|tones|numbers|level\/(check|exam))/;
 
 let flushing = false;
 

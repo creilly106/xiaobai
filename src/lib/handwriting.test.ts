@@ -16,11 +16,13 @@ const SAMPLE = [...'一人口大小中我你他好是不了的在有看水火木
 let refs: RefChar[];
 let medians: Map<string, Point[][]>;
 
+// Loading every character's strokes takes several seconds; on a busy machine
+// it ran past the default 10s and failed the whole file.
 beforeAll(() => {
   const all = loadMedians();
   medians = new Map(all.map((c) => [c.char, c.medians]));
   refs = decodeStrokeData(encodeStrokeData(all));
-});
+}, 30_000);
 
 /** Draw a character as a person might: wobbly, off-centre, a different size. */
 function scribble(char: string, rand: () => number): Point[][] {

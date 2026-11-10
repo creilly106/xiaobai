@@ -90,8 +90,9 @@ export function LessonPlayer({
           ]);
         }
       }
+      // Every answer is read out, so you hear the word you just chose too.
       const solution = solutionOf(entry.step);
-      if (solution && entry.step.kind !== 'choose') play(solution.hanzi, solution.pinyin);
+      if (solution) play(solution.hanzi, solution.pinyin);
     },
     [entry, answer],
   );

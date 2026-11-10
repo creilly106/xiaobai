@@ -146,8 +146,10 @@ export type PinyinGrade = 'correct' | 'tones' | 'wrong';
  * as neutral. "tones" means the sounds were right but a tone was not.
  */
 export function gradePinyin(typed: Syllable[], expected: Syllable[]): PinyinGrade {
-  const typedLetters = typed.map((s) => s.letters).join('');
-  const expectedLetters = expected.map((s) => s.letters).join('');
+  // After j/q/x/y, u and ü are the same sound (ju = jü), however it's typed.
+  const sound = (s: string) => s.replace(/([jqxy])v/g, '$1u');
+  const typedLetters = sound(typed.map((s) => s.letters).join(''));
+  const expectedLetters = sound(expected.map((s) => s.letters).join(''));
   if (typedLetters !== expectedLetters) return 'wrong';
 
   const got: Tone[] = expected.map(() => 5);

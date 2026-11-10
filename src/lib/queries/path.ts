@@ -27,6 +27,7 @@ import {
 import { segmentSpans } from '@/lib/segment';
 import { lessonStates, type LessonState } from '@/lib/path/lesson-states';
 import { acceptedMeanings } from './accepted';
+import { alsoAccepted } from '@/lib/meaning-alternates';
 import { getDictionary } from './dictionary';
 import { wordSyllables } from './tones';
 
@@ -229,7 +230,7 @@ export async function lessonWords(hanzi: string[], vocab: Vocab): Promise<Lesson
 
 export const asPoolWord = (hanzi: string, vocab: Vocab): LessonWord[] => {
   const v = vocab.get(hanzi);
-  return v ? [{ hanzi, ...v, accepted: [v.meaning], syllables: null }] : [];
+  return v ? [{ hanzi, ...v, accepted: [v.meaning, ...alsoAccepted(hanzi)], syllables: null }] : [];
 };
 
 export type LessonSession = {

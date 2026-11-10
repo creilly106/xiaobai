@@ -2,6 +2,7 @@ import 'server-only';
 import { and, eq, inArray } from 'drizzle-orm';
 import { db, schema } from '@/db/client';
 import { senses } from '@/lib/dictionary-search';
+import { alsoAccepted } from '@/lib/meaning-alternates';
 import { sensesOf } from '@/lib/meaning-grade';
 
 /** Senses that point elsewhere rather than give a meaning. */
@@ -9,7 +10,8 @@ const CROSS_REF = /^(old |archaic |erhua )?variant of|^see |^used in |^abbr\. fo
 
 /**
  * Every sense a typed English answer may match for each word: its library
- * meaning plus all its CC-CEDICT senses (not names or cross-references).
+ * meaning, all its CC-CEDICT senses (not names or cross-references) and any
+ * shorter everyday answers listed in meaning-alternates.
  */
 export async function acceptedMeanings(
   words: { hanzi: string; meaning: string }[],
@@ -36,7 +38,13 @@ export async function acceptedMeanings(
   return new Map(
     words.map((w) => [
       w.hanzi,
-      [...new Set([...sensesOf(w.meaning), ...(extra.get(w.hanzi) ?? [])])],
+      [
+        ...new Set([
+          ...sensesOf(w.meaning),
+          ...(extra.get(w.hanzi) ?? []),
+          ...alsoAccepted(w.hanzi),
+        ]),
+      ],
     ]),
   );
 }

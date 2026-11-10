@@ -79,14 +79,39 @@ let player: HTMLAudioElement | null = null;
 
 function loadClips(): Promise<void> {
   loadingClips ??= fetch(AUDIO_INDEX_PATH)
-    .then((r) => (r.ok ? (r.json() as Promise<AudioIndex>) : null))
+    .then((r) => (r.ok ? (r.json() as Promise<AudioIndex>) : Promise.reject(new Error())))
     .then((index) => {
-      clips = index?.clips ?? {};
+      clips = index.clips ?? {};
     })
     .catch(() => {
-      clips = {};
+      // Flaky connection: use the device voice for now, and try again on the
+      // next line instead of giving up on the recordings for good.
+      clips ??= {};
+      loadingClips = null;
     });
   return loadingClips;
+}
+
+/**
+ * Run `play` once the clip index is in (it loads as the app opens, so this is
+ * normally immediate; before, a line asked for too early skipped its
+ * recording). A newer request or a stop in the meantime cancels it.
+ */
+function whenClipsReady(play: () => void): void {
+  if (clips) {
+    // Loaded, or failed before: play now (retrying the index behind the scenes).
+    if (!loadingClips) void loadClips();
+    return play();
+  }
+  const request = ++clipRequest;
+  void clipsOrTimeout().then(() => {
+    if (request === clipRequest) play();
+  });
+}
+
+/** The clip index, but on a slow connection don't wait long: the device voice beats silence. */
+function clipsOrTimeout(): Promise<void> {
+  return Promise.race([loadClips(), new Promise<void>((resolve) => setTimeout(resolve, 1500))]);
 }
 
 /** A one-sample silent WAV, played on the first tap so iOS allows audio later. */
@@ -163,11 +188,18 @@ function playClip(key: string, rate: number, fallback: () => void): boolean {
 /** Resolves whatever speakAndWait() is waiting on (playback ended or was cut off). */
 let finishCurrent: (() => void) | null = null;
 
+/** When the device voice was last cut off; see speakWithVoice. */
+let cancelledAt = 0;
+
 function stopAll() {
   clipRequest++;
   finishCurrent?.();
   if (player && !player.paused) player.pause();
-  if (isTtsSupported()) window.speechSynthesis.cancel();
+  if (isTtsSupported()) {
+    const synth = window.speechSynthesis;
+    if (synth.speaking || synth.pending) cancelledAt = Date.now();
+    synth.cancel();
+  }
 }
 
 /** Stop whatever is playing. */
@@ -184,7 +216,7 @@ const LOAD_LIMIT_MS = 15_000;
 
 export async function speakAndWait(text: string, rate = NORMAL_RATE): Promise<void> {
   if (typeof window === 'undefined') return;
-  await loadClips();
+  await clipsOrTimeout();
   stopAll();
   return new Promise<void>((resolve) => {
     // Some browsers (iOS especially) occasionally never fire an end event, so
@@ -220,8 +252,10 @@ export async function speakAndWait(text: string, rate = NORMAL_RATE): Promise<vo
 export function speak(text: string, rate = NORMAL_RATE): void {
   if (typeof window === 'undefined') return;
   stopAll();
-  if (playClip(clipKey(text), rate, () => speakWithVoice(text, rate))) return;
-  speakWithVoice(text, rate);
+  whenClipsReady(() => {
+    if (playClip(clipKey(text), rate, () => speakWithVoice(text, rate))) return;
+    speakWithVoice(text, rate);
+  });
 }
 
 /**
@@ -234,8 +268,10 @@ export function speakWord(hanzi: string, pinyin?: string | null, rate = NORMAL_R
   const { via } = audioFor(hanzi, pinyin);
   if (!via || !pinyin) return speak(hanzi, rate);
   stopAll();
-  if (playClip(readingKey(hanzi, pinyin), rate, () => speak(via, rate))) return;
-  speak(via, rate);
+  whenClipsReady(() => {
+    if (playClip(readingKey(hanzi, pinyin), rate, () => speak(via, rate))) return;
+    speak(via, rate);
+  });
 }
 
 function speakWithVoice(
@@ -256,11 +292,24 @@ function speakWithVoice(
     utter.voice = voice;
     utter.lang = voice.lang;
   }
-  try {
-    synth.speak(utter);
-  } catch {
-    // ignore — some browsers throw on rapid cancel/speak
-  }
+  const go = () => {
+    try {
+      // Chrome and Safari can get stuck paused (after the tab was in the
+      // background, say) and then silently queue everything.
+      synth.resume();
+      synth.speak(utter);
+    } catch {
+      // ignore — some browsers throw on rapid cancel/speak
+    }
+  };
+  // Chrome drops a line spoken straight after cancel(); give it a moment.
+  if (Date.now() - cancelledAt < 250) {
+    const request = clipRequest;
+    setTimeout(() => {
+      if (request === clipRequest) go();
+      else onEnd?.();
+    }, 120);
+  } else go();
 }
 
 /** Load the voice list and clip index early (both arrive asynchronously). */

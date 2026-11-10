@@ -18,17 +18,33 @@ export function gradeDraft(
   expected: Syllable[] | null,
   pinyin: string,
 ): { grade: PinyinGrade; given: string } {
-  const typed = draftSyllables(d);
-  const given = typed.map((s) => markTone(s.letters, s.tone)).join('');
+  const shown = draftSyllables(d);
+  const given = shown
+    .map((s) => markTone(s.letters, s.tone))
+    .join('')
+    .replace(/'/g, '’');
+  // Apostrophes only separate syllables (nǚ’ér); they aren't graded.
+  const typed = shown
+    .map((s) => ({ ...s, letters: s.letters.replace(/'/g, '') }))
+    .filter((s) => s.letters);
   const grade = expected
     ? gradePinyin(typed, expected)
-    : typed.map((s) => s.letters).join('') === toneless(pinyin)
+    : sameSound(typed.map((s) => s.letters).join('')) === sameSound(toneless(pinyin))
       ? 'correct'
       : 'wrong';
   return { grade, given };
 }
 
-/** Finished syllables plus the one being typed (tone not chosen yet). */
+/** After j, q, x and y, u is always ü: "ju" and "jü" are the same syllable. */
+export function sameSound(letters: string): string {
+  return letters.replace(/([jqxy])v/g, '$1u');
+}
+
+/**
+ * Finished syllables plus the one being typed (tone not chosen yet). Letters
+ * are bare (ü as v); an apostrophe at the start of a syllable marks a break
+ * (nǚ’ér is "nv" + "'er").
+ */
 export type PinyinDraft = { done: Syllable[]; current: string };
 
 export const EMPTY_DRAFT: PinyinDraft = { done: [], current: '' };
@@ -37,14 +53,22 @@ export const EMPTY_DRAFT: PinyinDraft = { done: [], current: '' };
  * Untoned letters as syllables: "nihao" → ni, hao. Letters that don't split
  * yet (mid-syllable, or a typo) stay together.
  */
-function syllablesOf(letters: string): string[] {
-  return splitPinyinWord(letters) ?? [letters];
+export function syllablesOf(letters: string): string[] {
+  const out: string[] = [];
+  for (const piece of letters.split(/(?=')/)) {
+    const body = piece.replace(/^'/, '');
+    const parts = body ? (splitPinyinWord(body) ?? [body]) : [];
+    if (piece.startsWith("'") && parts.length) parts[0] = `'${parts[0]}`;
+    out.push(...parts);
+  }
+  return out;
 }
 
 /** Everything typed so far as syllables; untoned ones are neutral. */
 export function draftSyllables(d: PinyinDraft): Syllable[] {
   if (!d.current) return d.done;
-  return [...d.done, ...syllablesOf(d.current).map((letters) => ({ letters, tone: 5 as Tone }))];
+  const letters = d.current.replace(/'$/, '');
+  return [...d.done, ...syllablesOf(letters).map((l) => ({ letters: l, tone: 5 as Tone }))];
 }
 
 export function draftIsEmpty(d: PinyinDraft): boolean {
@@ -62,21 +86,31 @@ export function typeLetter(d: PinyinDraft, ch: string): PinyinDraft {
  * untoned syllables stay neutral. With nothing typed it retones the last one.
  */
 export function typeTone(d: PinyinDraft, tone: Tone): PinyinDraft {
-  if (d.current) {
-    const parts = syllablesOf(d.current);
+  // A trailing apostrophe belongs to the next syllable: keep it waiting.
+  const trailing = d.current.endsWith("'") ? "'" : '';
+  const letters = d.current.slice(0, d.current.length - trailing.length);
+  if (letters) {
+    const parts = syllablesOf(letters);
     const last = parts.pop()!;
     return {
       done: [
         ...d.done,
-        ...parts.map((letters) => ({ letters, tone: 5 as Tone })),
+        ...parts.map((l) => ({ letters: l, tone: 5 as Tone })),
         { letters: last, tone },
       ],
-      current: '',
+      current: trailing,
     };
   }
   if (d.done.length === 0) return d;
   const last = d.done[d.done.length - 1];
   return { ...d, done: [...d.done.slice(0, -1), { ...last, tone }] };
+}
+
+/** A syllable break (nǚ’ér). Only after a syllable, and never twice in a row. */
+export function typeApostrophe(d: PinyinDraft): PinyinDraft {
+  if (d.current.endsWith("'")) return d;
+  if (!d.current && d.done.length === 0) return d;
+  return typeLetter(d, "'");
 }
 
 export function backspace(d: PinyinDraft): PinyinDraft {

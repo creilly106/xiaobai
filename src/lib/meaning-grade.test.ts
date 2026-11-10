@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
+import { alsoAccepted } from './meaning-alternates';
 import { gradeSentence, gradeWord, normalise, sensesOf, stem } from './meaning-grade';
+import { hsk1 } from '../../scripts/data/hsk1';
+import { hsk2 } from '../../scripts/data/hsk2';
+import { hsk3 } from '../../scripts/data/hsk3';
+import { hsk4 } from '../../scripts/data/hsk4';
+import { hsk5 } from '../../scripts/data/hsk5';
 
 const word = (answer: string, accepted: string[]) => gradeWord(answer, accepted).verdict;
 const sentence = (answer: string, reference: string) => gradeSentence(answer, reference).verdict;
@@ -42,6 +48,31 @@ describe('gradeWord', () => {
   it('calls part of a longer sense close', () => {
     expect(word('noodles', ['bowl of noodles'])).toBe('close');
   });
+  it('ignores articles and placeholders like one’s and sb', () => {
+    expect(word('go on business trip', ['to go on a business trip'])).toBe('right');
+    expect(word('strive hardest', ["to strive one's hardest"])).toBe('right');
+    expect(word('help up', ['to help sb up'])).toBe('right');
+  });
+  it('keeps prepositions and numbers meaningful', () => {
+    expect(word('look at', ['to look for'])).not.toBe('right');
+    expect(word('two hundred', ['one hundred'])).not.toBe('right');
+    expect(sentence('I have two daughters', 'I have one daughter.')).not.toBe('right');
+  });
+  it('accepts "measure word" or "classifier" for a measure word', () => {
+    const ben = ['measure word for books'];
+    expect(word('measure word', ben)).toBe('right');
+    expect(word('classifier', ben)).toBe('right');
+    expect(word('classifier for books', ben)).toBe('right');
+  });
+  it('reads a gloss that is all brackets as the meaning', () => {
+    const ge = sensesOf('(general measure word)');
+    expect(word('general measure word', ge)).toBe('right');
+    expect(word('measure word', ge)).toBe('right');
+    const ma = sensesOf('(yes/no question particle)');
+    expect(ma).toEqual(['(yes/no question particle)']);
+    expect(word('yes', ma)).toBe('wrong');
+    expect(word('measure word', sensesOf('(measure word for clothing/items)'))).toBe('right');
+  });
   it('rejects unrelated answers', () => {
     expect(word('drink', eat)).toBe('wrong');
     expect(word('', eat)).toBe('wrong');
@@ -62,5 +93,20 @@ describe('gradeSentence', () => {
   });
   it('fails a wrong answer', () => {
     expect(sentence('Where is the toilet?', 'Please give me the menu.')).toBe('wrong');
+  });
+});
+
+describe('alsoAccepted', () => {
+  const vocab = new Map([...hsk1, ...hsk2, ...hsk3, ...hsk4, ...hsk5].map((w) => [w.hanzi, w]));
+  it('lets long glosses be answered briefly', () => {
+    const accepts = (hanzi: string, answer: string) =>
+      gradeWord(answer, [...sensesOf(vocab.get(hanzi)!.meaning), ...alsoAccepted(hanzi)]).verdict;
+    expect(accepts('打电话', 'call')).toBe('right');
+    expect(accepts('打工', 'part-time job')).toBe('right');
+    expect(accepts('失眠', 'insomnia')).toBe('right');
+    expect(accepts('不得不', 'have to')).toBe('right');
+  });
+  it('only lists HSK words', () => {
+    for (const hanzi of ['打电话', '出差', '抓紧']) expect(vocab.has(hanzi)).toBe(true);
   });
 });

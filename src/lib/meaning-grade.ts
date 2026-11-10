@@ -41,9 +41,14 @@ const EQUIVALENTS: [RegExp, string][] = [
 
 /** Words that carry little meaning on their own; ignored when comparing sentences. */
 const FILLER = new Set(
-  'a an the to of is am are was were be been being do does did it that this so very really just please'.split(
-    ' ',
-  ),
+  [
+    'a an the to of is am are was were be been being do does did it that this so very really just please',
+    // Placeholders dictionary glosses lean on ("to strive one's hardest", "to
+    // help sb up"). Prepositions and numbers stay: "look for" isn't "look at".
+    'ones oneself sb sth someone something',
+  ]
+    .join(' ')
+    .split(' '),
 );
 
 export function normalise(text: string): string {
@@ -121,7 +126,7 @@ function overlap(answer: string, reference: string): { recall: number; extra: nu
 /** Split a stored meaning into the separate senses it lists. */
 export function sensesOf(meaning: string): string[] {
   return meaning
-    .split(/\s*(?:;|\/|,(?![^(]*\)))\s*/)
+    .split(/\s*(?:;|\/(?![^(]*\))|,(?![^(]*\)))\s*/)
     .map((s) => s.trim())
     .filter((s) => s && !/^CL:/.test(s));
 }
@@ -134,14 +139,18 @@ export function gradeWord(answer: string, accepted: string[]): Grade {
   const a = stripLead(normalise(answer));
   if (!a) return { verdict: 'wrong', matched: null };
   let close: string | null = null;
-  for (const sense of accepted) {
+  for (const sense of accepted.flatMap(withShortForms)) {
     const s = stripLead(normalise(sense));
     if (!s) continue;
     const aw = words(a);
     const sw = words(s);
+    const ak = keyWords(a);
+    const sk = keyWords(s);
     const exact =
       a === s ||
       (aw.length === sw.length && aw.every((w, i) => sameWord(w, sw[i]))) ||
+      // Same meaningful words, little words aside: "go on business trip".
+      (ak.length === sk.length && ak.every((w, i) => sameWord(w, sk[i]))) ||
       editDistance(a, s) <= allowance(s.length);
     if (exact) return { verdict: 'right', matched: sense };
     if (close === null) {
@@ -163,6 +172,20 @@ export function gradeSentence(answer: string, reference: string): Grade {
   if (recall >= 0.8 && extra <= 0.4) return { verdict: 'right', matched: null };
   if (recall >= 0.5) return { verdict: 'close', matched: null };
   return { verdict: 'wrong', matched: null };
+}
+
+/**
+ * A sense plus the shorter ways people say it. A gloss that is all brackets,
+ * like "(general measure word)", is the meaning itself, not a note to drop.
+ * Measure words can be answered "measure word" or "classifier (for books)".
+ */
+function withShortForms(sense: string): string[] {
+  const inner = /^\s*\(([^()]+)\)\s*$/.exec(sense)?.[1] ?? sense;
+  const out = [inner];
+  if (/\b(?:measure word|classifier)\b/i.test(inner)) out.push('measure word', 'classifier');
+  const mw = /\b(?:measure word|classifier)\s+for\s+(.+)$/i.exec(inner);
+  if (mw) out.push(`measure word for ${mw[1]}`, `classifier for ${mw[1]}`);
+  return out;
 }
 
 function stripLead(s: string): string {
