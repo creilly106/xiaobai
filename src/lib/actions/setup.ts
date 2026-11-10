@@ -1,5 +1,6 @@
 'use server';
 
+import { requireSession } from '@/lib/require-session';
 import { revalidatePath } from 'next/cache';
 import { and, eq, inArray } from 'drizzle-orm';
 import { db, schema } from '@/db/client';
@@ -9,6 +10,7 @@ function validLevel(level: unknown): level is number {
 }
 
 export async function seedHskLevel(level: number) {
+  await requireSession();
   if (!validLevel(level)) return { created: 0, message: 'Invalid HSK level.' };
   const words = await db
     .select({ id: schema.words.id })
@@ -56,6 +58,7 @@ export async function seedHskLevel(level: number) {
 }
 
 export async function removeHskLevel(level: number) {
+  await requireSession();
   if (!validLevel(level)) return { removed: 0, message: 'Invalid HSK level.' };
   const words = await db
     .select({ id: schema.words.id })

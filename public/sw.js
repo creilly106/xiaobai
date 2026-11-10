@@ -150,18 +150,34 @@ async function media(request) {
   });
 }
 
-/** Pages: the network when there is one (so data is fresh), else the last copy. */
+/** How long a page may take on a bad connection before the saved copy is shown. */
+const PAGE_WAIT_MS = 4000;
+
+/**
+ * Pages: the network when there is one (so data is fresh), else the last
+ * copy. On a connection that's there but barely works, the saved copy after a
+ * few seconds rather than a blank screen for a minute.
+ */
 async function page(request) {
   const cache = await caches.open(PAGES);
-  try {
-    const res = await fetch(request);
+  const network = fetch(request).then((res) => {
     if (res.ok && !res.redirected && res.headers.get('Content-Type')?.includes('text/html')) {
       cache.put(pageKey(request.url), res.clone());
     }
     return res;
+  });
+  network.catch(() => {}); // a late failure after the saved copy won is fine
+  const saved = () => cache.match(pageKey(request.url));
+  const slow = new Promise((resolve) => setTimeout(resolve, PAGE_WAIT_MS)).then(async () => {
+    const hit = await saved();
+    // Nothing saved: keep waiting for the network.
+    return hit || network;
+  });
+  try {
+    return await Promise.race([network, slow]);
   } catch {
     return (
-      (await cache.match(pageKey(request.url))) ||
+      (await saved()) ||
       (await cache.match(OFFLINE_PAGE)) ||
       new Response('Offline', { status: 503, headers: { 'Content-Type': 'text/plain' } })
     );
@@ -284,6 +300,10 @@ self.addEventListener('push', (event) => {
   );
 });
 
+/** Pages holding work in progress (same idea as app-updates.tsx). */
+const BUSY_PAGE =
+  /^\/(learn\/.+|study|quiz\/.+|read\/.+|tones|numbers|level\/.+|breakdown|scenarios\/.+)/;
+
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   const url = (event.notification.data && event.notification.data.url) || '/';
@@ -291,12 +311,17 @@ self.addEventListener('notificationclick', (event) => {
     (async () => {
       const windows = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
       const open = windows.find((w) => 'focus' in w && 'navigate' in w);
+      // Halfway through a lesson, review or quiz: just bring it back rather
+      // than navigating away and losing it.
+      if (open && BUSY_PAGE.test(new URL(open.url).pathname)) {
+        return open.focus();
+      }
       if (open) {
         try {
           // navigate() only works on pages this worker controls; if it
           // can't, fall through and open the page instead.
           await open.navigate(url);
-          return open.focus();
+          return await open.focus();
         } catch {
           /* fall through */
         }

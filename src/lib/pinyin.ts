@@ -129,8 +129,9 @@ export function syllablesFromPinyin(parts: string[]): Syllable[] {
 export function withSpokenAlternatives(chars: string[], syllables: Syllable[]): Syllable[] {
   return syllables.map((s, i) => {
     const alt = new Set<Tone>(s.alt ?? []);
-    if (chars[i] === '一') [1, 2, 4].forEach((t) => alt.add(t as Tone));
-    if (chars[i] === '不') [2, 4].forEach((t) => alt.add(t as Tone));
+    // Only inside a word: on its own 一 is yī and 不 is bù.
+    if (chars.length > 1 && chars[i] === '一') [1, 2, 4].forEach((t) => alt.add(t as Tone));
+    if (chars.length > 1 && chars[i] === '不') [2, 4].forEach((t) => alt.add(t as Tone));
     if (s.tone === 3 && syllables[i + 1]?.tone === 3) alt.add(2);
     alt.delete(s.tone);
     return alt.size > 0 ? { ...s, alt: [...alt] } : s;

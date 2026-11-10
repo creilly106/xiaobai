@@ -1,5 +1,6 @@
 'use server';
 
+import { requireSession } from '@/lib/require-session';
 import { and, eq, gt, inArray } from 'drizzle-orm';
 import { db, schema } from '@/db/client';
 import type { PracticeKind } from '@/db/schema';
@@ -24,6 +25,7 @@ const MAX_ENTRIES = 50;
  * waiting out their full interval.
  */
 export async function logPractice(entries: PracticeEntry[]): Promise<{ reviewSooner: number }> {
+  await requireSession();
   const clean = (Array.isArray(entries) ? entries : [])
     .slice(0, MAX_ENTRIES)
     .filter(

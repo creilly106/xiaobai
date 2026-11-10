@@ -64,7 +64,7 @@ export function NoteEditor({
         rows={2}
         autoFocus
         placeholder="A mnemonic, where you heard it, a usage tip…"
-        className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+        className="w-full rounded-md border border-input bg-background px-3 py-2 text-base outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
         aria-label="Your note"
       />
       <div className="flex gap-2">

@@ -52,16 +52,32 @@ describe('lessonStates', () => {
     ]);
   });
 
-  it("doesn't skip you ahead when you test out of a unit further on", () => {
+  it('counts lessons you tested out of as how far you got', () => {
     const saved = new Map([
       ['a', 'done' as const],
       ['d', 'tested' as const],
     ]);
+    // b and c stay open as "new" rather than pulling you back to b.
     expect(lessonStates(lessons, saved, new Set())).toEqual([
       'done',
-      'current',
-      'locked',
+      'new',
+      'new',
       'tested',
+      'current',
+    ]);
+  });
+
+  it("doesn't jump back when a lesson is added before your tested-out units", () => {
+    const saved = new Map([
+      ['b', 'tested' as const],
+      ['c', 'tested' as const],
+    ]);
+    // a is new (added later); you carry on after c.
+    expect(lessonStates(lessons, saved, new Set())).toEqual([
+      'new',
+      'tested',
+      'tested',
+      'current',
       'locked',
     ]);
   });

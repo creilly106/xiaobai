@@ -155,22 +155,32 @@ export const cards = sqliteTable(
   (t) => ({
     wordModeUnique: uniqueIndex('cards_word_mode_unique').on(t.wordId, t.mode),
     sentenceModeUnique: uniqueIndex('cards_sentence_mode_unique').on(t.sentenceId, t.mode),
+    // "What's due" runs on nearly every page.
+    due: index('cards_due_idx').on(t.due),
   }),
 );
 
-export const reviews = sqliteTable('reviews', {
-  id: integer('id').primaryKey({ autoIncrement: true }),
-  cardId: integer('card_id')
-    .notNull()
-    .references(() => cards.id, { onDelete: 'cascade' }),
-  rating: integer('rating').notNull(),
-  reviewedAt: integer('reviewed_at', { mode: 'timestamp_ms' })
-    .notNull()
-    .default(sql`(unixepoch() * 1000)`),
-  durationMs: integer('duration_ms').notNull().default(0),
-  prevState: text('prev_state'),
-  nextDue: integer('next_due', { mode: 'timestamp_ms' }).notNull(),
-});
+export const reviews = sqliteTable(
+  'reviews',
+  {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    cardId: integer('card_id')
+      .notNull()
+      .references(() => cards.id, { onDelete: 'cascade' }),
+    rating: integer('rating').notNull(),
+    reviewedAt: integer('reviewed_at', { mode: 'timestamp_ms' })
+      .notNull()
+      .default(sql`(unixepoch() * 1000)`),
+    durationMs: integer('duration_ms').notNull().default(0),
+    prevState: text('prev_state'),
+    nextDue: integer('next_due', { mode: 'timestamp_ms' }).notNull(),
+  },
+  (t) => ({
+    // Today's reviews (goal, home) and a card's history (and deleting a card).
+    reviewedAt: index('reviews_reviewed_at_idx').on(t.reviewedAt),
+    card: index('reviews_card_idx').on(t.cardId),
+  }),
+);
 
 export type NewWordsFrom = 'path' | 'queue';
 

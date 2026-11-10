@@ -57,11 +57,18 @@ export function syllablesOf(letters: string): string[] {
   const out: string[] = [];
   for (const piece of letters.split(/(?=')/)) {
     const body = piece.replace(/^'/, '');
-    const parts = body ? (splitPinyinWord(body) ?? [body]) : [];
+    const parts = body ? (splitPinyinWord(body) ?? erhua(body) ?? [body]) : [];
     if (piece.startsWith("'") && parts.length) parts[0] = `'${parts[0]}`;
     out.push(...parts);
   }
   return out;
+}
+
+/** "nar" → na + r (哪儿 nǎr): erhua's r is a syllable of its own (儿). */
+function erhua(letters: string): string[] | null {
+  if (!letters.endsWith('r') || letters.length < 2) return null;
+  const rest = splitPinyinWord(letters.slice(0, -1));
+  return rest ? [...rest, 'r'] : null;
 }
 
 /** Everything typed so far as syllables; untoned ones are neutral. */
@@ -92,6 +99,19 @@ export function typeTone(d: PinyinDraft, tone: Tone): PinyinDraft {
   if (letters) {
     const parts = syllablesOf(letters);
     const last = parts.pop()!;
+    // "nar" + 3 is nǎr: the tone belongs on na, the r stays neutral.
+    if (last === 'r' && parts.length > 0) {
+      const before = parts.pop()!;
+      return {
+        done: [
+          ...d.done,
+          ...parts.map((l) => ({ letters: l, tone: 5 as Tone })),
+          { letters: before, tone },
+          { letters: 'r', tone: 5 as Tone },
+        ],
+        current: trailing,
+      };
+    }
     return {
       done: [
         ...d.done,

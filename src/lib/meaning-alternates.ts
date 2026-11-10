@@ -63,3 +63,8 @@ const ALSO: Record<string, string[]> = {
 export function alsoAccepted(hanzi: string): string[] {
   return ALSO[hanzi] ?? [];
 }
+
+/** Every extra answer, for building the English word list. */
+export function alsoAcceptedAll(): string[] {
+  return Object.values(ALSO).flat();
+}

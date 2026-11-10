@@ -1,5 +1,6 @@
 'use server';
 
+import { requireSession } from '@/lib/require-session';
 import { and, eq, inArray } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { db, schema } from '@/db/client';
@@ -8,6 +9,7 @@ import { segmentWords } from '@/lib/segment';
 import { scenarioBySlug } from '@/lib/scenario-data';
 
 export async function addScenarioToQueue(slug: string) {
+  await requireSession();
   if (typeof slug !== 'string' || !/^[a-z0-9-]{1,64}$/.test(slug)) {
     return { created: 0, message: 'Scenario not found.' };
   }
@@ -98,6 +100,7 @@ async function scenarioSentenceIds(slug: string, hanzi: string[]): Promise<numbe
 
 /** Add one phrase — or the time variant of it that's showing — to study. */
 export async function addScenarioSentence(slug: string, hanzi: string) {
+  await requireSession();
   if (typeof hanzi !== 'string' || hanzi.length > 200) return { created: 0 };
   const ids = await scenarioSentenceIds(slug, [hanzi]);
   return { created: await queueSentences(ids, slug) };
@@ -105,6 +108,7 @@ export async function addScenarioSentence(slug: string, hanzi: string) {
 
 /** Add every line of a scenario dialogue to study. */
 export async function addScenarioDialogue(slug: string, index: number) {
+  await requireSession();
   const dialogue = scenarioBySlug(slug)?.dialogues?.[index];
   if (!dialogue) return { created: 0 };
   const ids = await scenarioSentenceIds(
@@ -168,6 +172,7 @@ async function dropUnusedNewWords(sentences: string[]) {
 
 /** Take one phrase (or the time variant showing) out of study. */
 export async function removeScenarioSentence(slug: string, hanzi: string) {
+  await requireSession();
   if (typeof hanzi !== 'string' || hanzi.length > 200) return { removed: 0 };
   const ids = await scenarioSentenceIds(slug, [hanzi]);
   return { removed: await unqueueSentences(ids, slug) };
@@ -175,6 +180,7 @@ export async function removeScenarioSentence(slug: string, hanzi: string) {
 
 /** Take every line of a scenario dialogue out of study. */
 export async function removeScenarioDialogue(slug: string, index: number) {
+  await requireSession();
   const dialogue = scenarioBySlug(slug)?.dialogues?.[index];
   if (!dialogue) return { removed: 0 };
   const ids = await scenarioSentenceIds(
@@ -186,6 +192,7 @@ export async function removeScenarioDialogue(slug: string, index: number) {
 
 /** Take everything from a scenario (phrases, variants, dialogues) out of study. */
 export async function removeScenarioFromQueue(slug: string) {
+  await requireSession();
   if (typeof slug !== 'string' || !/^[a-z0-9-]{1,64}$/.test(slug)) return { removed: 0 };
   const [tag] = await db.select().from(schema.tags).where(eq(schema.tags.slug, slug)).limit(1);
   if (!tag) return { removed: 0 };

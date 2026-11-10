@@ -53,3 +53,11 @@ describe('ü after j, q, x, y', () => {
     expect(gradeDraft(typeKeys('nu3'), syllablesFromPinyin(['nǚ']), 'nǚ').grade).toBe('wrong');
   });
 });
+
+describe('erhua', () => {
+  it('puts the tone of "nar3" on na (哪儿 nǎr)', () => {
+    const nar = syllablesFromPinyin(['nǎ', 'r']);
+    expect(gradeDraft(typeKeys('nar3'), nar, 'nǎr').grade).toBe('correct');
+    expect(gradeDraft(typeKeys('na3r'), nar, 'nǎr').grade).toBe('correct');
+  });
+});

@@ -48,7 +48,12 @@ async function main() {
           pinyin: sql`excluded.pinyin`,
           meaning: sql`excluded.meaning`,
         },
-        setWhere: sql`${schema.words.hskLevel} is null or ${schema.words.hskLevel} = ${b.level}`,
+        // Only rows that actually change, so a deploy doesn't rewrite ~2,500
+        // unchanged words (database writes are metered).
+        setWhere: sql`(${schema.words.hskLevel} is null or ${schema.words.hskLevel} = ${b.level})
+          and (${schema.words.hskLevel} is null or ${schema.words.source} is not 'hsk'
+            or ${schema.words.pinyin} is not excluded.pinyin
+            or ${schema.words.meaning} is not excluded.meaning)`,
       });
   }
 

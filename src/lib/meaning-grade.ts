@@ -4,6 +4,8 @@
 // and lets a sentence pass when most of its key words are there. The quiz
 // always shows the reference and lets you overrule it.
 
+import englishWords from '@/lib/generated/english-words.json';
+
 export type Verdict = 'right' | 'close' | 'wrong';
 
 export type Grade = {
@@ -37,12 +39,17 @@ const EQUIVALENTS: [RegExp, string][] = [
   [/\b(mum|mom|mommy|mummy)\b/g, 'mother'],
   [/\b(dad|daddy)\b/g, 'father'],
   [/\bwhat is your name\b/g, 'what are you called'],
+  // Digits for the small numbers ("10" for 十).
+  ...['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'].map(
+    (word, n): [RegExp, string] => [new RegExp(`\\b${n}\\b`, 'g'), word],
+  ),
 ];
 
 /** Words that carry little meaning on their own; ignored when comparing sentences. */
 const FILLER = new Set(
   [
-    'a an the to of is am are was were be been being do does did it that this so very really just please',
+    // (Not this/that: "this year" isn't "that year".)
+    'a an the to of is am are was were be been being do does did it so very really just please',
     // Placeholders dictionary glosses lean on ("to strive one's hardest", "to
     // help sb up"). Prepositions and numbers stay: "look for" isn't "look at".
     'ones oneself sb sth someone something',
@@ -93,9 +100,25 @@ export function editDistance(a: string, b: string): number {
 /** Typos allowed for a word of this length. */
 const allowance = (length: number) => (length <= 3 ? 0 : length <= 7 ? 1 : 2);
 
-function sameWord(a: string, b: string): boolean {
-  if (a === b || stem(a) === stem(b)) return true;
-  return editDistance(a, b) <= allowance(Math.min(a.length, b.length));
+/** English words the HSK meanings use: typing one of these is not a typo. */
+const REAL_WORDS = new Set<string>(englishWords);
+
+/** "impossible" is the opposite of "possible", not a typo of it. */
+function negatingPrefix(a: string, b: string): boolean {
+  const [long, short] = a.length > b.length ? [a, b] : [b, a];
+  return long.replace(/^(un|in|im|il|ir|dis|non)/, '') === short;
+}
+
+/**
+ * Same word, allowing endings (eat/eating) and slips of the finger
+ * ("restaraunt"). An answer that is itself a different real word — "mouth"
+ * for "month", "night" for "eight" — is not a slip.
+ */
+function sameWord(answer: string, reference: string): boolean {
+  if (answer === reference || stem(answer) === stem(reference)) return true;
+  if (REAL_WORDS.has(answer) || answer[0] !== reference[0]) return false;
+  if (negatingPrefix(answer, reference)) return false;
+  return editDistance(answer, reference) <= allowance(Math.min(answer.length, reference.length));
 }
 
 const words = (s: string) => s.split(' ').filter(Boolean);
@@ -105,21 +128,27 @@ const keyWords = (s: string) => {
 };
 
 /** How much of `reference` the answer covers (0–1), and how much of the answer is extra. */
-function overlap(answer: string, reference: string): { recall: number; extra: number } {
+function overlap(
+  answer: string,
+  reference: string,
+): { recall: number; extra: number; longest: number } {
   const want = keyWords(reference);
   const have = keyWords(answer);
   const used = new Set<number>();
   let hit = 0;
+  let longest = 0;
   for (const w of want) {
     const i = have.findIndex((h, k) => !used.has(k) && sameWord(h, w));
     if (i >= 0) {
       used.add(i);
       hit++;
+      longest = Math.max(longest, w.length);
     }
   }
   return {
     recall: want.length ? hit / want.length : 0,
     extra: have.length ? (have.length - used.size) / have.length : 0,
+    longest,
   };
 }
 
@@ -151,11 +180,17 @@ export function gradeWord(answer: string, accepted: string[]): Grade {
       (aw.length === sw.length && aw.every((w, i) => sameWord(w, sw[i]))) ||
       // Same meaningful words, little words aside: "go on business trip".
       (ak.length === sk.length && ak.every((w, i) => sameWord(w, sk[i]))) ||
-      editDistance(a, s) <= allowance(s.length);
+      // A space typed or missed: "ice cream" / "icecream".
+      a.replace(/ /g, '') === s.replace(/ /g, '');
     if (exact) return { verdict: 'right', matched: sense };
     if (close === null) {
-      const { recall, extra } = overlap(a, s);
-      if ((recall >= 0.5 && extra <= 0.5) || (sw.length > 1 && recall >= 0.5)) close = sense;
+      // Part of a longer sense with nothing wrong added ("noodles" for "bowl
+      // of noodles"), or most of it. An added wrong word ("left side" for
+      // "right side") isn't close, nor is a lone short word ("me").
+      const { recall, extra, longest } = overlap(a, s);
+      if ((recall >= 0.5 && extra === 0 && longest >= 4) || (recall >= 0.67 && extra <= 0.34)) {
+        close = sense;
+      }
     }
   }
   return close ? { verdict: 'close', matched: close } : { verdict: 'wrong', matched: null };
@@ -168,7 +203,10 @@ export function gradeWord(answer: string, accepted: string[]): Grade {
 export function gradeSentence(answer: string, reference: string): Grade {
   const a = normalise(answer);
   if (!a) return { verdict: 'wrong', matched: null };
-  const { recall, extra } = overlap(a, normalise(reference));
+  const ref = normalise(reference);
+  // "I don't like tea" is the opposite of "I like tea", however close the words.
+  if (negated(a) !== negated(ref)) return { verdict: 'wrong', matched: null };
+  const { recall, extra } = overlap(a, ref);
   if (recall >= 0.8 && extra <= 0.4) return { verdict: 'right', matched: null };
   if (recall >= 0.5) return { verdict: 'close', matched: null };
   return { verdict: 'wrong', matched: null };
@@ -187,6 +225,9 @@ function withShortForms(sense: string): string[] {
   if (mw) out.push(`measure word for ${mw[1]}`, `classifier for ${mw[1]}`);
   return out;
 }
+
+const NEGATION = /\b(not|no|never|nothing|nobody|none|neither|nor)\b/;
+const negated = (s: string) => NEGATION.test(s);
 
 function stripLead(s: string): string {
   return s.replace(/^(to|a|an|the|be) /, '');

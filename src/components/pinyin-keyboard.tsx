@@ -55,8 +55,10 @@ export function PinyinKeyboard({ value, onChange, onSubmit, disabled }: Props) {
         e.preventDefault();
         onChange(typeTone(value, Number(k) as Tone));
       } else if (k === ' ') {
+        // A gap between words: finishes what's typed as neutral, but never
+        // wipes the tone of a syllable you've already finished ("ni3 hao3").
         e.preventDefault();
-        onChange(typeTone(value, 5));
+        if (value.current.replace(/'/g, '')) onChange(typeTone(value, 5));
       } else if (k === 'backspace') {
         e.preventDefault();
         onChange(backspace(value));

@@ -20,10 +20,11 @@ export function lessonStates(
   saved: Map<string, LessonStatus>,
   started: Set<string>,
 ): LessonState[] {
-  // How far you've got counts lessons you actually finished — not ones you
-  // tested out of (you might test out of a unit far ahead without knowing the
-  // ones before it) or whose words you happen to know from elsewhere.
-  const furthest = lessons.map((l) => saved.get(l.id) === 'done').lastIndexOf(true);
+  // How far you've got counts lessons you finished or tested out of. (Counting
+  // only finished ones meant that anyone who'd tested out of units saw their
+  // path "reset" to an earlier lesson whenever lessons were added.) Lessons
+  // whose words you know from elsewhere don't count: reviews can run far ahead.
+  const furthest = lessons.map((l) => saved.has(l.id)).lastIndexOf(true);
   let current = false;
   return lessons.map((lesson, i) => {
     const status = saved.get(lesson.id);

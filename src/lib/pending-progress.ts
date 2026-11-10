@@ -41,6 +41,19 @@ export function addPending(item: PendingCompletion) {
   write([...readPending().filter((i) => !(i.kind === item.kind && i.id === item.id)), item]);
 }
 
+/**
+ * Lessons this page is sending itself right now. Background sync skips them,
+ * or the same lesson would be saved twice (each rating its words again).
+ */
+const inFlight = new Set<string>();
+const flightKey = (kind: PendingCompletion['kind'], id: string) => `${kind}:${id}`;
+export function markSending(kind: PendingCompletion['kind'], id: string, sending: boolean) {
+  if (sending) inFlight.add(flightKey(kind, id));
+  else inFlight.delete(flightKey(kind, id));
+}
+export const isSending = (kind: PendingCompletion['kind'], id: string) =>
+  inFlight.has(flightKey(kind, id));
+
 export function removePending(kind: PendingCompletion['kind'], id: string) {
   write(readPending().filter((i) => !(i.kind === kind && i.id === id)));
 }

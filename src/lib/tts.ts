@@ -144,15 +144,18 @@ function getPlayer(): HTMLAudioElement {
 
 if (typeof window !== 'undefined') {
   void loadClips();
-  const unlock = () => {
+  // iOS only lets audio start from a real tap: touchend/click count, but
+  // pointerdown doesn't. Keep trying on each tap until a play goes through.
+  const events = ['touchend', 'click', 'keydown'] as const;
+  const stop = () => events.forEach((e) => window.removeEventListener(e, unlock));
+  function unlock() {
     const a = getPlayer();
+    // Something is already playing: audio is unlocked; don't cut it off.
+    if (!a.paused) return stop();
     a.src = silentWav();
-    a.play().catch(() => {});
-    for (const e of ['pointerdown', 'keydown'] as const) window.removeEventListener(e, unlock);
-  };
-  for (const e of ['pointerdown', 'keydown'] as const) {
-    window.addEventListener(e, unlock, { once: true, passive: true });
+    a.play().then(stop, () => {});
   }
+  events.forEach((e) => window.addEventListener(e, unlock, { passive: true }));
 }
 
 const clipUrl = (file: string) => `/audio/${file.split('/').map(encodeURIComponent).join('/')}`;
@@ -216,7 +219,10 @@ const LOAD_LIMIT_MS = 15_000;
 
 export async function speakAndWait(text: string, rate = NORMAL_RATE): Promise<void> {
   if (typeof window === 'undefined') return;
+  const asked = clipRequest;
   await clipsOrTimeout();
+  // Stopped (or other audio asked for) while waiting: don't start this line.
+  if (clipRequest !== asked) return;
   stopAll();
   return new Promise<void>((resolve) => {
     // Some browsers (iOS especially) occasionally never fire an end event, so

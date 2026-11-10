@@ -1,5 +1,6 @@
 'use server';
 
+import { requireSession } from '@/lib/require-session';
 import { sql } from 'drizzle-orm';
 import { db, schema } from '@/db/client';
 import type { ScoredAnswer } from '@/lib/level/items';
@@ -151,6 +152,7 @@ async function finish(
 
 /** Save a finished Level check. */
 export async function submitCheck(raw: ScoredAnswer[]): Promise<AssessmentResult> {
+  await requireSession();
   const answers = clean(raw);
   const base = await record('check', answers);
   const perfect = answers.length >= 10 && answers.every((a) => a.score === 1);
@@ -162,6 +164,7 @@ export async function submitCheck(raw: ScoredAnswer[]): Promise<AssessmentResult
  * reading, listening and writing (tones count toward the overall score).
  */
 export async function submitExam(level: number, raw: ScoredAnswer[]): Promise<AssessmentResult> {
+  await requireSession();
   const answers = clean(raw);
   const state = await getLevelState();
   const open = examOpen(state.rank, state.overall);

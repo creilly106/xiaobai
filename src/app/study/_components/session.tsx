@@ -146,6 +146,8 @@ export function Session({ initialQueue, dict, goal, nextLesson }: Props) {
           } catch {
             const state = await connectionState();
             if (state === 'outdated') {
+              // Keep it: the fresh page sends it.
+              queueIt();
               toast('Xiaobai was updated — reloading…');
               window.location.reload();
               return;

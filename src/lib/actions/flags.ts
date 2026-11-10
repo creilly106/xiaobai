@@ -1,5 +1,6 @@
 'use server';
 
+import { requireSession } from '@/lib/require-session';
 import { eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { db, schema } from '@/db/client';
@@ -17,6 +18,7 @@ export async function flagItem(input: {
   note?: string;
   context?: string;
 }) {
+  await requireSession();
   const subject = clip(input.subject, 300);
   if (!subject || !REASONS.includes(input.reason)) throw new Error('Invalid flag.');
   await db.insert(schema.flags).values({
@@ -29,11 +31,13 @@ export async function flagItem(input: {
 }
 
 export async function resolveFlag(id: number) {
+  await requireSession();
   await db.update(schema.flags).set({ resolvedAt: new Date() }).where(eq(schema.flags.id, id));
   revalidatePath('/settings');
 }
 
 export async function deleteFlag(id: number) {
+  await requireSession();
   await db.delete(schema.flags).where(eq(schema.flags.id, id));
   revalidatePath('/settings');
 }

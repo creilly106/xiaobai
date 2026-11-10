@@ -90,7 +90,15 @@ export function HandwritingQuiz({
     if (!container) return;
 
     (async () => {
-      const mod = (await import('hanzi-writer')) as unknown as HanziWriterModule;
+      const mod = (await import('hanzi-writer').catch(
+        () => null,
+      )) as unknown as HanziWriterModule | null;
+      if (!mod) {
+        if (containerRef.current)
+          containerRef.current.textContent =
+            'Couldn’t load stroke practice — check your connection.';
+        return;
+      }
       if (cancelled || !containerRef.current) return;
       containerRef.current.innerHTML = '';
       const isDark = document.documentElement.classList.contains('dark');

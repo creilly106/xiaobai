@@ -1,5 +1,6 @@
 'use server';
 
+import { requireSession } from '@/lib/require-session';
 import { desc, eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { db, schema } from '@/db/client';
@@ -57,6 +58,7 @@ export async function rateCard(
   /** When the rating was made, if earlier (answered offline, sent later). Epoch ms. */
   at?: number,
 ): Promise<RateResult> {
+  await requireSession();
   assertCardId(cardId);
   if (![1, 2, 3, 4].includes(rating)) throw new Error('Invalid rating.');
   const duration = Number.isFinite(elapsedMs)
@@ -144,6 +146,7 @@ export async function replayRating(
   elapsedMs: number,
   at: number,
 ): Promise<'saved' | 'skipped'> {
+  await requireSession();
   assertCardId(cardId);
   const [row] = await db
     .select({ id: schema.cards.id })
@@ -160,6 +163,7 @@ export type UndoResult =
   | { undone: true; rating: number; restored: StudyCard; message: string };
 
 export async function undoLastReview(): Promise<UndoResult> {
+  await requireSession();
   const [last] = await db.select().from(schema.reviews).orderBy(desc(schema.reviews.id)).limit(1);
   if (!last) return { undone: false, message: 'Nothing to undo.' };
 
@@ -216,6 +220,7 @@ async function snapshot(cardId: number): Promise<CardSnapshot> {
 
 /** Hide a card until tomorrow without rating it. Memory state is untouched. */
 export async function buryCard(cardId: number): Promise<CardSnapshot> {
+  await requireSession();
   assertCardId(cardId);
   const before = await snapshot(cardId);
   const tomorrow = addDays(startOfLocalDay(new Date(), await userTimeZone()), 1);
@@ -226,6 +231,7 @@ export async function buryCard(cardId: number): Promise<CardSnapshot> {
 
 /** Take a card out of study until you unsuspend it (Settings → Suspended cards). */
 export async function suspendCard(cardId: number): Promise<CardSnapshot> {
+  await requireSession();
   assertCardId(cardId);
   const before = await snapshot(cardId);
   await db.update(schema.cards).set({ suspended: true }).where(eq(schema.cards.id, cardId));
@@ -235,6 +241,7 @@ export async function suspendCard(cardId: number): Promise<CardSnapshot> {
 
 /** Undo a bury or suspend by putting the card back exactly as it was. */
 export async function restoreCard(snap: CardSnapshot): Promise<StudyCard | null> {
+  await requireSession();
   assertCardId(snap?.id);
   if (!Number.isFinite(snap.due)) throw new Error('Invalid snapshot.');
   await db
@@ -246,6 +253,7 @@ export async function restoreCard(snap: CardSnapshot): Promise<StudyCard | null>
 }
 
 export async function unsuspendCard(cardId: number) {
+  await requireSession();
   assertCardId(cardId);
   await db.update(schema.cards).set({ suspended: false }).where(eq(schema.cards.id, cardId));
   revalidateStudy();
@@ -253,6 +261,7 @@ export async function unsuspendCard(cardId: number) {
 }
 
 export async function resetReviewHistory() {
+  await requireSession();
   const rows = await db.delete(schema.reviews).returning({ id: schema.reviews.id });
   // Also reset streak so stats stay consistent.
   const [settings] = await db.select().from(schema.settings).limit(1);

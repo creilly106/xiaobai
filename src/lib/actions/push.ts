@@ -1,5 +1,6 @@
 'use server';
 
+import { requireSession } from '@/lib/require-session';
 import { eq } from 'drizzle-orm';
 import { db, schema } from '@/db/client';
 import { sendReminders } from '@/lib/reminders';
@@ -8,6 +9,7 @@ type SubscriptionJson = { endpoint?: string; keys?: { p256dh?: string; auth?: st
 
 /** Remember this device for daily reminders (updating it if it's already known). */
 export async function savePushSubscription(sub: SubscriptionJson, timeZone: string | null) {
+  await requireSession();
   const endpoint = sub.endpoint;
   const p256dh = sub.keys?.p256dh;
   const auth = sub.keys?.auth;
@@ -25,10 +27,12 @@ export async function savePushSubscription(sub: SubscriptionJson, timeZone: stri
 }
 
 export async function removePushSubscription(endpoint: string) {
+  await requireSession();
   await db.delete(schema.pushSubscriptions).where(eq(schema.pushSubscriptions.endpoint, endpoint));
 }
 
 /** Send a reminder right now, to check it arrives. */
 export async function sendTestReminder() {
+  await requireSession();
   return sendReminders({ force: true });
 }

@@ -110,3 +110,55 @@ describe('alsoAccepted', () => {
     for (const hanzi of ['打电话', '出差', '抓紧']) expect(vocab.has(hanzi)).toBe(true);
   });
 });
+
+describe('not fooled by look-alike answers', () => {
+  const v = (answer: string, meaning: string) => gradeWord(answer, sensesOf(meaning)).verdict;
+  it('a different real word is not a typo', () => {
+    for (const [answer, meaning] of [
+      ['mouth', 'month'],
+      ['night', 'eight'],
+      ['fine', 'five'],
+      ['tree', 'three'],
+      ['there', 'where'],
+      ['talk', 'to walk'],
+      ['waiter', 'water'],
+      ['sheep', 'to sleep'],
+      ['laughter', 'daughter'],
+      ['impossible', 'possible'],
+      ['unimportant', 'important'],
+    ]) {
+      expect(v(answer, meaning), `${answer} for ${meaning}`).toBe('wrong');
+    }
+  });
+  it('still forgives real typos', () => {
+    expect(v('restaraunt', 'restaurant')).toBe('right');
+    expect(v('beautifull', 'beautiful')).toBe('right');
+    expect(v('ice cream', 'icecream')).toBe('right');
+  });
+  it('an added wrong word or a lone short word is not close', () => {
+    expect(v('left side', 'right side')).toBe('wrong');
+    expect(v('go home', 'to go to work')).toBe('wrong');
+    expect(v('me', 'excuse me')).toBe('wrong');
+    expect(v('that year', 'this year')).toBe('wrong');
+  });
+  it('accepts digits for small numbers', () => {
+    expect(v('10', 'ten')).toBe('right');
+  });
+});
+
+describe('gradeSentence negation', () => {
+  it('a negated answer is wrong', () => {
+    expect(sentence('I am not a student', 'I am a student.')).toBe('wrong');
+    expect(sentence("I don't like tea", 'I like tea.')).toBe('wrong');
+    expect(sentence('I like tea', "I don't like tea.")).toBe('wrong');
+    expect(sentence("I don't like tea", 'I do not like tea.')).toBe('right');
+  });
+});
+
+describe('english word list', () => {
+  it('is up to date (run npx tsx scripts/build-english-words.ts)', async () => {
+    const { englishWordList } = await import('./english-words-source');
+    const file = (await import('./generated/english-words.json')).default;
+    expect(file).toEqual(englishWordList());
+  });
+});

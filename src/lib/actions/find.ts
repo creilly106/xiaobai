@@ -1,11 +1,13 @@
 'use server';
 
+import { requireSession } from '@/lib/require-session';
 import { lookupEntries } from '@/lib/queries/dictionary';
 
 export type CharInfo = { hanzi: string; pinyin: string; meaning: string; hskLevel: number | null };
 
 /** Pinyin and meaning for "Find a character" results. */
 export async function describeChars(chars: string[]): Promise<CharInfo[]> {
+  await requireSession();
   const wanted = (Array.isArray(chars) ? chars : [])
     .filter((c) => typeof c === 'string' && Array.from(c).length === 1)
     .slice(0, 100);

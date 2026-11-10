@@ -78,6 +78,9 @@ export async function createBackup(): Promise<Backup> {
   };
 }
 
+/** A backup without these isn't a real one (or is from an empty database). */
+const CORE_TABLES = ['words', 'settings'];
+
 /** Throws with a readable message if `data` isn't a backup this app can restore. */
 export function assertBackup(data: unknown): asserts data is Backup {
   const b = data as Partial<Backup> | null;
@@ -92,6 +95,13 @@ export function assertBackup(data: unknown): asserts data is Backup {
     if (!/^[a-z_]+$/.test(name) || !Array.isArray(rows)) {
       throw new Error(`The backup's "${name}" table is malformed.`);
     }
+    if (rows.some((r) => !r || typeof r !== 'object' || Array.isArray(r))) {
+      throw new Error(`The backup's "${name}" table has a malformed row.`);
+    }
+  }
+  const missing = CORE_TABLES.filter((t) => !(b.tables as Record<string, unknown[]>)[t]?.length);
+  if (missing.length) {
+    throw new Error(`This backup has no ${missing.join(' or ')} — it won't be restored.`);
   }
 }
 
@@ -102,7 +112,9 @@ export function assertBackup(data: unknown): asserts data is Backup {
  * defaults).
  */
 export async function restoreBackup(backup: Backup): Promise<{ rows: number }> {
-  const tables = await tableNames();
+  // Tables the backup doesn't have at all (it's older than them) keep what's
+  // there: an old backup mustn't silently empty, say, your Learn path.
+  const tables = (await tableNames()).filter((t) => t in backup.tables);
   const statements: InStatement[] = [];
   for (const table of [...tables].reverse()) statements.push(`DELETE FROM "${table}"`);
 

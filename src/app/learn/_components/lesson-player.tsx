@@ -20,7 +20,7 @@ import {
 } from '@/lib/path/lesson-builder';
 import type { LessonSession } from '@/lib/queries/path';
 import { primeVoices, stopSpeaking } from '@/lib/tts';
-import { addPending, removePending } from '@/lib/pending-progress';
+import { addPending, markSending, removePending } from '@/lib/pending-progress';
 import { connectionState, notifyPending } from '@/components/app-updates';
 import { CHECKPOINT_PASS_MARK } from '@/lib/path/lesson-states';
 import { isTypingLocked } from '@/lib/typing-lock';
@@ -106,6 +106,7 @@ export function LessonPlayer({
     // Kept on the device until the server confirms, so it can't be lost.
     const pending = { kind: session.kind, id: session.id, results, score, at: Date.now() };
     addPending(pending);
+    markSending(pending.kind, pending.id, true);
     startSaving(async () => {
       try {
         const passed =
@@ -137,6 +138,8 @@ export function LessonPlayer({
               : "Couldn't save just now — it's kept on this device and will be sent shortly.",
           );
         }
+      } finally {
+        markSending(pending.kind, pending.id, false);
       }
     });
   }, [firstTry, session]);

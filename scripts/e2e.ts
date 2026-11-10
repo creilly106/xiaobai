@@ -96,8 +96,13 @@ const tests: Test[] = [
           await wait(350);
           continue;
         }
-        const step = await page.locator('[data-step]').getAttribute('data-step');
-        await answer(page, step ?? '');
+        // While the result is saving there's no question (the step area is
+        // about to be replaced by "Lesson complete"): wait and look again.
+        const step = await page
+          .locator('[data-step]')
+          .getAttribute('data-step', { timeout: 3000 })
+          .catch(() => null);
+        if (step) await answer(page, step);
         await wait(350);
         assert(i < 199, 'never reached "Lesson complete"');
       }

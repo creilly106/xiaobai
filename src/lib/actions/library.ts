@@ -1,5 +1,6 @@
 'use server';
 
+import { requireSession } from '@/lib/require-session';
 import { and, eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { db, schema } from '@/db/client';
@@ -30,6 +31,7 @@ async function ensureRecognitionCard(wordId: number): Promise<boolean> {
 export async function addToStudy(
   target: { dictionaryId: number } | { wordId: number },
 ): Promise<AddResult> {
+  await requireSession();
   let wordId: number;
   let hanzi: string;
 
@@ -88,6 +90,7 @@ export async function addToStudy(
  * review history. HSK words can't be removed, only suspended.
  */
 export async function removeMyWord(wordId: number): Promise<{ ok: boolean; message: string }> {
+  await requireSession();
   if (!Number.isInteger(wordId)) return { ok: false, message: 'Unknown word.' };
   const [word] = await db
     .select({ hanzi: schema.words.hanzi, source: schema.words.source })

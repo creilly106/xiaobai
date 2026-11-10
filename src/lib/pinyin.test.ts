@@ -6,6 +6,7 @@ import {
   spokenTones,
   syllableTone,
   toneless,
+  syllablesFromPinyin,
   withSpokenAlternatives,
   type Syllable,
 } from './pinyin';
@@ -96,9 +97,21 @@ describe('withSpokenAlternatives', () => {
     ).toBe('correct');
   });
   it('lets 一 and 不 take their context tones', () => {
-    const [yi] = withSpokenAlternatives(['一'], [{ letters: 'yi', tone: 1 }]);
+    const [yi] = withSpokenAlternatives(
+      ['一', '起'],
+      [
+        { letters: 'yi', tone: 1 },
+        { letters: 'qi', tone: 3 },
+      ],
+    );
     expect(yi.alt?.sort()).toEqual([2, 4]);
-    const [bu] = withSpokenAlternatives(['不'], [{ letters: 'bu', tone: 4 }]);
+    const [bu] = withSpokenAlternatives(
+      ['不', '错'],
+      [
+        { letters: 'bu', tone: 4 },
+        { letters: 'cuo', tone: 4 },
+      ],
+    );
     expect(bu.alt).toEqual([2]);
   });
 });
@@ -128,5 +141,14 @@ describe('gradePinyin', () => {
       { letters: 'shi', tone: 4 },
     ];
     expect(gradePinyin([s('bu', 2), s('shi', 4)], bushi)).toBe('correct');
+  });
+});
+
+describe('一 and 不 alone', () => {
+  it('keep their own tone outside a word', () => {
+    const [yi] = withSpokenAlternatives(['一'], syllablesFromPinyin(['yī']));
+    expect(yi.alt).toBeUndefined();
+    const [, bu] = withSpokenAlternatives(['对', '不'], syllablesFromPinyin(['duì', 'bù']));
+    expect(bu.alt).toContain(2);
   });
 });

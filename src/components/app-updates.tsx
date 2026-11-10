@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { replayCompletion } from '@/lib/actions/path';
 import { replayRating } from '@/lib/actions/study';
 import {
+  isSending,
   pendingCount,
   readPending,
   readPendingRatings,
@@ -54,10 +55,36 @@ export async function reloadIfOutdated(): Promise<boolean> {
   return true;
 }
 
-/** Pages where a reload would throw away work in progress. */
-const BUSY = /^\/(learn\/.+|study|quiz\/.+|read\/.+|tones|numbers|level\/(check|exam))/;
+/**
+ * Pages with nothing to lose, which may reload onto a new version when you
+ * come back to the app. Everywhere else (a lesson, reviews, a quiz, a
+ * dialogue, text pasted into Break it down, a half-filled form) waits until
+ * you navigate.
+ */
+const SAFE =
+  /^\/(learn|stats|grammar(\/[^/]+)?|radicals|characters\/[^/]+|level|problem-words|read|scenarios|quiz)?\/?$/;
+const safeToReload = () => SAFE.test(window.location.pathname);
+
+/** A send that hasn't answered by now is treated as failed (the page may have been asleep). */
+const SEND_LIMIT_MS = 30_000;
+
+function withLimit<T>(work: Promise<T>): Promise<T> {
+  return Promise.race([
+    work,
+    new Promise<T>((_, reject) => setTimeout(() => reject(new Error('timeout')), SEND_LIMIT_MS)),
+  ]);
+}
 
 let flushing = false;
+
+/**
+ * Sends fail for good on a page from an older version (its server calls no
+ * longer exist). Reload onto the new one if nothing would be lost; the fresh
+ * page sends what's waiting.
+ */
+async function reloadIfStale() {
+  if (safeToReload() && (await isAppOutdated())) window.location.reload();
+}
 
 /** Send everything saved on this device, oldest first. Returns how many went. */
 async function flushPending(): Promise<{ ratings: number; lessons: number }> {
@@ -84,17 +111,21 @@ async function send(): Promise<{ ratings: number; lessons: number }> {
     // a failure (offline, server trouble) stops here to retry later.
     for (const r of readPendingRatings()) {
       try {
-        await replayRating(r.cardId, r.rating, r.elapsedMs, r.at);
+        await withLimit(replayRating(r.cardId, r.rating, r.elapsedMs, r.at));
       } catch {
+        await reloadIfStale();
         break;
       }
       removePendingRating(r);
       ratings++;
     }
     for (const item of readPending()) {
+      // Its lesson page is saving it right now: sending it too would count it twice.
+      if (isSending(item.kind, item.id)) continue;
       try {
-        await replayCompletion(item.kind, item.id, item.results, item.score, item.at);
+        await withLimit(replayCompletion(item.kind, item.id, item.results, item.score, item.at));
       } catch {
+        await reloadIfStale();
         break;
       }
       removePending(item.kind, item.id);
@@ -165,7 +196,7 @@ export function AppUpdates() {
 
   useEffect(() => {
     async function check() {
-      if (document.visibilityState !== 'visible' || BUSY.test(pathname)) return;
+      if (document.visibilityState !== 'visible' || !safeToReload()) return;
       if (await isAppOutdated()) window.location.reload();
     }
     document.addEventListener('visibilitychange', check);

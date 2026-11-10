@@ -229,8 +229,19 @@ export function buildLesson(input: BuildInput): LessonStep[] {
   const shuffled = shuffle(practice, rand);
 
   if (words.length >= 3) {
-    const picked = shuffle(words, rand).slice(0, 5);
-    steps.push({ kind: 'match', words: picked, order: shuffle([...picked.keys()], rand) });
+    // Two cards saying the same thing ("careless" for 粗心 and 马虎) would
+    // make a right pairing count as a miss.
+    const meanings = new Set<string>();
+    const picked = shuffle(words, rand)
+      .filter((w) => {
+        const m = normalise(w.meaning);
+        if (meanings.has(m)) return false;
+        meanings.add(m);
+        return true;
+      })
+      .slice(0, 5);
+    if (picked.length >= 3)
+      steps.push({ kind: 'match', words: picked, order: shuffle([...picked.keys()], rand) });
   }
   steps.push(...shuffled);
 

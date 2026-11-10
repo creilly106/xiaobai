@@ -2,6 +2,7 @@ import 'server-only';
 import { cache } from 'react';
 import { getDictionary } from '@/lib/queries/dictionary';
 import { getCharDatum } from '@/lib/ids-data';
+import { splitPinyinWord } from '@/lib/pinyin-split';
 import {
   splitWordPinyin,
   spokenTones,
@@ -61,6 +62,22 @@ function readingsOf(char: string, dictPinyin?: string): string[] {
 }
 
 /**
+ * Split pinyin into syllables by sound alone, for words with a character we
+ * have no readings for (包括, 精彩…). Only trusted when there's exactly one
+ * syllable per character.
+ */
+function bySyllables(pinyin: string, count: number): string[] | null {
+  const parts = pinyin
+    .trim()
+    .split(/[\s'’]+/)
+    .flatMap((w) => splitPinyinWord(w.toLowerCase()) ?? [w]);
+  return parts.length === count &&
+    parts.every((p) => splitPinyinWord(p.toLowerCase())?.length === 1)
+    ? parts
+    : null;
+}
+
+/**
  * Expected syllables for typing a word's pinyin, or null if the pinyin can't
  * be matched to its characters. 一 and 不 accept their context tones too.
  */
@@ -73,10 +90,10 @@ export function wordSyllables(
   const parts =
     chars.length === 1
       ? [pinyin.trim()]
-      : splitWordPinyin(
+      : (splitWordPinyin(
           pinyin,
           chars.map((c) => readingsOf(c, dict[c]?.pinyin)),
-        );
+        ) ?? bySyllables(pinyin, chars.length));
   if (!parts || parts.length !== chars.length) return null;
   return withSpokenAlternatives(chars, syllablesFromPinyin(parts));
 }

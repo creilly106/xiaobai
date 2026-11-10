@@ -1,5 +1,6 @@
 'use server';
 
+import { requireSession } from '@/lib/require-session';
 import { revalidatePath } from 'next/cache';
 import { and, eq, inArray, sql } from 'drizzle-orm';
 import { db, schema } from '@/db/client';
@@ -76,6 +77,7 @@ export async function completeLesson(
   /** When it was finished, if earlier (done offline, sent later). Epoch ms. */
   at?: number,
 ) {
+  await requireSession();
   const lesson = lessonById(lessonId);
   if (!lesson) throw new Error('Unknown lesson.');
   const when = finishedAt(at);
@@ -116,6 +118,7 @@ export async function completeCheckpoint(
   score: number,
   at?: number,
 ): Promise<{ passed: boolean }> {
+  await requireSession();
   const unit = unitById(unitId);
   if (!unit) throw new Error('Unknown unit.');
   const when = finishedAt(at);
@@ -155,6 +158,7 @@ export async function replayCompletion(
   score: number,
   at: number,
 ): Promise<'saved' | 'skipped'> {
+  await requireSession();
   if (kind === 'lesson') {
     if (!lessonById(id)) return 'skipped';
     await completeLesson(id, results, score, at);

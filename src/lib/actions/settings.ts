@@ -1,5 +1,6 @@
 'use server';
 
+import { requireSession } from '@/lib/require-session';
 import { eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { db, schema } from '@/db/client';
@@ -33,6 +34,7 @@ export async function updateSettings(patch: {
   dailyGoal?: number;
   newWordsFrom?: NewWordsFrom;
 }) {
+  await requireSession();
   const clean = {
     dailyNewLimit: clampInt(patch.dailyNewLimit, SETTINGS_LIMITS.dailyNewLimit),
     dailyReviewLimit: clampInt(patch.dailyReviewLimit, SETTINGS_LIMITS.dailyReviewLimit),

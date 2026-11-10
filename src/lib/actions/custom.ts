@@ -1,5 +1,6 @@
 'use server';
 
+import { requireSession } from '@/lib/require-session';
 import { and, eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { db, schema } from '@/db/client';
@@ -42,6 +43,7 @@ function clean(item: CustomItem): CustomItem | string {
 export async function suggestFor(
   hanzi: string,
 ): Promise<{ pinyin: string; meaning: string } | null> {
+  await requireSession();
   const h = String(hanzi ?? '').trim();
   if (!h || !isCjk(h) || Array.from(h).length > 12) return null;
   const entry = await lookupExact(h);
@@ -50,6 +52,7 @@ export async function suggestFor(
 
 /** Add your own word or sentence and put it into study. */
 export async function addCustomItem(input: CustomItem): Promise<Result> {
+  await requireSession();
   const item = clean(input);
   if (typeof item === 'string') return { ok: false, message: item };
 
@@ -135,6 +138,7 @@ export async function addCustomItem(input: CustomItem): Promise<Result> {
 
 /** Remove one of your own sentences (and its cards and review history). */
 export async function removeMySentence(sentenceId: number): Promise<Result> {
+  await requireSession();
   if (!Number.isInteger(sentenceId)) return { ok: false, message: 'Unknown sentence.' };
   const [tagged] = await db
     .select({ id: schema.sentences.id })
@@ -155,6 +159,7 @@ export async function saveNote(
   target: { wordId: number } | { sentenceId: number },
   note: string,
 ): Promise<Result> {
+  await requireSession();
   const text =
     String(note ?? '')
       .trim()

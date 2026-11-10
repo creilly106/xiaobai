@@ -42,7 +42,17 @@ export function RemindersPanel() {
         return;
       }
       const reg = await currentRegistration();
-      setState((await reg.pushManager.getSubscription()) ? 'on' : 'off');
+      const sub = await reg.pushManager.getSubscription();
+      setState(sub ? 'on' : 'off');
+      // Make sure the server still has it: a save that failed, or a
+      // subscription the server dropped, would otherwise show "on" here while
+      // no reminders ever arrive.
+      if (sub) {
+        void savePushSubscription(
+          sub.toJSON(),
+          Intl.DateTimeFormat().resolvedOptions().timeZone,
+        ).catch(() => {});
+      }
     })().catch(() => setState('unsupported'));
   }, []);
 
@@ -71,23 +81,31 @@ export function RemindersPanel() {
 
   function turnOff() {
     startTransition(async () => {
-      const reg = await currentRegistration();
-      const sub = await reg.pushManager.getSubscription();
-      if (sub) {
-        await removePushSubscription(sub.endpoint);
-        await sub.unsubscribe();
+      try {
+        const reg = await currentRegistration();
+        const sub = await reg.pushManager.getSubscription();
+        if (sub) {
+          await removePushSubscription(sub.endpoint);
+          await sub.unsubscribe();
+        }
+        setState('off');
+      } catch {
+        toast.error('Couldn’t turn off reminders — check your connection and try again.');
       }
-      setState('off');
     });
   }
 
   function test() {
     startTransition(async () => {
-      const result = await sendTestReminder();
-      if ('error' in result && result.error)
-        toast.error(`Not set up on the server yet: ${result.error}.`);
-      else if (result.sent > 0) toast.success('Sent — it should arrive in a few seconds.');
-      else toast.info('No reminder was sent.');
+      try {
+        const result = await sendTestReminder();
+        if ('error' in result && result.error)
+          toast.error(`Not set up on the server yet: ${result.error}.`);
+        else if (result.sent > 0) toast.success('Sent — it should arrive in a few seconds.');
+        else toast.info('No reminder was sent.');
+      } catch {
+        toast.error('Couldn’t send a test reminder — check your connection.');
+      }
     });
   }
 

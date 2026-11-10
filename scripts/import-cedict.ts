@@ -65,9 +65,16 @@ async function main() {
 
   const client = createClient(dbCredentials());
   if (process.argv.includes('--if-empty')) {
-    // Refresh the English search index (created by migration 0011).
+    // Fill the English search index (created by migration 0011) if it's
+    // empty. Rebuilding it on every deploy rewrote ~125k rows each time.
     try {
-      await client.execute("INSERT INTO dictionary_fts(dictionary_fts) VALUES('rebuild')");
+      const probe = await client.execute(
+        "SELECT rowid FROM dictionary_fts WHERE dictionary_fts MATCH 'water' LIMIT 1",
+      );
+      if (probe.rows.length === 0) {
+        await client.execute("INSERT INTO dictionary_fts(dictionary_fts) VALUES('rebuild')");
+        console.log('Rebuilt the dictionary search index.');
+      }
     } catch {
       console.warn('No dictionary_fts index yet — run npm run db:migrate.');
     }
